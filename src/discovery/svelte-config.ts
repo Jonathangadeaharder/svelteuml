@@ -15,7 +15,7 @@ export async function loadSvelteConfig(projectRoot: string): Promise<SvelteConfi
 		const configPath = join(absoluteRoot, candidate);
 		try {
 			const content = await readFile(configPath, "utf-8");
-			const aliases = await extractAliases(content, absoluteRoot);
+			const aliases = extractAliases(content, absoluteRoot);
 			return { aliases: { ...DEFAULT_ALIASES, ...aliases }, found: true, configPath };
 		} catch {
 			continue;
@@ -25,19 +25,90 @@ export async function loadSvelteConfig(projectRoot: string): Promise<SvelteConfi
 	return { aliases: { ...DEFAULT_ALIASES }, found: false };
 }
 
-async function extractAliases(content: string, projectRoot: string): Promise<AliasMap> {
-	const aliases: AliasMap = {};
+/**
+ * Extract a balanced-brace block starting at `fromIndex`.
+ * Counts opening/closing braces and stops when depth reaches 0.
+ * Returns the slice of content inside the outermost braces (not including them),
+ * or null if no balanced block is found.
+ */
+function extractBalancedBlock(content: string, fromIndex: number): string | null {
+	if (fromIndex === -1) return null;
+	const openBrace = content.indexOf("{", fromIndex);
+	if (openBrace === -1) return null;
 
-	const viteAliasMatch = content.match(
-		/vite\s*:\s*\{[^}]*resolve\s*:\s*\{[^}]*alias\s*:\s*(\{[^}]*\})/s,
-	);
-	if (viteAliasMatch?.[1]) {
-		Object.assign(aliases, parseAliasObject(viteAliasMatch[1], projectRoot));
+	let depth = 0;
+	let inString: string | null = null;
+	let i = openBrace;
+
+	while (i < content.length) {
+		const ch = content[i];
+
+		// Handle string literals (skip their contents for brace counting)
+		if (inString) {
+			if (ch === "\\" && i + 1 < content.length) {
+				i += 2; // skip escaped char
+				continue;
+			}
+			if (ch === inString) inString = null;
+			i++;
+			continue;
+		}
+
+		if (ch === '"' || ch === "'" || ch === "`") {
+			inString = ch;
+			i++;
+			continue;
+		}
+
+		if (ch === "{") {
+			depth++;
+		} else if (ch === "}") {
+			depth--;
+			if (depth === 0) {
+				return content.slice(openBrace + 1, i);
+			}
+		}
+		i++;
 	}
 
-	const kitAliasMatch = content.match(/kit\s*:\s*\{[^}]*alias\s*:\s*(\{[^}]*\})/s);
-	if (kitAliasMatch?.[1]) {
-		Object.assign(aliases, parseAliasObject(kitAliasMatch[1], projectRoot));
+	return null; // unbalanced
+}
+
+function extractAliases(content: string, projectRoot: string): AliasMap {
+	const aliases: AliasMap = {};
+
+	const viteIndex = content.indexOf("vite");
+	if (viteIndex !== -1) {
+		const viteBlock = extractBalancedBlock(content, viteIndex);
+		if (viteBlock) {
+			const resolveIndex = viteBlock.indexOf("resolve");
+			if (resolveIndex !== -1) {
+				const resolveBlock = extractBalancedBlock(viteBlock, resolveIndex);
+				if (resolveBlock) {
+					const aliasIndex = resolveBlock.indexOf("alias");
+					if (aliasIndex !== -1) {
+						const aliasBlock = extractBalancedBlock(resolveBlock, aliasIndex);
+						if (aliasBlock) {
+							Object.assign(aliases, parseAliasObject(aliasBlock, projectRoot));
+						}
+					}
+				}
+			}
+		}
+	}
+
+	const kitIndex = content.indexOf("kit");
+	if (kitIndex !== -1) {
+		const kitBlock = extractBalancedBlock(content, kitIndex);
+		if (kitBlock) {
+			const aliasIndex = kitBlock.indexOf("alias");
+			if (aliasIndex !== -1) {
+				const aliasBlock = extractBalancedBlock(kitBlock, aliasIndex);
+				if (aliasBlock) {
+					Object.assign(aliases, parseAliasObject(aliasBlock, projectRoot));
+				}
+			}
+		}
 	}
 
 	return aliases;
@@ -45,7 +116,7 @@ async function extractAliases(content: string, projectRoot: string): Promise<Ali
 
 function parseAliasObject(raw: string, projectRoot: string): AliasMap {
 	const aliases: AliasMap = {};
-	const pattern = /['"]?(\$[\w$]+)['"]?\s*:\s*['"]([^'"]+)['"]/g;
+	const pattern = /['"]?([\w$]+)['"]?\s*:\s*['"]([^'"]+)['"]/g;
 	let match: RegExpExecArray | null;
 	while ((match = pattern.exec(raw)) !== null) {
 		const [, alias, path] = match;
