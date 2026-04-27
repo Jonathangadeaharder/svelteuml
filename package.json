@@ -1,0 +1,44 @@
+{
+  "name": "svelteuml",
+  "version": "0.1.0",
+  "description": "Architecture and Dependency Visualization for SvelteKit: TypeScript-Native PlantUML Generator",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "svelteuml": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "pnpm dlx @biomejs/biome check src/",
+    "format": "pnpm dlx @biomejs/biome format --write src/",
+    "typecheck": "pnpm exec tsc --noEmit"
+  },
+  "keywords": [
+    "svelte",
+    "sveltekit",
+    "plantuml",
+    "uml",
+    "visualization",
+    "dependency-graph",
+    "static-analysis"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.0",
+    "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "^3.0.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.0.0"
+  },
+  "dependencies": {
+    "fast-glob": "^3.3.0",
+    "zod": "^3.24.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
