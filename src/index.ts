@@ -1,15 +1,43 @@
-export { loadSvelteConfig, loadTsConfig, discoverFiles, type DiscoveryOptions } from "./discovery/index.js";
 export {
-	validateConfig,
-	safeValidateConfig,
 	getDefaultConfig,
 	mergeConfigs,
 	type SvelteUMLConfigInput,
+	safeValidateConfig,
+	validateConfig,
 } from "./config/index.js";
+export {
+	type DiscoveryOptions,
+	discoverFiles,
+	loadSvelteConfig,
+	loadTsConfig,
+} from "./discovery/index.js";
+export type {
+	ClassSymbol,
+	ExportSymbol,
+	FunctionSymbol,
+	MemberSymbol,
+	ParameterSymbol,
+	PropSymbol,
+	StoreSymbol,
+	SymbolInfo,
+	SymbolTable,
+	Visibility,
+} from "./types/ast.js";
 export type {
 	AliasMap,
 	DiscoveredFiles,
 	SvelteConfigResult,
-	TsConfigResult,
 	SvelteUMLConfig,
-} from "./types/index.js";
+	TsConfigResult,
+} from "./types/config.js";
+export type { DiagramKind, DiagramOptions } from "./types/diagram.js";
+export { DEFAULT_DIAGRAM_OPTIONS } from "./types/diagram.js";
+export type { Edge, EdgeSet, EdgeType } from "./types/edge.js";
+export { createEdgeSet } from "./types/edge.js";
+export type {
+	EmissionResult,
+	ExtractionResult,
+	ParseError,
+	ParseResult,
+	PipelineResult,
+} from "./types/pipeline.js";
