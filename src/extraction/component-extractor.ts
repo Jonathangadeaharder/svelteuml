@@ -45,9 +45,7 @@ export function extractComponentProps(
 	for (const varDecl of sourceFile.getVariableDeclarations()) {
 		const stmt = varDecl.getVariableStatement();
 		if (!stmt) continue;
-		const hasExport = stmt
-			.getModifiers()
-			?.some((m) => m.getKind() === SyntaxKind.ExportKeyword);
+		const hasExport = stmt.getModifiers()?.some((m) => m.getKind() === SyntaxKind.ExportKeyword);
 		if (!hasExport) continue;
 
 		const name = varDecl.getName();
@@ -63,7 +61,8 @@ export function extractComponentProps(
 
 		const typeNode = varDecl.getTypeNode();
 		const rawType = typeNode?.getText() ?? inferTypeFromInitializer(initializer?.getText());
-		const isRequired = !typeNode?.getText().includes("undefined") &&
+		const isRequired =
+			!typeNode?.getText().includes("undefined") &&
 			initializer === undefined &&
 			!rawType.endsWith(" | undefined");
 
@@ -151,7 +150,8 @@ function inferTypeFromInitializer(initText: string | undefined): string {
 	if (initText === undefined) return "unknown";
 	if (initText === "true" || initText === "false") return "boolean";
 	if (!Number.isNaN(Number(initText))) return "number";
-	if (initText.startsWith('"') || initText.startsWith("'") || initText.startsWith("`")) return "string";
+	if (initText.startsWith('"') || initText.startsWith("'") || initText.startsWith("`"))
+		return "string";
 	return "unknown";
 }
 
@@ -163,9 +163,7 @@ function inferTypeFromInitializer(initText: string | undefined): string {
 function extractPropTypeFromObjectType(typeText: string, propName: string): string {
 	// Simple regex-based extraction — good enough for common patterns
 	// Matches:  propName?: SomeType;  or  propName: SomeType;
-	const re = new RegExp(
-		`\\b${escapeRegex(propName)}\\??\\s*:\\s*([^;},]+)`,
-	);
+	const re = new RegExp(`\\b${escapeRegex(propName)}\\??\\s*:\\s*([^;},]+)`);
 	const match = re.exec(typeText);
 	if (match?.[1]) {
 		return match[1].trim();

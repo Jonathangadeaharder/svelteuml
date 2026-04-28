@@ -59,9 +59,7 @@ export class ConversionCache {
 		return computeContentHash(content);
 	}
 
-	static async computeHash(
-		filePath: string,
-	): Promise<{ hash: string; mtimeMs: number }> {
+	static async computeHash(filePath: string): Promise<{ hash: string; mtimeMs: number }> {
 		try {
 			const content = await readFile(filePath, "utf-8");
 			const stats = await stat(filePath);

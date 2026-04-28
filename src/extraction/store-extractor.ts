@@ -41,10 +41,7 @@ function extractValueType(callText: string): string {
 /**
  * Extract all exported store symbols from a TS/JS source file.
  */
-export function extractStoreSymbols(
-	sourceFile: SourceFile,
-	filePath: string,
-): StoreSymbol[] {
+export function extractStoreSymbols(sourceFile: SourceFile, filePath: string): StoreSymbol[] {
 	if (shouldSkipFile(filePath)) return [];
 
 	const results: StoreSymbol[] = [];

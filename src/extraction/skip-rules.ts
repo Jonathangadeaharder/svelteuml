@@ -8,10 +8,7 @@ import { basename } from "node:path";
  */
 
 /** Patterns that mark a file as auto-generated or noise. */
-const GENERATED_BASENAME_PATTERNS: RegExp[] = [
-	/^__types__\.d\.ts$/,
-	/\.d\.ts$/,
-];
+const GENERATED_BASENAME_PATTERNS: RegExp[] = [/^__types__\.d\.ts$/, /\.d\.ts$/];
 
 /** Fragments that must NOT appear anywhere in the absolute path. */
 const SKIP_PATH_FRAGMENTS: string[] = [

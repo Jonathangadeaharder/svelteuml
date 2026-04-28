@@ -58,9 +58,7 @@ export function isRouteFile(filePath: string): boolean {
  * Classify a route file path.
  * Returns `null` if the file is not a recognised route file.
  */
-export function classifyRouteFile(
-	filePath: string,
-): { kind: RouteKind; isServer: boolean } | null {
+export function classifyRouteFile(filePath: string): { kind: RouteKind; isServer: boolean } | null {
 	const name = basename(filePath);
 	for (const { pattern, kind, isServer } of ROUTE_PATTERNS) {
 		if (pattern.test(name)) {
@@ -89,20 +87,28 @@ export function routeSegmentFromPath(filePath: string): string {
  * Extract exported function symbols from a route TS/JS source file.
  * Recognises: `load`, `actions`, HTTP verbs (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`).
  */
-export function extractRouteExports(
-	sourceFile: SourceFile,
-	filePath: string,
-): FunctionSymbol[] {
+export function extractRouteExports(sourceFile: SourceFile, filePath: string): FunctionSymbol[] {
 	if (shouldSkipFile(filePath)) return [];
 
-	const KNOWN_EXPORTS = new Set(["load", "actions", "GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "fallback"]);
+	const KNOWN_EXPORTS = new Set([
+		"load",
+		"actions",
+		"GET",
+		"POST",
+		"PUT",
+		"PATCH",
+		"DELETE",
+		"HEAD",
+		"OPTIONS",
+		"fallback",
+	]);
 	const results: FunctionSymbol[] = [];
 
 	// Named function declarations: `export async function load(...)
 	for (const fn of sourceFile.getFunctions()) {
 		if (!fn.isExported()) continue;
 		const name = fn.getName();
-		if (!name || !KNOWN_EXPORTS.has(name)) continue;
+		if (!(name && KNOWN_EXPORTS.has(name))) continue;
 
 		results.push({
 			kind: "function",

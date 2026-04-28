@@ -1,5 +1,11 @@
 import type { SourceFile } from "ts-morph";
-import type { ClassSymbol, FunctionSymbol, MemberSymbol, ParameterSymbol, Visibility } from "../types/ast.js";
+import type {
+	ClassSymbol,
+	FunctionSymbol,
+	MemberSymbol,
+	ParameterSymbol,
+	Visibility,
+} from "../types/ast.js";
 import { shouldSkipFile } from "./skip-rules.js";
 
 /**
@@ -29,10 +35,7 @@ function mapVisibility(scope: string | undefined): Visibility {
 /**
  * Extract exported functions from a non-route TS/JS source file.
  */
-export function extractLibFunctions(
-	sourceFile: SourceFile,
-	filePath: string,
-): FunctionSymbol[] {
+export function extractLibFunctions(sourceFile: SourceFile, filePath: string): FunctionSymbol[] {
 	if (shouldSkipFile(filePath) || isRouteLike(filePath)) return [];
 
 	const results: FunctionSymbol[] = [];
@@ -94,10 +97,7 @@ export function extractLibFunctions(
 /**
  * Extract exported classes from a non-route TS/JS source file.
  */
-export function extractLibClasses(
-	sourceFile: SourceFile,
-	filePath: string,
-): ClassSymbol[] {
+export function extractLibClasses(sourceFile: SourceFile, filePath: string): ClassSymbol[] {
 	if (shouldSkipFile(filePath) || isRouteLike(filePath)) return [];
 
 	const results: ClassSymbol[] = [];

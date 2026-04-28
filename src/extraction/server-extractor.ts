@@ -14,11 +14,7 @@ import { shouldSkipFile } from "./skip-rules.js";
  * Works on the ts-morph SourceFile for a `.ts` / `.js` file.
  */
 
-export type ServerExportKind =
-	| "load"
-	| "action"
-	| "http-handler"
-	| "other";
+export type ServerExportKind = "load" | "action" | "http-handler" | "other";
 
 export interface ServerExportSymbol extends FunctionSymbol {
 	/** More specific server-export classification. */
@@ -26,7 +22,16 @@ export interface ServerExportSymbol extends FunctionSymbol {
 }
 
 /** HTTP verbs recognised in +server.ts files. */
-export const HTTP_VERBS = new Set(["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "fallback"]);
+export const HTTP_VERBS = new Set([
+	"GET",
+	"POST",
+	"PUT",
+	"PATCH",
+	"DELETE",
+	"HEAD",
+	"OPTIONS",
+	"fallback",
+]);
 
 function classifyServerExport(name: string): ServerExportKind {
 	if (name === "load") return "load";
@@ -84,12 +89,11 @@ export function extractServerExports(
 
 		const initKind = init.getKind();
 		const isFunction =
-			initKind === SyntaxKind.ArrowFunction ||
-			initKind === SyntaxKind.FunctionExpression;
+			initKind === SyntaxKind.ArrowFunction || initKind === SyntaxKind.FunctionExpression;
 		const isObject = initKind === SyntaxKind.ObjectLiteralExpression;
 
 		// For the `actions` export, the value is an object literal — still emit it
-		if (!isFunction && !(name === "actions" && isObject)) {
+		if (!(isFunction || (name === "actions" && isObject))) {
 			continue;
 		}
 

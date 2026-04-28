@@ -1,11 +1,18 @@
 import type { ParsingProject } from "../parsing/ts-morph-project.js";
-import type { ClassSymbol, ExportSymbol, FunctionSymbol, PropSymbol, StoreSymbol, SymbolTable } from "../types/ast.js";
-import { extractComponentProps, componentNameFromPath } from "./component-extractor.js";
+import type {
+	ClassSymbol,
+	ExportSymbol,
+	FunctionSymbol,
+	PropSymbol,
+	StoreSymbol,
+	SymbolTable,
+} from "../types/ast.js";
+import { componentNameFromPath, extractComponentProps } from "./component-extractor.js";
 import { extractLibClasses, extractLibFunctions } from "./lib-extractor.js";
 import { classifyRouteFile, extractRouteExports } from "./route-extractor.js";
 import { extractServerExports } from "./server-extractor.js";
-import { extractStoreSymbols } from "./store-extractor.js";
 import { shouldSkipFile } from "./skip-rules.js";
+import { extractStoreSymbols } from "./store-extractor.js";
 
 /**
  * E2 — Symbol Extraction orchestrator.
@@ -50,9 +57,7 @@ export class SymbolExtractor {
 
 			if (isSvelte) {
 				// E2.1 — component props
-				const componentName = componentNameFromPath(
-					originalPath.replace(/\.tsx$/, ""),
-				);
+				const componentName = componentNameFromPath(originalPath.replace(/\.tsx$/, ""));
 				const componentProps = extractComponentProps(
 					sourceFile,
 					componentName,
