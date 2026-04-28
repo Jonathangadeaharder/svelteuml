@@ -1,4 +1,5 @@
 import { basename, dirname } from "node:path";
+import { SyntaxKind } from "ts-morph";
 import type { SourceFile } from "ts-morph";
 import type { FunctionSymbol } from "../types/ast.js";
 import { shouldSkipFile } from "./skip-rules.js";
@@ -77,7 +78,8 @@ export function classifyRouteFile(filePath: string): { kind: RouteKind; isServer
  */
 export function routeSegmentFromPath(filePath: string): string {
 	const dir = dirname(filePath);
-	const match = /src\/routes(\/.*)?$/.exec(dir);
+	const normalizedDir = dir.replace(/\\/g, "/");
+	const match = /src\/routes(\/.*)?$/.exec(normalizedDir);
 	if (!match) return "/";
 	const segment = match[1] ?? "";
 	return segment === "" ? "/" : segment;
@@ -137,13 +139,21 @@ export function extractRouteExports(sourceFile: SourceFile, filePath: string): F
 		const init = varDecl.getInitializer();
 		if (!init) continue;
 
+		const initKind = init.getKind();
+		const isFunctionLike =
+			initKind === SyntaxKind.ArrowFunction ||
+			initKind === SyntaxKind.FunctionExpression;
+		const isActionsObject =
+			name === "actions" && initKind === SyntaxKind.ObjectLiteralExpression;
+		if (!isFunctionLike && !isActionsObject) continue;
+
 		results.push({
 			kind: "function",
 			name,
 			filePath,
 			isExported: true,
 			isAsync: init.getText().trimStart().startsWith("async"),
-			parameters: [], // Arrow fn parameter extraction is complex; left minimal
+			parameters: [],
 			returnType: "unknown",
 			typeParams: [],
 		});

@@ -1,3 +1,4 @@
+import { basename } from "node:path";
 import type { SourceFile } from "ts-morph";
 import type {
 	ClassSymbol,
@@ -8,20 +9,10 @@ import type {
 } from "../types/ast.js";
 import { shouldSkipFile } from "./skip-rules.js";
 
-/**
- * E2.5 — Lib helper symbols: functions, classes outside src/routes.
- *
- * Extracts top-level exported functions and classes from plain TS/JS files
- * (primarily `src/lib/**` but any non-route file qualifies).
- *
- * Route files are excluded — they are handled by the route/server extractors.
- */
-
 const ROUTE_BASENAME_PATTERN = /^\+/;
 
 function isRouteLike(filePath: string): boolean {
-	const parts = filePath.split("/");
-	const name = parts[parts.length - 1] ?? "";
+	const name = basename(filePath);
 	return ROUTE_BASENAME_PATTERN.test(name);
 }
 

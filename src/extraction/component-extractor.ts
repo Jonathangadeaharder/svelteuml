@@ -102,7 +102,8 @@ export function extractComponentProps(
 
 		// Parse individual binding elements from the destructure
 		for (const element of nameNode.asKindOrThrow(SyntaxKind.ObjectBindingPattern).getElements()) {
-			const propName = element.getName();
+			// Use source property name for aliased destructuring (e.g., { foo: bar })
+			const propName = element.getPropertyNameNode()?.getText() ?? element.getName();
 			// Skip rest elements
 			if (element.getDotDotDotToken()) continue;
 
