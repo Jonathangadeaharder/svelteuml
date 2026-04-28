@@ -11,6 +11,22 @@ export {
 	loadSvelteConfig,
 	loadTsConfig,
 } from "./discovery/index.js";
+export {
+	buildParsingProject,
+	type CacheEntry,
+	ConversionCache,
+	contentHash,
+	convertFiles,
+	convertPlainTsFile,
+	convertSvelteToTsx,
+	decodeVLQMappings,
+	isTypeScriptSvelte,
+	type MappedPosition,
+	ParsingProject,
+	SourceMapDecoder,
+	type SourcePosition,
+	type SvelteToTsxResult,
+} from "./parsing/index.js";
 export type {
 	ClassSymbol,
 	ExportSymbol,
