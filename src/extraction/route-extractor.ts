@@ -131,13 +131,6 @@ export function extractRouteExports(
 		const init = varDecl.getInitializer();
 		if (!init) continue;
 
-		const isArrow =
-			init.getKind() ===
-			// ts-morph exports SyntaxKind
-			(init.getKindName() === "ArrowFunction"
-				? init.getKind()
-				: -1);
-
 		results.push({
 			kind: "function",
 			name,
@@ -148,7 +141,6 @@ export function extractRouteExports(
 			returnType: "unknown",
 			typeParams: [],
 		});
-		void isArrow; // suppress unused variable
 	}
 
 	return results;

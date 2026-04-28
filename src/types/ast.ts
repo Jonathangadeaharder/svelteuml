@@ -6,7 +6,7 @@ export interface ClassSymbol {
 	kind: "class" | "interface" | "abstract-class";
 	name: string;
 	filePath: string;
-	extends?: string;
+	extends?: string | undefined;
 	implements: string[];
 	members: MemberSymbol[];
 	isGeneric: boolean;
@@ -31,7 +31,7 @@ export interface ParameterSymbol {
 	name: string;
 	type: string;
 	isOptional: boolean;
-	defaultValue?: string;
+	defaultValue?: string | undefined;
 }
 
 /** Represents a standalone function or exported function. */
@@ -42,7 +42,7 @@ export interface FunctionSymbol {
 	isExported: boolean;
 	isAsync: boolean;
 	parameters: ParameterSymbol[];
-	returnType?: string;
+	returnType?: string | undefined;
 	typeParams: string[];
 }
 
@@ -63,7 +63,7 @@ export interface PropSymbol {
 	componentName: string;
 	type: string;
 	isRequired: boolean;
-	defaultValue?: string;
+	defaultValue?: string | undefined;
 }
 
 /** Module-level export. */

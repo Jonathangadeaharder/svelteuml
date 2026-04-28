@@ -18,8 +18,6 @@ import { shouldSkipFile } from "./skip-rules.js";
  * implementation details irrelevant for the diagram).
  */
 
-const STORE_FACTORIES = new Set(["writable", "readable", "derived"]);
-
 /**
  * Determine the store type from the factory function name.
  */
