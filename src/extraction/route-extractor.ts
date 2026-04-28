@@ -1,6 +1,6 @@
 import { basename, dirname } from "node:path";
-import { SyntaxKind } from "ts-morph";
 import type { SourceFile } from "ts-morph";
+import { SyntaxKind } from "ts-morph";
 import type { FunctionSymbol } from "../types/ast.js";
 import { shouldSkipFile } from "./skip-rules.js";
 
@@ -141,11 +141,9 @@ export function extractRouteExports(sourceFile: SourceFile, filePath: string): F
 
 		const initKind = init.getKind();
 		const isFunctionLike =
-			initKind === SyntaxKind.ArrowFunction ||
-			initKind === SyntaxKind.FunctionExpression;
-		const isActionsObject =
-			name === "actions" && initKind === SyntaxKind.ObjectLiteralExpression;
-		if (!isFunctionLike && !isActionsObject) continue;
+			initKind === SyntaxKind.ArrowFunction || initKind === SyntaxKind.FunctionExpression;
+		const isActionsObject = name === "actions" && initKind === SyntaxKind.ObjectLiteralExpression;
+		if (!(isFunctionLike || isActionsObject)) continue;
 
 		results.push({
 			kind: "function",
