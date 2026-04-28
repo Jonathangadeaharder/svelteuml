@@ -1,5 +1,5 @@
-import { resolve } from "node:path";
 import { existsSync } from "node:fs";
+import { resolve } from "node:path";
 import { z } from "zod";
 import type { SvelteUMLConfig } from "../types/index.js";
 
@@ -27,13 +27,15 @@ export function validateConfig(input: unknown): SvelteUMLConfig {
 	return SvelteUMLConfigSchema.parse(input);
 }
 
-export function safeValidateConfig(input: unknown): {
-	success: true;
-	data: SvelteUMLConfig;
-} | {
-	success: false;
-	errors: z.ZodError;
-} {
+export function safeValidateConfig(input: unknown):
+	| {
+			success: true;
+			data: SvelteUMLConfig;
+	  }
+	| {
+			success: false;
+			errors: z.ZodError;
+	  } {
 	const result = SvelteUMLConfigSchema.safeParse(input);
 	if (result.success) {
 		return { success: true, data: result.data };

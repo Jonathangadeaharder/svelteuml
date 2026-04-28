@@ -18,7 +18,7 @@ export async function loadSvelteConfig(projectRoot: string): Promise<SvelteConfi
 			const aliases = extractAliases(content, absoluteRoot);
 			return { aliases: { ...DEFAULT_ALIASES, ...aliases }, found: true, configPath };
 		} catch {
-			continue;
+			// intentional fallthrough
 		}
 	}
 
@@ -117,12 +117,13 @@ function extractAliases(content: string, projectRoot: string): AliasMap {
 function parseAliasObject(raw: string, projectRoot: string): AliasMap {
 	const aliases: AliasMap = {};
 	const pattern = /['"]?([\w$]+)['"]?\s*:\s*['"]([^'"]+)['"]/g;
-	let match: RegExpExecArray | null;
-	while ((match = pattern.exec(raw)) !== null) {
+	let match: RegExpExecArray | null = pattern.exec(raw);
+	while (match !== null) {
 		const [, alias, path] = match;
 		if (alias && path) {
 			aliases[alias] = path.startsWith("/") ? path : resolve(projectRoot, path);
 		}
+		match = pattern.exec(raw);
 	}
 	return aliases;
 }

@@ -1,5 +1,5 @@
+import { extname, resolve } from "node:path";
 import fg from "fast-glob";
-import { resolve, extname } from "node:path";
 import type { DiscoveredFiles } from "../types/index.js";
 
 const DEFAULT_INCLUDE_PATTERNS = [

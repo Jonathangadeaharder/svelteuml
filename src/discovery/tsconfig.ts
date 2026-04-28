@@ -15,7 +15,7 @@ export async function loadTsConfig(projectRoot: string): Promise<TsConfigResult>
 			const parsed = JSON.parse(stripped);
 			return buildResult(parsed, configPath, absoluteRoot);
 		} catch {
-			continue;
+			// intentional fallthrough
 		}
 	}
 
@@ -37,10 +37,7 @@ function buildResult(
 	return { aliases, baseUrl: absoluteBaseUrl, found: true, configPath };
 }
 
-function resolvePaths(
-	paths: Record<string, string[]> | undefined,
-	baseUrl: string,
-): AliasMap {
+function resolvePaths(paths: Record<string, string[]> | undefined, baseUrl: string): AliasMap {
 	if (!paths) return {};
 
 	const aliases: AliasMap = {};
@@ -48,9 +45,7 @@ function resolvePaths(
 		const cleanAlias = alias.replace(/\/\*$/, "");
 		if (targets.length === 0) continue;
 		const cleanTarget = targets[0]?.replace(/\/\*$/, "") ?? "";
-		aliases[cleanAlias] = cleanTarget.startsWith("/")
-			? cleanTarget
-			: resolve(baseUrl, cleanTarget);
+		aliases[cleanAlias] = cleanTarget.startsWith("/") ? cleanTarget : resolve(baseUrl, cleanTarget);
 	}
 	return aliases;
 }

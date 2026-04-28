@@ -1,7 +1,7 @@
 export {
-	validateConfig,
-	safeValidateConfig,
 	getDefaultConfig,
 	mergeConfigs,
 	type SvelteUMLConfigInput,
+	safeValidateConfig,
+	validateConfig,
 } from "./schema.js";
