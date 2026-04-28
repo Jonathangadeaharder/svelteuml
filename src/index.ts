@@ -27,6 +27,27 @@ export {
 	type SourcePosition,
 	type SvelteToTsxResult,
 } from "./parsing/index.js";
+export {
+	componentNameFromPath,
+	extractComponentProps,
+	extractLibClasses,
+	extractLibFunctions,
+	classifyRouteFile,
+	extractRouteExports,
+	extractRouteFileSymbol,
+	isRouteFile,
+	routeSegmentFromPath,
+	extractServerExports,
+	HTTP_VERBS,
+	shouldSkipFile,
+	isVirtualSpecifier,
+	extractStoreSymbols,
+	SymbolExtractor,
+	type RouteFileSymbol,
+	type RouteKind,
+	type ServerExportKind,
+	type ServerExportSymbol,
+} from "./extraction/index.js";
 export type {
 	ClassSymbol,
 	ExportSymbol,
