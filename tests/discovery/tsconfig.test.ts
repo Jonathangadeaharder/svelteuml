@@ -155,4 +155,61 @@ describe("discovery/tsconfig.ts", () => {
 		expect(res.aliases["$components"]).toContain("src/components");
 		expect(res.aliases["$utils"]).toContain("src/utils");
 	});
+
+	it("handles tsconfig without compilerOptions", async () => {
+		await fs.writeFile(tsPath, JSON.stringify({}), "utf8");
+		const res: TsConfigResult = await loadTsConfig(tmpDir);
+		expect(res.found).toBe(true);
+		expect(res.aliases).toEqual({});
+	});
+
+	it("handles tsconfig without paths", async () => {
+		await fs.writeFile(
+			tsPath,
+			JSON.stringify({ compilerOptions: { baseUrl: "." } }),
+			"utf8",
+		);
+		const res: TsConfigResult = await loadTsConfig(tmpDir);
+		expect(res.found).toBe(true);
+		expect(res.aliases).toEqual({});
+	});
+
+	it("handles tsconfig with non-string baseUrl", async () => {
+		await fs.writeFile(
+			tsPath,
+			JSON.stringify({ compilerOptions: { baseUrl: 42, paths: { "$lib/*": ["src/lib/*"] } } }),
+			"utf8",
+		);
+		const res: TsConfigResult = await loadTsConfig(tmpDir);
+		expect(res.found).toBe(true);
+	});
+
+	it("skips paths with empty targets", async () => {
+		await fs.writeFile(
+			tsPath,
+			JSON.stringify({
+				compilerOptions: { baseUrl: ".", paths: { "$lib/*": [] } },
+			}),
+			"utf8",
+		);
+		const res: TsConfigResult = await loadTsConfig(tmpDir);
+		expect(res.found).toBe(true);
+		expect(res.aliases).not.toHaveProperty("$lib");
+	});
+
+	it("handles absolute target paths in paths", async () => {
+		await fs.writeFile(
+			tsPath,
+			JSON.stringify({
+				compilerOptions: {
+					baseUrl: ".",
+					paths: { "$lib/*": ["/absolute/lib/*"] },
+				},
+			}),
+			"utf8",
+		);
+		const res: TsConfigResult = await loadTsConfig(tmpDir);
+		expect(res.found).toBe(true);
+		expect(res.aliases["$lib"]).toBe("/absolute/lib");
+	});
 });

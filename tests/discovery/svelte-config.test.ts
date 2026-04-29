@@ -177,7 +177,28 @@ describe("svelte-config discovery", () => {
 		});
 		const res = await loadSvelteConfig(tempDir);
 		expect(res.aliases).toHaveProperty("$special");
-		// Paths starting with "/" are kept as-is (resolve treats them as absolute)
 		expect(res.aliases["$special"]).toBe("/src/special");
+	});
+
+	it("handles config with escaped quotes in strings", async () => {
+		const cfgPath = path.join(tempDir, "svelte.config.js");
+		fs.writeFileSync(
+			cfgPath,
+			'module.exports = { kit: { alias: { $lib: "src\\"lib" } } };',
+			"utf8",
+		);
+		const res = await loadSvelteConfig(tempDir);
+		expect(res.found).toBe(true);
+	});
+
+	it("handles config with unbalanced braces gracefully", async () => {
+		const cfgPath = path.join(tempDir, "svelte.config.js");
+		fs.writeFileSync(
+			cfgPath,
+			`module.exports = { kit: { alias: { $lib: "src/lib"`,
+			"utf8",
+		);
+		const res = await loadSvelteConfig(tempDir);
+		expect(res.found).toBe(true);
 	});
 });

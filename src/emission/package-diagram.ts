@@ -14,14 +14,6 @@ export function renderPackageDiagram(
 
 	const packages = buildPackages(symbols, options);
 
-	if (options.hideEmptyPackages) {
-		for (const [pkg, entries] of packages) {
-			if (entries.length === 0) {
-				packages.delete(pkg);
-			}
-		}
-	}
-
 	for (const [pkg, entries] of packages) {
 		lines.push(`package "${pkg}" as ${sanitizeId(pkg)} {`);
 		for (const entry of entries) {

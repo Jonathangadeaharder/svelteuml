@@ -246,4 +246,56 @@ describe("buildEdges", () => {
 		expect(result).toHaveLength(1);
 		expect(result[0]?.type).toBe("dependency");
 	});
+
+	it("creates edge without label for namespace import", () => {
+		const imports: ResolvedImport[] = [
+			{
+				sourceFile: "/src/lib/a.ts",
+				targetFile: "/src/lib/b.ts",
+				importedNames: [],
+				isTypeOnly: false,
+			},
+		];
+		const result = buildEdges(imports, makeSymbolTable());
+		expect(result).toHaveLength(1);
+		expect(result[0]?.label).toBeUndefined();
+	});
+
+	it("skips extends edge when parent class is not in project", () => {
+		const symbols = makeSymbolTable({
+			classes: [
+				{
+					kind: "class",
+					name: "Child",
+					filePath: "/src/lib/child.ts",
+					extends: "UnknownParent",
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+				},
+			],
+		});
+		const result = buildEdges([], symbols);
+		expect(result).toHaveLength(0);
+	});
+
+	it("skips implements edge when interface is not in project", () => {
+		const symbols = makeSymbolTable({
+			classes: [
+				{
+					kind: "class",
+					name: "Repo",
+					filePath: "/src/lib/repo.ts",
+					extends: undefined,
+					implements: ["UnknownInterface"],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+				},
+			],
+		});
+		const result = buildEdges([], symbols);
+		expect(result).toHaveLength(0);
+	});
 });
