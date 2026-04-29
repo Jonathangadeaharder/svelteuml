@@ -74,13 +74,26 @@ export function extractStoreSymbols(sourceFile: SourceFile, filePath: string): S
 		}
 
 		// --- Svelte 5 $state rune (in .svelte.ts modules) ---
-		if (callText.startsWith("$state") && filePath.endsWith(".svelte.ts")) {
+		if (callText.startsWith("$state")) {
 			results.push({
 				kind: "store",
 				name,
 				filePath,
 				storeType: "writable",
 				valueType: extractValueType(callText),
+				runeKind: "state",
+			});
+			continue;
+		}
+
+		if (callText.startsWith("$derived")) {
+			results.push({
+				kind: "store",
+				name,
+				filePath,
+				storeType: "derived",
+				valueType: extractValueType(callText),
+				runeKind: "derived",
 			});
 		}
 	}

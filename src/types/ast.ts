@@ -53,6 +53,7 @@ export interface StoreSymbol {
 	filePath: string;
 	storeType: "writable" | "readable" | "derived";
 	valueType: string;
+	runeKind?: "state" | "derived";
 }
 
 /** Svelte component prop. */

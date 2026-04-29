@@ -96,7 +96,9 @@ function renderClass(lines: string[], cls: ClassSymbol, options: DiagramOptions)
 }
 
 function renderStore(lines: string[], store: StoreSymbol): void {
-	lines.push(`class "${store.name}" <<store>> {`);
+	const stereotype =
+		store.runeKind === "state" ? "state" : store.runeKind === "derived" ? "derived" : "store";
+	lines.push(`class "${store.name}" <<${stereotype}>> {`);
 	lines.push(`  storeType: ${store.storeType}`);
 	lines.push(`  valueType: ${store.valueType}`);
 	lines.push("}");

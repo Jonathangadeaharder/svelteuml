@@ -72,7 +72,9 @@ function buildPackages(symbols: SymbolTable, options: DiagramOptions): Map<strin
 
 	if (options.showStores) {
 		for (const store of symbols.stores) {
-			addEntry(store.filePath, `class "${store.name}" <<store>>`);
+			const stereotype =
+				store.runeKind === "state" ? "state" : store.runeKind === "derived" ? "derived" : "store";
+			addEntry(store.filePath, `class "${store.name}" <<${stereotype}>>`);
 		}
 	}
 
