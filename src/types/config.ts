@@ -54,3 +54,6 @@ export interface SvelteUMLConfig {
 	/** Whether to truncate at node_modules boundaries. */
 	excludeExternals: boolean;
 }
+
+/** Supported output formats for diagram generation. */
+export type OutputFormat = "text" | "svg" | "png";

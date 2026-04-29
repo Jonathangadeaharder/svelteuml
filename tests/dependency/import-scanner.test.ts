@@ -146,4 +146,56 @@ describe("scanImports", () => {
 		expect(result).toHaveLength(1);
 		expect(result[0]?.targetFile).toBe("/src/lib/index.ts");
 	});
+
+	describe("excludeExternals option", () => {
+		it("stubs external imports with <<External>> prefix when true", () => {
+			const project = buildProject({
+				"/src/app.ts": `import { writable } from 'svelte/store'; export const x = writable(0);`,
+			});
+			const result = scanImports(project, {}, { excludeExternals: true });
+			expect(result).toHaveLength(1);
+			expect(result[0]?.targetFile).toBe("<<External>>/svelte");
+			expect(result[0]?.importedNames).toEqual(["writable"]);
+		});
+
+		it("extracts scoped package names correctly", () => {
+			const project = buildProject({
+				"/src/app.ts": `import { redirect } from '@sveltejs/kit'; export const load = () => redirect('/');`,
+			});
+			const result = scanImports(project, {}, { excludeExternals: true });
+			expect(result).toHaveLength(1);
+			expect(result[0]?.targetFile).toBe("<<External>>/@sveltejs/kit");
+		});
+
+		it("produces same targetFile for multiple imports from same package", () => {
+			const project = buildProject({
+				"/src/a.ts": `import { writable } from 'svelte/store'; export const x = writable(0);`,
+				"/src/b.ts": `import { derived } from 'svelte/store'; export const y = derived([], () => 1);`,
+			});
+			const result = scanImports(project, {}, { excludeExternals: true });
+			expect(result).toHaveLength(2);
+			expect(result[0]?.targetFile).toBe("<<External>>/svelte");
+			expect(result[1]?.targetFile).toBe("<<External>>/svelte");
+		});
+
+		it("does not change behavior when false (default)", () => {
+			const project = buildProject({
+				"/src/app.ts": `import { writable } from 'svelte/store'; export const x = writable(0);`,
+			});
+			const result = scanImports(project, {});
+			expect(result).toHaveLength(0);
+		});
+
+		it("mixes resolved and external imports correctly", () => {
+			const project = buildProject({
+				"/src/lib/utils.ts": `export function helper(): void {}`,
+				"/src/app.ts": `import { helper } from './lib/utils.js'; import { writable } from 'svelte/store';`,
+			});
+			const result = scanImports(project, {}, { excludeExternals: true });
+			expect(result).toHaveLength(2);
+			const targets = result.map((r) => r.targetFile);
+			expect(targets).toContain("/src/lib/utils.ts");
+			expect(targets).toContain("<<External>>/svelte");
+		});
+	});
 });

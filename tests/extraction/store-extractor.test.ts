@@ -93,4 +93,29 @@ describe("extractStoreSymbols", () => {
 		expect(result).toHaveLength(1);
 		expect(result[0]?.valueType).toBe("unknown");
 	});
+
+	it("extracts Svelte 5 $state rune from .svelte.ts module", () => {
+		const sf = makeSourceFile(
+			`
+			export const count = $state<number>(0);
+		`,
+			"/src/lib/stores.svelte.ts",
+		);
+		const result = extractStoreSymbols(sf, "/src/lib/stores.svelte.ts");
+		expect(result).toHaveLength(1);
+		expect(result[0]?.name).toBe("count");
+		expect(result[0]?.storeType).toBe("writable");
+		expect(result[0]?.valueType).toBe("number");
+	});
+
+	it("ignores $state rune in non-svelte.ts files", () => {
+		const sf = makeSourceFile(
+			`
+			export const count = $state<number>(0);
+		`,
+			"/src/lib/stores.ts",
+		);
+		const result = extractStoreSymbols(sf, "/src/lib/stores.ts");
+		expect(result).toHaveLength(0);
+	});
 });
