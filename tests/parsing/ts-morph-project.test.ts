@@ -78,6 +78,21 @@ describe("ParsingProject", () => {
 		expect(project.getProject()).toBeDefined();
 		expect(project.getProject().getCompilerOptions().strict).toBe(true);
 	});
+
+	it("creates project with aliases configured in compiler options", () => {
+		const aliases = { $lib: "/app/src/lib", $components: "/app/src/components" };
+		const project = new ParsingProject(undefined, aliases);
+		const paths = project.getProject().getCompilerOptions().paths;
+		expect(paths).toBeDefined();
+		expect(paths?.["$lib/*"]).toEqual(["/app/src/lib/*"]);
+		expect(paths?.["$components"]).toEqual(["/app/src/components"]);
+	});
+
+	it("creates project with empty aliases (no paths)", () => {
+		const project = new ParsingProject(undefined, {});
+		const paths = project.getProject().getCompilerOptions().paths;
+		expect(paths).toBeUndefined();
+	});
 });
 
 describe("buildParsingProject", () => {

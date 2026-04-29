@@ -203,4 +203,28 @@ describe("renderPackageDiagram", () => {
 		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
 		expect(result).toContain("interface IRepo");
 	});
+
+	it("renders implements arrow between packages", () => {
+		const edges = createEdgeSet([
+			{ source: "/src/lib/repo.ts", target: "/src/core/types.ts", type: "implements" },
+		]);
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("..|>");
+	});
+
+	it("renders aggregation arrow between packages", () => {
+		const edges = createEdgeSet([
+			{ source: "/src/routes/a.ts", target: "/src/lib/b.ts", type: "aggregation" },
+		]);
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("o--");
+	});
+
+	it("renders association arrow between packages", () => {
+		const edges = createEdgeSet([
+			{ source: "/src/routes/a.ts", target: "/src/lib/b.ts", type: "association" },
+		]);
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("-->");
+	});
 });

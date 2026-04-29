@@ -130,6 +130,82 @@ describe("discovery/tsconfig.ts", () => {
 		expect(res.aliases["$mod"]).toContain("src/mod");
 	});
 
+	it("handles tsconfig with no compilerOptions (defaults to .)", async () => {
+		await fs.writeFile(tsPath, JSON.stringify({}), "utf8");
+		const res = await loadTsConfig(tmpDir);
+		expect(res.found).toBe(true);
+		expect(res.aliases).toEqual({});
+		expect(res.baseUrl).toBe(path.resolve(tmpDir, "."));
+	});
+
+	it("handles tsconfig with no baseUrl (defaults to .)", async () => {
+		await fs.writeFile(
+			tsPath,
+			JSON.stringify({
+				compilerOptions: {
+					paths: { "$lib/*": ["src/lib/*"] },
+				},
+			}),
+			"utf8",
+		);
+		const res = await loadTsConfig(tmpDir);
+		expect(res.found).toBe(true);
+		expect(res.aliases).toHaveProperty("$lib");
+	});
+
+	it("handles tsconfig with no paths (returns empty aliases)", async () => {
+		await fs.writeFile(
+			tsPath,
+			JSON.stringify({
+				compilerOptions: {
+					baseUrl: ".",
+				},
+			}),
+			"utf8",
+		);
+		const res = await loadTsConfig(tmpDir);
+		expect(res.found).toBe(true);
+		expect(res.aliases).toEqual({});
+	});
+
+	it("skips aliases with empty targets array", async () => {
+		await fs.writeFile(
+			tsPath,
+			JSON.stringify({
+				compilerOptions: {
+					baseUrl: ".",
+					paths: {
+						"$lib/*": [],
+						"$utils/*": ["src/utils/*"],
+					},
+				},
+			}),
+			"utf8",
+		);
+		const res = await loadTsConfig(tmpDir);
+		expect(res.found).toBe(true);
+		expect(res.aliases).not.toHaveProperty("$lib");
+		expect(res.aliases).toHaveProperty("$utils");
+	});
+
+	it("resolves absolute target paths as-is", async () => {
+		await fs.writeFile(
+			tsPath,
+			JSON.stringify({
+				compilerOptions: {
+					baseUrl: ".",
+					paths: {
+						"$custom/*": ["/absolute/path/to/custom/*"],
+					},
+				},
+			}),
+			"utf8",
+		);
+		const res = await loadTsConfig(tmpDir);
+		expect(res.found).toBe(true);
+		expect(res.aliases["$custom"]).toBe("/absolute/path/to/custom");
+	});
+
 	it("resolves multiple aliases from paths", async () => {
 		await fs.writeFile(
 			tsPath,

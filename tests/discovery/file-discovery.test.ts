@@ -114,12 +114,19 @@ describe("src/discovery/file-discovery.ts", () => {
 				expect.stringMatching(/bar\.svelte\.js$/),
 			]),
 		);
-		// Ensure they are not categorized under typescript or javascript
 		expect(res.typescript).not.toEqual(
 			expect.arrayContaining([expect.stringMatching(/module\.svelte\.ts$/)]),
 		);
 		expect(res.javascript).not.toEqual(
 			expect.arrayContaining([expect.stringMatching(/bar\.svelte\.js$/)]),
+		);
+	});
+
+	it("categorizes .tsx files as typescript", async () => {
+		writeFileSync(join(rootDir, "component.tsx"), "export const X = () => <div/>;");
+		const res = await discoverFiles(rootDir);
+		expect(res.typescript).toEqual(
+			expect.arrayContaining([expect.stringMatching(/component\.tsx$/)]),
 		);
 	});
 });

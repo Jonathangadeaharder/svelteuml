@@ -151,4 +151,15 @@ describe("extractComponentProps (Svelte 5 $props rune)", () => {
 		const themeProp = props.find((p) => p.name === "theme");
 		expect(themeProp?.defaultValue).toBe("'light'");
 	});
+
+	it("handles $props without type annotation", () => {
+		const sf = makeSourceFile(`
+			let { title, count = 0 } = $props();
+		`);
+		const props = extractComponentProps(sf, "Untyped", "/src/lib/Untyped.svelte");
+		expect(props.length).toBeGreaterThanOrEqual(1);
+		const titleProp = props.find((p) => p.name === "title");
+		expect(titleProp).toBeDefined();
+		expect(titleProp?.type).toBe("unknown");
+	});
 });

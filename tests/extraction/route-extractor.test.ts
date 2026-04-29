@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { Project, SyntaxKind } from "ts-morph";
 import {
 	classifyRouteFile,
+	extractRouteExports,
+	extractRouteFileSymbol,
 	isRouteFile,
 	routeSegmentFromPath,
 } from "../../src/extraction/route-extractor.js";
@@ -104,5 +107,118 @@ describe("routeSegmentFromPath", () => {
 
 	it("handles single-segment routes", () => {
 		expect(routeSegmentFromPath("/project/src/routes/about/+page.svelte")).toBe("/about");
+	});
+});
+
+describe("extractRouteFileSymbol", () => {
+	it("returns null for non-route files", () => {
+		const project = new Project({ useInMemoryFileSystem: true });
+		const sf = project.createSourceFile("/src/lib/utils.ts", "export function helper() {}");
+		const result = extractRouteFileSymbol(sf, "/src/lib/utils.ts");
+		expect(result).toBeNull();
+	});
+
+	it("returns null for skip files (.d.ts)", () => {
+		const project = new Project({ useInMemoryFileSystem: true });
+		const sf = project.createSourceFile(
+			"/src/routes/$types.d.ts",
+			"export type PageData = {};",
+		);
+		const result = extractRouteFileSymbol(sf, "/src/routes/$types.d.ts");
+		expect(result).toBeNull();
+	});
+
+	it("extracts .svelte route file with empty exportedFunctions", () => {
+		const project = new Project({ useInMemoryFileSystem: true });
+		const sf = project.createSourceFile(
+			"/project/src/routes/+page.svelte",
+			"export default {};",
+		);
+		const result = extractRouteFileSymbol(sf, "/project/src/routes/+page.svelte");
+		expect(result).not.toBeNull();
+		expect(result?.kind).toBe("page");
+		expect(result?.isServer).toBe(false);
+		expect(result?.exportedFunctions).toEqual([]);
+		expect(result?.routeSegment).toBe("/");
+	});
+
+	it("extracts .ts route file with load function", () => {
+		const project = new Project({ useInMemoryFileSystem: true });
+		const sf = project.createSourceFile(
+			"/project/src/routes/+page.ts",
+			"export async function load() { return {}; }",
+		);
+		const result = extractRouteFileSymbol(sf, "/project/src/routes/+page.ts");
+		expect(result).not.toBeNull();
+		expect(result?.kind).toBe("page");
+		expect(result?.isServer).toBe(false);
+		expect(result?.exportedFunctions.length).toBeGreaterThan(0);
+	});
+
+	it("classifies +layout.server.ts as layout server", () => {
+		const project = new Project({ useInMemoryFileSystem: true });
+		const sf = project.createSourceFile(
+			"/project/src/routes/admin/+layout.server.ts",
+			"export async function load() { return {}; }",
+		);
+		const result = extractRouteFileSymbol(sf, "/project/src/routes/admin/+layout.server.ts");
+		expect(result).not.toBeNull();
+		expect(result?.kind).toBe("layout");
+		expect(result?.isServer).toBe(true);
+		expect(result?.routeSegment).toBe("/admin");
+	});
+});
+
+describe("extractRouteExports", () => {
+	it("extracts arrow function load export", () => {
+		const project = new Project({ useInMemoryFileSystem: true });
+		const sf = project.createSourceFile(
+			"/src/routes/+page.ts",
+			"export const load = async ({ params }) => { return {}; };",
+		);
+		const result = extractRouteExports(sf, "/src/routes/+page.ts");
+		expect(result.length).toBeGreaterThan(0);
+		expect(result[0]?.name).toBe("load");
+	});
+
+	it("extracts actions as object export", () => {
+		const project = new Project({ useInMemoryFileSystem: true });
+		const sf = project.createSourceFile(
+			"/src/routes/+page.server.ts",
+			"export const actions = { default: async () => {} };",
+		);
+		const result = extractRouteExports(sf, "/src/routes/+page.server.ts");
+		expect(result.length).toBeGreaterThan(0);
+		expect(result[0]?.name).toBe("actions");
+	});
+
+	it("ignores non-exported functions", () => {
+		const project = new Project({ useInMemoryFileSystem: true });
+		const sf = project.createSourceFile(
+			"/src/routes/+page.ts",
+			"async function load() { return {}; }",
+		);
+		const result = extractRouteExports(sf, "/src/routes/+page.ts");
+		expect(result).toHaveLength(0);
+	});
+
+	it("ignores unknown named exports", () => {
+		const project = new Project({ useInMemoryFileSystem: true });
+		const sf = project.createSourceFile(
+			"/src/routes/+page.ts",
+			"export function somethingElse() {}",
+		);
+		const result = extractRouteExports(sf, "/src/routes/+page.ts");
+		expect(result).toHaveLength(0);
+	});
+
+	it("skips .d.ts files", () => {
+		const project = new Project({ useInMemoryFileSystem: true });
+		const sf = project.createSourceFile(
+			"/src/routes/$types.d.ts",
+			"export type PageData = {};",
+		);
+		const result = extractRouteExports(sf, "/src/routes/$types.d.ts");
+		expect(result).toHaveLength(0);
 	});
 });

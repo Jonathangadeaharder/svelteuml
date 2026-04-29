@@ -3,6 +3,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+	convertFiles,
 	convertPlainTsFile,
 	convertSvelteToTsx,
 	isTypeScriptSvelte,
@@ -110,11 +111,47 @@ describe("convertSvelteToTsx", () => {
 
 		const result = await convertSvelteToTsx(filePath);
 
-		// svelte2tsx with emitOnTemplateError: true may still succeed
-		// but we validate the result structure regardless
 		expect(typeof result.success).toBe("boolean");
 		if (!result.success) {
 			expect(result.error).toBeDefined();
 		}
+	});
+});
+
+describe("convertFiles", () => {
+	let tempDir: string;
+
+	beforeEach(() => {
+		tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "convertfiles-test-"));
+	});
+
+	afterEach(() => {
+		fs.rmSync(tempDir, { recursive: true, force: true });
+	});
+
+	it("batch converts svelte and plain files", async () => {
+		const svelteFile = path.join(tempDir, "Comp.svelte");
+		fs.writeFileSync(svelteFile, "<script>let x = 1;</script>", "utf-8");
+		const tsFile = path.join(tempDir, "utils.ts");
+		fs.writeFileSync(tsFile, "export const x = 1;", "utf-8");
+
+		const { results, parseResults } = await convertFiles([svelteFile], [tsFile]);
+		expect(results.length).toBe(2);
+		expect(parseResults.length).toBe(2);
+		expect(parseResults[0]?.success).toBe(true);
+		expect(parseResults[1]?.success).toBe(true);
+	});
+
+	it("handles plain file read failure gracefully", async () => {
+		const { results, parseResults } = await convertFiles([], ["/nonexistent/file.ts"]);
+		expect(results.length).toBe(1);
+		expect(parseResults[0]?.success).toBe(false);
+		expect(parseResults[0]?.error).toBeDefined();
+	});
+
+	it("handles empty input arrays", async () => {
+		const { results, parseResults } = await convertFiles([], []);
+		expect(results).toEqual([]);
+		expect(parseResults).toEqual([]);
 	});
 });
