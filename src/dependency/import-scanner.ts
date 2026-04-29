@@ -13,7 +13,11 @@ export interface ScanOptions {
 	excludeExternals?: boolean;
 }
 
-export function scanImports(parsingProject: ParsingProject, aliases: AliasMap, options?: ScanOptions): ResolvedImport[] {
+export function scanImports(
+	parsingProject: ParsingProject,
+	aliases: AliasMap,
+	options?: ScanOptions,
+): ResolvedImport[] {
 	const allFiles = parsingProject.getAllSourceFiles();
 	const results: ResolvedImport[] = [];
 	const knownFiles = new Set(allFiles.keys());

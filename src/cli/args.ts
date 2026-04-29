@@ -19,9 +19,7 @@ const VALID_FORMATS: readonly OutputFormat[] = ["text", "svg", "png"];
 
 function parseFormat(value: string): OutputFormat {
 	if (!VALID_FORMATS.includes(value as OutputFormat)) {
-		throw new Error(
-			`Invalid format: "${value}". Must be one of: ${VALID_FORMATS.join(", ")}`,
-		);
+		throw new Error(`Invalid format: "${value}". Must be one of: ${VALID_FORMATS.join(", ")}`);
 	}
 	return value as OutputFormat;
 }

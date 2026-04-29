@@ -1,20 +1,20 @@
 import { existsSync, writeFileSync } from "node:fs";
-import type { Edge } from "../types/edge.js";
-import type { OutputFormat } from "../types/config.js";
-import type { SvelteUMLConfig } from "../types/index.js";
 import type { SvelteUMLConfigInput } from "../config/schema.js";
-import type { CliOptions } from "./args.js";
-import type { ProgressReporter } from "./progress.js";
 import { mergeConfigs, validateConfig } from "../config/schema.js";
+import { buildEdges, scanImports } from "../dependency/index.js";
 import { discoverFiles } from "../discovery/file-discovery.js";
 import { loadSvelteConfig } from "../discovery/svelte-config.js";
 import { loadTsConfig } from "../discovery/tsconfig.js";
+import { emitPlantUML } from "../emission/plantuml-emitter.js";
+import { SymbolExtractor } from "../extraction/symbol-extractor.js";
 import { convertFiles } from "../parsing/svelte-to-tsx.js";
 import { buildParsingProject } from "../parsing/ts-morph-project.js";
-import { SymbolExtractor } from "../extraction/symbol-extractor.js";
-import { scanImports, buildEdges } from "../dependency/index.js";
+import type { OutputFormat } from "../types/config.js";
+import type { Edge } from "../types/edge.js";
 import { createEdgeSet } from "../types/edge.js";
-import { emitPlantUML } from "../emission/plantuml-emitter.js";
+import type { SvelteUMLConfig } from "../types/index.js";
+import type { CliOptions } from "./args.js";
+import type { ProgressReporter } from "./progress.js";
 
 export interface RunResult {
 	success: boolean;
@@ -59,10 +59,7 @@ export function buildCliConfig(
 	if (cliOpts.maxDepth !== 0) cliMergeArgs.maxDepth = cliOpts.maxDepth;
 	if (cliOpts.excludeExternals) cliMergeArgs.excludeExternals = cliOpts.excludeExternals;
 
-	const merged = mergeConfigs(
-		fileConfig as Partial<SvelteUMLConfigInput>,
-		cliMergeArgs,
-	);
+	const merged = mergeConfigs(fileConfig as Partial<SvelteUMLConfigInput>, cliMergeArgs);
 
 	return validateConfig(merged);
 }
@@ -141,7 +138,12 @@ export async function runPipeline(
 			}
 		}
 
-		const parsingProject = buildParsingProject(successfulResults, plainFileEntries, config, aliases);
+		const parsingProject = buildParsingProject(
+			successfulResults,
+			plainFileEntries,
+			config,
+			aliases,
+		);
 
 		r.startPhase("extraction", 0);
 		const extractor = new SymbolExtractor(parsingProject);

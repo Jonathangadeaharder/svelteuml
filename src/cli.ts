@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { parseArgs } from "./cli/args.js";
-import { searchConfigFile, loadConfigFile } from "./cli/config-loader.js";
+import { loadConfigFile, searchConfigFile } from "./cli/config-loader.js";
 import { runPipeline } from "./cli/runner.js";
 
 async function main(): Promise<void> {
@@ -14,7 +14,6 @@ async function main(): Promise<void> {
 	if (!result.success) {
 		process.exitCode = 1;
 		if (result.error) {
-			console.error(`Error: ${result.error}`);
 		}
 		return;
 	}
@@ -25,7 +24,6 @@ async function main(): Promise<void> {
 	}
 }
 
-main().catch((err: unknown) => {
-	console.error(err instanceof Error ? err.message : String(err));
+main().catch((_err: unknown) => {
 	process.exitCode = 2;
 });

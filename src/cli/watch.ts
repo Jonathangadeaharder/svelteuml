@@ -1,5 +1,5 @@
-import { watch } from "chokidar";
 import type { FSWatcher } from "chokidar";
+import { watch } from "chokidar";
 import type { CliOptions } from "./args.js";
 import type { ProgressReporter } from "./progress.js";
 import { runPipeline } from "./runner.js";
@@ -11,12 +11,7 @@ export interface Watcher {
 
 type ChangeCallback = (file: string) => void;
 
-const IGNORED_PATTERNS = [
-	"**/node_modules/**",
-	"**/.svelte-kit/**",
-	"**/dist/**",
-	"**/.git/**",
-];
+const IGNORED_PATTERNS = ["**/node_modules/**", "**/.svelte-kit/**", "**/dist/**", "**/.git/**"];
 
 export function startWatcher(
 	cliOpts: CliOptions,

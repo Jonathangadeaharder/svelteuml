@@ -1,5 +1,5 @@
-import ora from "ora";
 import type { Ora } from "ora";
+import ora from "ora";
 
 export interface ProgressReporter {
 	start(text: string): void;
