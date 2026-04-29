@@ -2,6 +2,7 @@ import { existsSync, writeFileSync } from "node:fs";
 import type { SvelteUMLConfigInput } from "../config/schema.js";
 import { mergeConfigs, validateConfig } from "../config/schema.js";
 import { buildEdges, scanImports } from "../dependency/index.js";
+import { trackReactiveDependencies } from "../dependency/reactive-tracker.js";
 import { discoverFiles } from "../discovery/file-discovery.js";
 import { loadSvelteConfig } from "../discovery/svelte-config.js";
 import { loadTsConfig } from "../discovery/tsconfig.js";
@@ -163,7 +164,9 @@ export async function runPipeline(
 		const imports = scanImports(parsingProject, aliases, {
 			excludeExternals: config.excludeExternals,
 		});
-		let edges = buildEdges(imports, symbols);
+		const reactiveSymbols = symbols.stores.filter((s) => s.runeKind);
+		const stateDeps = trackReactiveDependencies(parsingProject.getProject(), reactiveSymbols);
+		let edges = buildEdges(imports, symbols, stateDeps);
 
 		edges = filterEdges(edges, {
 			hideTypeDeps: cliOpts.hideTypeDeps,

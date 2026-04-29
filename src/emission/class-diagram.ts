@@ -160,6 +160,8 @@ function mapEdgeArrow(type: EdgeType): string {
 			return "..>";
 		case "association":
 			return "-->";
+		case "state_dependency":
+			return "..>";
 	}
 }
 
