@@ -20,7 +20,7 @@ describe("searchConfigFile", () => {
 
 		const result = await searchConfigFile(tempDir);
 		expect(result).toBeDefined();
-		expect(result!.path).toBe(join(tempDir, ".svelteumlrc.json"));
+		expect(result?.path).toBe(join(tempDir, ".svelteumlrc.json"));
 	});
 
 	it("finds svelteuml.config.ts in directory", async () => {
@@ -30,7 +30,7 @@ describe("searchConfigFile", () => {
 
 		const result = await searchConfigFile(tempDir);
 		expect(result).toBeDefined();
-		expect(result!.path).toBe(join(tempDir, "svelteuml.config.ts"));
+		expect(result?.path).toBe(join(tempDir, "svelteuml.config.ts"));
 	});
 
 	it("returns undefined when no config file found", async () => {
@@ -49,7 +49,7 @@ describe("searchConfigFile", () => {
 
 		const result = await searchConfigFile(tempDir);
 		expect(result).toBeDefined();
-		expect(result!.path).toBe(join(tempDir, "svelteuml.config.ts"));
+		expect(result?.path).toBe(join(tempDir, "svelteuml.config.ts"));
 	});
 });
 

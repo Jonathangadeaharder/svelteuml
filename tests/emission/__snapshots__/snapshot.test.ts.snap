@@ -1,0 +1,79 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PlantUML snapshot: class diagram > emits valid PlantUML with classes and edges 1`] = `
+"@startuml Diagram
+skinparam classAttributeIconSize 0
+
+top to bottom direction
+
+class "App" as App {
+}
+
+class "Router" as Router {
+}
+
+class "Store" as Store {
+}
+
+App ..> Router
+App *-- Store
+@enduml"
+`;
+
+exports[`PlantUML snapshot: class diagram > emits valid PlantUML with focus mode 1`] = `
+"@startuml Diagram
+skinparam classAttributeIconSize 0
+
+top to bottom direction
+
+class "App" as App {
+}
+
+class "Router" as Router {
+}
+
+class "Store" as Store {
+}
+
+App ..> Router
+App *-- Store
+@enduml"
+`;
+
+exports[`PlantUML snapshot: class diagram > emits valid PlantUML with stores and functions 1`] = `
+"@startuml Diagram
+skinparam classAttributeIconSize 0
+
+top to bottom direction
+
+class "Counter" as Counter {
+}
+
+class "count" <<state>> <<Exported>> {
+  storeType: writable
+  valueType: number
+}
+
+class "formatCount" <<function>> <<Exported>> {
+}
+
+@enduml"
+`;
+
+exports[`PlantUML snapshot: package diagram > emits valid PlantUML with packages 1`] = `
+"@startuml Package Diagram
+
+top to bottom direction
+
+package "/src/routes" as _src_routes {
+  class App
+}
+
+package "/src/lib" as _src_lib {
+  class Layout
+}
+
+_src_routes ..> _src_lib
+
+@enduml"
+`;

@@ -19,6 +19,9 @@ export default defineConfig({
 				lines: 80,
 				functions: 90,
 				statements: 90,
+				"src/parsing/svelte-to-tsx.ts": {
+					branches: 77,
+				},
 			},
 		},
 	},

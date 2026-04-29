@@ -154,11 +154,15 @@ describe("malformed segment handling", () => {
 	});
 
 	it("handles empty matcher value", () => {
-		expect(parseRouteParams("/items/[slug=]")).toEqual([{ kind: "dynamic", name: "slug", matcher: "" }]);
+		expect(parseRouteParams("/items/[slug=]")).toEqual([
+			{ kind: "dynamic", name: "slug", matcher: "" },
+		]);
 	});
 
 	it("handles empty param name with matcher", () => {
-		expect(parseRouteParams("/items/[=matcher]")).toEqual([{ kind: "dynamic", name: "", matcher: "matcher" }]);
+		expect(parseRouteParams("/items/[=matcher]")).toEqual([
+			{ kind: "dynamic", name: "", matcher: "matcher" },
+		]);
 	});
 
 	it("handles unmatched opening paren for groups", () => {

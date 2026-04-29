@@ -1,6 +1,6 @@
-import * as fs from "fs";
-import os from "os";
-import * as path from "path";
+import * as fs from "node:fs";
+import os from "node:os";
+import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { loadSvelteConfig } from "../../src/discovery/svelte-config";
@@ -22,21 +22,21 @@ function toJSObject(obj: any, indent = 0): string {
 // Helper to write a config file in JS format (unquoted keys like real svelte.config.js)
 function writeJSConfig(dir: string, obj: any) {
 	const cfgPath = path.join(dir, "svelte.config.js");
-	const content = "module.exports = " + toJSObject(obj) + ";\n";
+	const content = `module.exports = ${toJSObject(obj)};\n`;
 	fs.writeFileSync(cfgPath, content, "utf8");
 }
 
 // Helper to write a config file in MJS format (unquoted keys)
 function writeMJSConfig(dir: string, obj: any) {
 	const cfgPath = path.join(dir, "svelte.config.mjs");
-	const content = "export default " + toJSObject(obj) + ";\n";
+	const content = `export default ${toJSObject(obj)};\n`;
 	fs.writeFileSync(cfgPath, content, "utf8");
 }
 
 // Helper to write a config file in TS format (unquoted keys)
 function writeTSConfig(dir: string, obj: any) {
 	const cfgPath = path.join(dir, "svelte.config.ts");
-	const content = "export default " + toJSObject(obj) + ";\n";
+	const content = `export default ${toJSObject(obj)};\n`;
 	fs.writeFileSync(cfgPath, content, "utf8");
 }
 
@@ -71,7 +71,7 @@ describe("svelte-config discovery", () => {
 		// and also default alias should be merged as part of result
 		expect(res.aliases).toHaveProperty("$lib");
 		// Source resolves relative paths against projectRoot, so we check contains
-		expect(res.aliases["$lib"]).toContain("src/libFromKit");
+		expect(res.aliases.$lib).toContain("src/libFromKit");
 		expect(res.aliases).toHaveProperty("$components");
 	});
 
@@ -92,7 +92,7 @@ describe("svelte-config discovery", () => {
 		expect(res.configPath?.endsWith("svelte.config.js")).toBe(true);
 		// Vite alias should be picked up
 		expect(res.aliases).toHaveProperty("$lib");
-		expect(res.aliases["$lib"]).toContain("src/libFromVite");
+		expect(res.aliases.$lib).toContain("src/libFromVite");
 		expect(res.aliases).toHaveProperty("$viteOnly");
 	});
 
@@ -121,7 +121,7 @@ describe("svelte-config discovery", () => {
 		// Merge should include both kit and vite aliases
 		expect(res.aliases).toHaveProperty("$lib");
 		// Kit alias should take precedence for conflicting keys (kit is parsed first)
-		expect(res.aliases["$lib"]).toContain("src/libFromKit");
+		expect(res.aliases.$lib).toContain("src/libFromKit");
 		expect(res.aliases).toHaveProperty("$viteOnly");
 		expect(res.aliases).toHaveProperty("$customKit");
 	});
@@ -135,7 +135,7 @@ describe("svelte-config discovery", () => {
 		const res = await loadSvelteConfig(tempDir);
 		expect(res.found).toBe(true);
 		expect(res.aliases).toHaveProperty("$lib");
-		expect(res.aliases["$lib"]).toBe("src/lib");
+		expect(res.aliases.$lib).toBe("src/lib");
 	});
 
 	it("falls back to default alias when no config file exists", async () => {
@@ -145,7 +145,7 @@ describe("svelte-config discovery", () => {
 		expect(res.configPath).toBeUndefined();
 		// Default alias must be present
 		expect(res.aliases).toHaveProperty("$lib");
-		expect(res.aliases["$lib"]).toBe("src/lib");
+		expect(res.aliases.$lib).toBe("src/lib");
 		// Should not contain other aliases from config
 		expect(Object.keys(res.aliases)).toEqual(["$lib"]);
 	});
@@ -168,7 +168,7 @@ describe("svelte-config discovery", () => {
 		// Should pick the JS config first
 		expect(res.configPath?.endsWith("svelte.config.js")).toBe(true);
 		expect(res.aliases).toHaveProperty("$lib");
-		expect(res.aliases["$lib"]).toContain("src/libFromJS");
+		expect(res.aliases.$lib).toContain("src/libFromJS");
 	});
 
 	it("normalizes alias paths that start with a leading slash", async () => {
@@ -177,7 +177,7 @@ describe("svelte-config discovery", () => {
 		});
 		const res = await loadSvelteConfig(tempDir);
 		expect(res.aliases).toHaveProperty("$special");
-		expect(res.aliases["$special"]).toBe("/src/special");
+		expect(res.aliases.$special).toBe("/src/special");
 	});
 
 	it("handles config with escaped quotes in strings", async () => {

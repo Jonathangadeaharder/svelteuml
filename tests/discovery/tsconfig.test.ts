@@ -1,6 +1,6 @@
-import { promises as fs } from "fs";
-import os from "os";
-import path from "path";
+import { promises as fs } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { loadTsConfig } from "../../src/discovery/tsconfig";
@@ -70,7 +70,7 @@ describe("discovery/tsconfig.ts", () => {
 		expect(res.configPath).toBe(kitPath);
 		// Source strips /* from alias and target, resolves relative to baseUrl
 		expect(res.aliases).toHaveProperty("$lib");
-		expect(res.aliases["$lib"]).toContain("src/lib");
+		expect(res.aliases.$lib).toContain("src/lib");
 		// baseUrl should resolve relative to the project root
 		expect(res.baseUrl).toBe(path.resolve(tmpDir, "."));
 	});
@@ -94,7 +94,7 @@ describe("discovery/tsconfig.ts", () => {
 		expect(res.found).toBe(true);
 		expect(res.configPath).toBe(tsPath);
 		expect(res.aliases).toHaveProperty("$base");
-		expect(res.aliases["$base"]).toContain("src/base");
+		expect(res.aliases.$base).toContain("src/base");
 	});
 
 	it("returns found=false when neither config exists and baseUrl defaults to project root", async () => {
@@ -127,7 +127,7 @@ describe("discovery/tsconfig.ts", () => {
 		expect(res.found).toBe(true);
 		expect(res.configPath).toBe(kitPath);
 		expect(res.aliases).toHaveProperty("$mod");
-		expect(res.aliases["$mod"]).toContain("src/mod");
+		expect(res.aliases.$mod).toContain("src/mod");
 	});
 
 	it("resolves multiple aliases from paths", async () => {
@@ -151,9 +151,9 @@ describe("discovery/tsconfig.ts", () => {
 		expect(res.aliases).toHaveProperty("$lib");
 		expect(res.aliases).toHaveProperty("$components");
 		expect(res.aliases).toHaveProperty("$utils");
-		expect(res.aliases["$lib"]).toContain("src/lib");
-		expect(res.aliases["$components"]).toContain("src/components");
-		expect(res.aliases["$utils"]).toContain("src/utils");
+		expect(res.aliases.$lib).toContain("src/lib");
+		expect(res.aliases.$components).toContain("src/components");
+		expect(res.aliases.$utils).toContain("src/utils");
 	});
 
 	it("handles tsconfig without compilerOptions", async () => {
@@ -165,11 +165,7 @@ describe("discovery/tsconfig.ts", () => {
 	});
 
 	it("handles tsconfig without paths", async () => {
-		await fs.writeFile(
-			tsPath,
-			JSON.stringify({ compilerOptions: { baseUrl: "." } }),
-			"utf8",
-		);
+		await fs.writeFile(tsPath, JSON.stringify({ compilerOptions: { baseUrl: "." } }), "utf8");
 		const res: TsConfigResult = await loadTsConfig(tmpDir);
 		expect(res.found).toBe(true);
 		expect(res.aliases).toEqual({});
@@ -184,7 +180,7 @@ describe("discovery/tsconfig.ts", () => {
 		const res: TsConfigResult = await loadTsConfig(tmpDir);
 		expect(res.found).toBe(true);
 		expect(res.baseUrl).toBe(path.resolve(tmpDir));
-		expect(res.aliases["$lib"]).toContain("src/lib");
+		expect(res.aliases.$lib).toContain("src/lib");
 	});
 
 	it("skips paths with empty targets", async () => {
@@ -215,6 +211,6 @@ describe("discovery/tsconfig.ts", () => {
 		);
 
 		const res: TsConfigResult = await loadTsConfig(tmpDir);
-		expect(res.aliases["$lib"]).toBe("/absolute/path/lib");
+		expect(res.aliases.$lib).toBe("/absolute/path/lib");
 	});
 });

@@ -1,6 +1,6 @@
 import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import os from "node:os";
 import { join } from "node:path";
-import os from "os";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { DiscoveryOptions } from "../../src/discovery/file-discovery";
 import { discoverFiles } from "../../src/discovery/file-discovery";
