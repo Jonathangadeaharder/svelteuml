@@ -6,12 +6,15 @@ import { trackReactiveDependencies } from "../dependency/reactive-tracker.js";
 import { discoverFiles } from "../discovery/file-discovery.js";
 import { loadSvelteConfig } from "../discovery/svelte-config.js";
 import { loadTsConfig } from "../discovery/tsconfig.js";
+import { filterEdgesByScope, filterSymbolsByScope, resolveFocusScope } from "../emission/focus.js";
 import { emitPlantUML } from "../emission/plantuml-emitter.js";
 import { SymbolExtractor } from "../extraction/symbol-extractor.js";
 import { convertFiles } from "../parsing/svelte-to-tsx.js";
 import { buildParsingProject } from "../parsing/ts-morph-project.js";
 import { PipelineErrorHandler } from "../pipeline/error-handler.js";
 import type { OutputFormat } from "../types/config.js";
+import type { DiagramOptions } from "../types/diagram.js";
+import { DEFAULT_DIAGRAM_OPTIONS, DEFAULT_STEREOTYPE_COLORS } from "../types/diagram.js";
 import type { Edge } from "../types/edge.js";
 import { createEdgeSet } from "../types/edge.js";
 import type { SvelteUMLConfig } from "../types/index.js";
@@ -177,7 +180,27 @@ export async function runPipeline(
 		r.succeed(`Resolved ${edges.length} dependencies`);
 
 		r.startPhase("emission", 0);
-		const emission = emitPlantUML(symbols, edgeSet);
+		const diagramOpts: DiagramOptions = {
+			...DEFAULT_DIAGRAM_OPTIONS,
+			kind: cliOpts.diagram,
+			layoutDirection: cliOpts.layoutDirection,
+			stereotypeColors: cliOpts.noColor ? {} : DEFAULT_STEREOTYPE_COLORS,
+		};
+
+		let emissionSymbols = symbols;
+		let emissionEdges = edgeSet;
+
+		if (cliOpts.focus) {
+			const scope = resolveFocusScope(symbols, edgeSet, {
+				focusNode: cliOpts.focus,
+				depth: cliOpts.maxDepth || 1,
+			});
+			emissionSymbols = filterSymbolsByScope(symbols, scope);
+			const filteredEdges = filterEdgesByScope(edgeSet.edges, scope);
+			emissionEdges = createEdgeSet(filteredEdges);
+		}
+
+		const emission = emitPlantUML(emissionSymbols, emissionEdges, diagramOpts);
 		r.succeed("Diagram generated");
 
 		const errorSummary = errorHandler.getSummary();

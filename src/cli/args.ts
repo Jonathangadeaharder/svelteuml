@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import type { OutputFormat } from "../types/config.js";
+import type { DiagramKind, LayoutDirection } from "../types/diagram.js";
 
 export interface CliOptions {
 	targetDir: string;
@@ -13,15 +14,44 @@ export interface CliOptions {
 	quiet: boolean;
 	verbose: boolean;
 	watch: boolean;
+	diagram: DiagramKind;
+	focus: string | undefined;
+	layoutDirection: LayoutDirection;
+	noColor: boolean;
 }
 
 const VALID_FORMATS: readonly OutputFormat[] = ["text", "svg", "png"];
+const VALID_DIAGRAM_KINDS: readonly DiagramKind[] = ["class", "package"];
+const VALID_LAYOUT_DIRECTIONS: readonly LayoutDirection[] = [
+	"top-to-bottom",
+	"left-to-right",
+	"bottom-to-top",
+	"right-to-left",
+];
 
 function parseFormat(value: string): OutputFormat {
 	if (!VALID_FORMATS.includes(value as OutputFormat)) {
 		throw new Error(`Invalid format: "${value}". Must be one of: ${VALID_FORMATS.join(", ")}`);
 	}
 	return value as OutputFormat;
+}
+
+function parseDiagramKind(value: string): DiagramKind {
+	if (!VALID_DIAGRAM_KINDS.includes(value as DiagramKind)) {
+		throw new Error(
+			`Invalid diagram kind: "${value}". Must be one of: ${VALID_DIAGRAM_KINDS.join(", ")}`,
+		);
+	}
+	return value as DiagramKind;
+}
+
+function parseLayoutDirection(value: string): LayoutDirection {
+	if (!VALID_LAYOUT_DIRECTIONS.includes(value as LayoutDirection)) {
+		throw new Error(
+			`Invalid layout direction: "${value}". Must be one of: ${VALID_LAYOUT_DIRECTIONS.join(", ")}`,
+		);
+	}
+	return value as LayoutDirection;
 }
 
 function parseMaxDepth(value: string): number {
@@ -49,6 +79,20 @@ export function parseArgs(argv: string[]): CliOptions {
 		.option("-e, --exclude [glob...]", "glob patterns to exclude", [])
 		.option("--hide-type-deps", "hide TypeScript type dependencies", false)
 		.option("--hide-state-deps", "hide Svelte store/state dependencies", false)
+		.option(
+			"-d, --diagram <kind>",
+			"diagram kind (class, package)",
+			parseDiagramKind,
+			"class" as DiagramKind,
+		)
+		.option("--focus <name>", "focus on a specific node and its neighbourhood")
+		.option(
+			"--layout-direction <dir>",
+			"layout direction",
+			parseLayoutDirection,
+			"top-to-bottom" as LayoutDirection,
+		)
+		.option("--disable-colors", "disable stereotype color theming", false)
 		.option("-q, --quiet", "suppress all output", false)
 		.option("--verbose", "show verbose output", false)
 		.option("--watch", "watch for file changes", false)
@@ -68,6 +112,10 @@ export function parseArgs(argv: string[]): CliOptions {
 		exclude: (opts.exclude as string[] | undefined) ?? [],
 		hideTypeDeps: opts.hideTypeDeps as boolean,
 		hideStateDeps: opts.hideStateDeps as boolean,
+		diagram: opts.diagram as DiagramKind,
+		focus: opts.focus as string | undefined,
+		layoutDirection: opts.layoutDirection as LayoutDirection,
+		noColor: opts.disableColors as boolean,
 		quiet: opts.quiet as boolean,
 		verbose: opts.verbose as boolean,
 		watch: opts.watch as boolean,

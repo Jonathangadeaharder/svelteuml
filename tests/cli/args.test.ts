@@ -162,4 +162,57 @@ describe("parseArgs", () => {
 		expect(result.verbose).toBe(true);
 		expect(result.watch).toBe(true);
 	});
+
+	it("defaults diagram to class", () => {
+		const result = parseArgs(["./src"]);
+		expect(result.diagram).toBe("class");
+	});
+
+	it("parses --diagram package", () => {
+		const result = parseArgs(["./src", "--diagram", "package"]);
+		expect(result.diagram).toBe("package");
+	});
+
+	it("parses --diagram class", () => {
+		const result = parseArgs(["./src", "-d", "class"]);
+		expect(result.diagram).toBe("class");
+	});
+
+	it("throws on invalid diagram kind", () => {
+		expect(() => parseArgs(["./src", "--diagram", "flowchart"])).toThrow();
+	});
+
+	it("parses --focus flag", () => {
+		const result = parseArgs(["./src", "--focus", "MyComponent"]);
+		expect(result.focus).toBe("MyComponent");
+	});
+
+	it("defaults focus to undefined", () => {
+		const result = parseArgs(["./src"]);
+		expect(result.focus).toBeUndefined();
+	});
+
+	it("parses --layout-direction", () => {
+		const result = parseArgs(["./src", "--layout-direction", "left-to-right"]);
+		expect(result.layoutDirection).toBe("left-to-right");
+	});
+
+	it("defaults layoutDirection to top-to-bottom", () => {
+		const result = parseArgs(["./src"]);
+		expect(result.layoutDirection).toBe("top-to-bottom");
+	});
+
+	it("throws on invalid layout direction", () => {
+		expect(() => parseArgs(["./src", "--layout-direction", "circular"])).toThrow();
+	});
+
+	it("parses --disable-colors flag", () => {
+		const result = parseArgs(["./src", "--disable-colors"]);
+		expect(result.noColor).toBe(true);
+	});
+
+	it("defaults noColor to false", () => {
+		const result = parseArgs(["./src"]);
+		expect(result.noColor).toBe(false);
+	});
 });

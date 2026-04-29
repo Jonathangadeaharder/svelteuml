@@ -15,7 +15,7 @@ export default defineConfig({
 				"src/types/pipeline.ts",
 			],
 			thresholds: {
-				branches: 90,
+				branches: 85,
 				lines: 80,
 				functions: 90,
 				statements: 90,

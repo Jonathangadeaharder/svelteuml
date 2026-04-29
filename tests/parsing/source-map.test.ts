@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-	contentHash,
-	decodeVLQMappings,
-	SourceMapDecoder,
-	type SourcePosition,
-} from "../../src/parsing/source-map.js";
+import { contentHash, decodeVLQMappings, SourceMapDecoder } from "../../src/parsing/source-map.js";
 
 describe("decodeVLQMappings", () => {
 	it("decodes an empty mappings string", () => {
