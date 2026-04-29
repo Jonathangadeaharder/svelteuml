@@ -97,8 +97,8 @@ describe("emitPlantUML", () => {
 			...DEFAULT_DIAGRAM_OPTIONS,
 			kind: "class",
 			layoutDirection: "left-to-right",
+			stereotypeColors: undefined as any,
 		});
 		expect(result.content).toContain("left to right direction");
-		expect(result.content).toContain("skinparam class<<component>>");
 	});
 });

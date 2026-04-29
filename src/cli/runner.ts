@@ -193,7 +193,7 @@ export async function runPipeline(
 		if (cliOpts.focus) {
 			const scope = resolveFocusScope(symbols, edgeSet, {
 				focusNode: cliOpts.focus,
-				depth: cliOpts.maxDepth || 1,
+				depth: cliOpts.maxDepth > 0 ? cliOpts.maxDepth : 1,
 			});
 			emissionSymbols = filterSymbolsByScope(symbols, scope);
 			const filteredEdges = filterEdgesByScope(edgeSet.edges, scope);

@@ -18,9 +18,11 @@ export function resolveFocusScope(
 	const maxHops = options.depth <= 0 ? Infinity : options.depth;
 	const visited = new Set<string>();
 	const queue: Array<{ name: string; hop: number }> = [{ name: normalizedFocus, hop: 0 }];
+	let head = 0;
 
-	while (queue.length > 0) {
-		const current = queue.shift();
+	while (head < queue.length) {
+		const current = queue[head];
+		head++;
 		if (!current) continue;
 		if (visited.has(current.name)) continue;
 		visited.add(current.name);
@@ -45,7 +47,7 @@ function collectAllNames(symbols: SymbolTable): Set<string> {
 	for (const fn of symbols.functions) names.add(fn.name);
 	for (const store of symbols.stores) names.add(store.name);
 	for (const exp of symbols.exports) names.add(exp.name);
-	for (const route of symbols.routes) names.add(route.name);
+	for (const route of symbols.routes ?? []) names.add(route.name);
 	const componentMap = new Map<string, string[]>();
 	for (const prop of symbols.props) {
 		let list = componentMap.get(prop.componentName);

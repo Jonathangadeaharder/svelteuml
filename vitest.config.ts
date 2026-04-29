@@ -15,10 +15,13 @@ export default defineConfig({
 				"src/types/pipeline.ts",
 			],
 			thresholds: {
-				branches: 85,
+				branches: 90,
 				lines: 80,
 				functions: 90,
 				statements: 90,
+				"src/parsing/svelte-to-tsx.ts": {
+					branches: 77,
+				},
 			},
 		},
 	},

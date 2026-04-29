@@ -20,6 +20,23 @@ describe("renderColorTheme", () => {
 		expect(result).toContain("component");
 		expect(result).toContain("page");
 	});
+
+	it("sanitizes stereotype with special characters", () => {
+		const result = renderColorTheme({ "my<<stereotype>>": "#FF0000" });
+		expect(result).toContain("my__stereotype__");
+		expect(result).toContain("skinparam class<<my__stereotype__>>");
+		expect(result).not.toContain("<<my<<");
+	});
+
+	it("sanitizes invalid color to fallback", () => {
+		const result = renderColorTheme({ component: "not-a-color" });
+		expect(result).toContain("BackgroundColor #666666");
+	});
+
+	it("allows named colors", () => {
+		const result = renderColorTheme({ component: "red" });
+		expect(result).toContain("BackgroundColor red");
+	});
 });
 
 describe("renderColorLegend", () => {
@@ -34,5 +51,11 @@ describe("renderColorLegend", () => {
 		expect(result).toContain("component");
 		expect(result).toContain("#4A90D9");
 		expect(result).toContain("endlegend");
+	});
+
+	it("sanitizes legend entries", () => {
+		const result = renderColorLegend({ "bad<<name>>": "invalid" });
+		expect(result).toContain("bad__name__");
+		expect(result).toContain("#666666");
 	});
 });

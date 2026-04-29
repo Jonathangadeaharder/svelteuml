@@ -57,7 +57,7 @@ describe("resolveFocusScope", () => {
 		expect(scope.has("Bar")).toBe(true);
 	});
 
-	it("returns only the focus node at depth 0", () => {
+	it("returns focus node and its direct neighbours at depth 0", () => {
 		const symbols = makeSymbols({
 			classes: [
 				{
@@ -245,7 +245,7 @@ describe("resolveFocusScope", () => {
 			classes: [
 				{
 					kind: "class",
-					name: "Layout",
+					name: "AuthLayout",
 					filePath: "/src/routes/(auth)/+layout.svelte",
 					extends: undefined,
 					implements: [],
@@ -256,8 +256,8 @@ describe("resolveFocusScope", () => {
 			],
 		});
 		const edgeSet = makeEdgeSet([]);
-		const scope = resolveFocusScope(symbols, edgeSet, { focusNode: "Layout", depth: 1 });
-		expect(scope.has("Layout")).toBe(true);
+		const scope = resolveFocusScope(symbols, edgeSet, { focusNode: "+layout.svelte", depth: 1 });
+		expect(scope.has("AuthLayout")).toBe(true);
 	});
 
 	it("follows incoming edges (reverse direction)", () => {
