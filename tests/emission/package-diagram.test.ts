@@ -1,0 +1,208 @@
+import { describe, it, expect } from "vitest";
+import { renderPackageDiagram } from "../../src/emission/package-diagram.js";
+import type { SymbolTable } from "../../src/types/ast.js";
+import { createEdgeSet } from "../../src/types/edge.js";
+import { DEFAULT_DIAGRAM_OPTIONS } from "../../src/types/diagram.js";
+
+function makeEmptySymbolTable(overrides: Partial<SymbolTable> = {}): SymbolTable {
+	return { classes: [], functions: [], stores: [], props: [], exports: [], ...overrides };
+}
+
+describe("renderPackageDiagram", () => {
+	it("renders empty diagram with start/end tags", () => {
+		const result = renderPackageDiagram(
+			makeEmptySymbolTable(),
+			createEdgeSet([]),
+			DEFAULT_DIAGRAM_OPTIONS,
+		);
+		expect(result).toContain("@startuml");
+		expect(result).toContain("@enduml");
+	});
+
+	it("groups classes into packages by directory", () => {
+		const symbols = makeEmptySymbolTable({
+			classes: [
+				{
+					kind: "class",
+					name: "AudioPlayer",
+					filePath: "/src/lib/audio.ts",
+					extends: undefined,
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+				},
+				{
+					kind: "class",
+					name: "VideoPlayer",
+					filePath: "/src/lib/media/video.ts",
+					extends: undefined,
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+				},
+			],
+		});
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("AudioPlayer");
+		expect(result).toContain("VideoPlayer");
+	});
+
+	it("renders dependency between packages", () => {
+		const edges = createEdgeSet([
+			{ source: "/src/routes/+page.ts", target: "/src/lib/utils.ts", type: "dependency" },
+		]);
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("..>");
+	});
+
+	it("hides empty packages when hideEmptyPackages is true", () => {
+		const result = renderPackageDiagram(makeEmptySymbolTable(), createEdgeSet([]), {
+			...DEFAULT_DIAGRAM_OPTIONS,
+			hideEmptyPackages: true,
+		});
+		expect(result).toContain("@startuml");
+		expect(result).toContain("@enduml");
+	});
+
+	it("includes title when provided", () => {
+		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, title: "Packages" };
+		const result = renderPackageDiagram(makeEmptySymbolTable(), createEdgeSet([]), opts);
+		expect(result).toContain("@startuml Packages");
+	});
+
+	it("renders stores in packages when showStores is true", () => {
+		const symbols = makeEmptySymbolTable({
+			stores: [
+				{
+					kind: "store",
+					name: "count",
+					filePath: "/src/lib/stores.ts",
+					storeType: "writable",
+					valueType: "number",
+				},
+			],
+		});
+		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, showStores: true };
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), opts);
+		expect(result).toContain("<<store>>");
+		expect(result).toContain("count");
+	});
+
+	it("hides stores when showStores is false", () => {
+		const symbols = makeEmptySymbolTable({
+			stores: [
+				{
+					kind: "store",
+					name: "count",
+					filePath: "/src/lib/stores.ts",
+					storeType: "writable",
+					valueType: "number",
+				},
+			],
+		});
+		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, showStores: false };
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), opts);
+		expect(result).not.toContain("<<store>>");
+	});
+
+	it("renders components in packages when showProps is true", () => {
+		const symbols = makeEmptySymbolTable({
+			props: [
+				{
+					kind: "prop",
+					name: "label",
+					filePath: "/src/lib/Button.svelte",
+					componentName: "Button",
+					type: "string",
+					isRequired: true,
+				},
+			],
+		});
+		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, showProps: true };
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), opts);
+		expect(result).toContain("<<component>>");
+		expect(result).toContain("Button");
+	});
+
+	it("renders functions in packages", () => {
+		const symbols = makeEmptySymbolTable({
+			functions: [
+				{
+					kind: "function",
+					name: "helper",
+					filePath: "/src/lib/utils.ts",
+					isExported: true,
+					isAsync: false,
+					parameters: [],
+					returnType: "void",
+					typeParams: [],
+				},
+			],
+		});
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<function>>");
+		expect(result).toContain("helper");
+	});
+
+	it("skips edges within same package", () => {
+		const edges = createEdgeSet([
+			{ source: "/src/lib/a.ts", target: "/src/lib/b.ts", type: "dependency" },
+		]);
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).not.toContain("..>");
+	});
+
+	it("renders extends arrow between packages", () => {
+		const edges = createEdgeSet([
+			{ source: "/src/lib/a.ts", target: "/src/core/b.ts", type: "extends" },
+		]);
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<|--");
+	});
+
+	it("renders composition arrow between packages", () => {
+		const edges = createEdgeSet([
+			{ source: "/src/routes/+page.ts", target: "/src/lib/store.ts", type: "composition" },
+		]);
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("*--");
+	});
+
+	it("deduplicates edges between same package pair", () => {
+		const edges = createEdgeSet([
+			{ source: "/src/routes/a.ts", target: "/src/lib/b.ts", type: "dependency" },
+			{ source: "/src/routes/c.ts", target: "/src/lib/d.ts", type: "dependency" },
+		]);
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		const matchCount = (result.match(/\.\.>/g) ?? []).length;
+		expect(matchCount).toBe(1);
+	});
+
+	it("skips edges where source or target has no package", () => {
+		const edges = createEdgeSet([
+			{ source: "a.ts", target: "/src/lib/b.ts", type: "dependency" },
+		]);
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).not.toContain("..>");
+	});
+
+	it("renders interface in packages", () => {
+		const symbols = makeEmptySymbolTable({
+			classes: [
+				{
+					kind: "interface",
+					name: "IRepo",
+					filePath: "/src/lib/types.ts",
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+				},
+			],
+		});
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("interface IRepo");
+	});
+});
