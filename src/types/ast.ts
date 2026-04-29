@@ -65,6 +65,7 @@ export interface PropSymbol {
 	type: string;
 	isRequired: boolean;
 	defaultValue?: string | undefined;
+	accessibility?: "public" | "internal";
 }
 
 /** Module-level export. */

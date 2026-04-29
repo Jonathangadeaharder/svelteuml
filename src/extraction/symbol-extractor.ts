@@ -75,10 +75,13 @@ export class SymbolExtractor {
 
 		if (isSvelte) {
 			const componentName = componentNameFromPath(originalPath.replace(/\.tsx$/, ""));
+			const originalSveltePath = originalPath.replace(/\.tsx$/, "");
+			const scriptContext = this.project.getScriptContext(originalSveltePath);
 			const componentProps = extractComponentProps(
 				sourceFile,
 				componentName,
-				originalPath.replace(/\.tsx$/, ""),
+				originalSveltePath,
+				scriptContext,
 			);
 			props.push(...componentProps);
 			return { classes, functions, stores, props };

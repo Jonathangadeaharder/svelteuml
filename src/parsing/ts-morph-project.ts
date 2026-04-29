@@ -1,5 +1,6 @@
 import { Project, type SourceFile, type ts } from "ts-morph";
 import type { AliasMap, SvelteUMLConfig } from "../types/index.js";
+import type { ScriptContextMap } from "./script-context.js";
 import type { SvelteToTsxResult } from "./svelte-to-tsx.js";
 
 /**
@@ -12,7 +13,8 @@ import type { SvelteToTsxResult } from "./svelte-to-tsx.js";
 export class ParsingProject {
 	private project: Project;
 	private sourceFileMap = new Map<string, SourceFile>();
-	private reverseMap = new Map<string, string>(); // virtualPath → originalPath
+	private reverseMap = new Map<string, string>();
+	private scriptContexts = new Map<string, ScriptContextMap>();
 
 	constructor(config?: SvelteUMLConfig, aliases?: AliasMap) {
 		const compilerOptions: ts.CompilerOptions = {
@@ -73,6 +75,14 @@ export class ParsingProject {
 	}
 
 	/** Get the ts-morph SourceFile for an original file path. */
+	addScriptContext(sourcePath: string, context: ScriptContextMap): void {
+		this.scriptContexts.set(sourcePath, context);
+	}
+
+	getScriptContext(sourcePath: string): ScriptContextMap | undefined {
+		return this.scriptContexts.get(sourcePath);
+	}
+
 	getSourceFile(originalPath: string): SourceFile | undefined {
 		return this.sourceFileMap.get(originalPath);
 	}
@@ -117,6 +127,9 @@ export function buildParsingProject(
 	for (const result of svelteResults) {
 		if (result.success) {
 			parsingProject.addConvertedFile(result);
+			if (result.scriptContext) {
+				parsingProject.addScriptContext(result.sourcePath, result.scriptContext);
+			}
 		}
 	}
 
