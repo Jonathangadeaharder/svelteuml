@@ -1,4 +1,10 @@
-import type { ClassSymbol, PropSymbol, StoreSymbol, SymbolTable } from "../types/ast.js";
+import type {
+	ClassSymbol,
+	PropSymbol,
+	RouteSymbol,
+	StoreSymbol,
+	SymbolTable,
+} from "../types/ast.js";
 import type { DiagramOptions } from "../types/diagram.js";
 import type { EdgeSet, EdgeType } from "../types/edge.js";
 
@@ -39,6 +45,10 @@ export function renderClassDiagram(
 		lines.push("");
 	}
 
+	for (const route of symbols.routes ?? []) {
+		renderRoute(lines, route);
+	}
+
 	for (const edge of edgeSet.edges) {
 		renderEdge(lines, edge, nameMap);
 	}
@@ -60,6 +70,10 @@ function buildNameMap(symbols: SymbolTable): Map<string, string> {
 	for (const fn of symbols.functions) {
 		map.set(fn.name, sanitizeId(fn.name));
 		map.set(fn.filePath, sanitizeId(fn.name));
+	}
+	for (const route of symbols.routes ?? []) {
+		map.set(route.name, sanitizeId(route.name));
+		map.set(route.filePath, sanitizeId(route.name));
 	}
 	const components = groupPropsByComponent(symbols.props);
 	for (const [name, props] of components) {
@@ -123,6 +137,31 @@ function renderComponent(
 	}
 	lines.push("}");
 	lines.push("");
+}
+
+function renderRoute(lines: string[], route: RouteSymbol): void {
+	const stereotype = routeStereotype(route);
+	lines.push(`class "${route.name}" <<${stereotype}>> {`);
+	lines.push(`  path: ${route.routeSegment.raw}`);
+	for (const param of route.routeSegment.params) {
+		const matcherSuffix = param.matcher ? `=${param.matcher}` : "";
+		lines.push(`  ${param.kind} ${param.name}${matcherSuffix}`);
+	}
+	for (const group of route.routeSegment.groups) {
+		lines.push(`  group: ${group}`);
+	}
+	lines.push("}");
+	lines.push("");
+}
+
+function routeStereotype(route: RouteSymbol): string {
+	if (route.routeKind === "server") return "endpoint";
+	if (route.routeKind === "error") return "error-page";
+	if (route.routeKind === "page" && route.isServer) return "PageLoad";
+	if (route.routeKind === "layout" && route.isServer) return "LayoutLoad";
+	if (route.routeKind === "page") return "page";
+	if (route.routeKind === "layout") return "layout";
+	return route.routeKind;
 }
 
 function renderEdge(

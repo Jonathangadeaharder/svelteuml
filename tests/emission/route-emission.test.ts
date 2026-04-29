@@ -1,0 +1,227 @@
+import { describe, expect, it } from "vitest";
+import { renderClassDiagram } from "../../src/emission/class-diagram.js";
+import type { SymbolTable } from "../../src/types/ast.js";
+import { DEFAULT_DIAGRAM_OPTIONS } from "../../src/types/diagram.js";
+import { createEdgeSet } from "../../src/types/edge.js";
+
+function makeEmptySymbolTable(overrides: Partial<SymbolTable> = {}): SymbolTable {
+	return {
+		classes: [],
+		functions: [],
+		stores: [],
+		props: [],
+		exports: [],
+		routes: [],
+		...overrides,
+	};
+}
+
+describe("route stereotype rendering in class diagram", () => {
+	it("renders page route with <<page>> stereotype", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+page",
+					filePath: "/src/routes/+page.svelte",
+					routeKind: "page",
+					isServer: false,
+					routeSegment: { raw: "/", params: [], groups: [] },
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<page>>");
+		expect(result).toContain("+page");
+	});
+
+	it("renders layout route with <<layout>> stereotype", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+layout",
+					filePath: "/src/routes/+layout.svelte",
+					routeKind: "layout",
+					isServer: false,
+					routeSegment: { raw: "/", params: [], groups: [] },
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<layout>>");
+	});
+
+	it("renders server route with <<endpoint>> stereotype", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+server",
+					filePath: "/src/routes/api/songs/+server.ts",
+					routeKind: "server",
+					isServer: true,
+					routeSegment: { raw: "/api/songs", params: [], groups: [] },
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<endpoint>>");
+	});
+
+	it("renders error route with <<error-page>> stereotype", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+error",
+					filePath: "/src/routes/+error.svelte",
+					routeKind: "error",
+					isServer: false,
+					routeSegment: { raw: "/", params: [], groups: [] },
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<error-page>>");
+	});
+
+	it("renders page route with server flag as <<PageLoad>>", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+page.server",
+					filePath: "/src/routes/+page.server.ts",
+					routeKind: "page",
+					isServer: true,
+					routeSegment: { raw: "/", params: [], groups: [] },
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<PageLoad>>");
+	});
+
+	it("renders layout route with server flag as <<LayoutLoad>>", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+layout.server",
+					filePath: "/src/routes/+layout.server.ts",
+					routeKind: "layout",
+					isServer: true,
+					routeSegment: { raw: "/", params: [], groups: [] },
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<LayoutLoad>>");
+	});
+
+	it("includes route segment path in route box", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+page",
+					filePath: "/src/routes/users/[id]/+page.svelte",
+					routeKind: "page",
+					isServer: false,
+					routeSegment: {
+						raw: "/users/[id]",
+						params: [{ kind: "dynamic", name: "id" }],
+						groups: [],
+					},
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("/users/[id]");
+	});
+
+	it("annotates dynamic params in route box", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+page",
+					filePath: "/src/routes/users/[id]/+page.svelte",
+					routeKind: "page",
+					isServer: false,
+					routeSegment: {
+						raw: "/users/[id]",
+						params: [{ kind: "dynamic", name: "id" }],
+						groups: [],
+					},
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("dynamic id");
+	});
+
+	it("annotates rest params in route box", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+page",
+					filePath: "/src/routes/docs/[...slug]/+page.svelte",
+					routeKind: "page",
+					isServer: false,
+					routeSegment: {
+						raw: "/docs/[...slug]",
+						params: [{ kind: "rest", name: "slug" }],
+						groups: [],
+					},
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("rest slug");
+	});
+
+	it("annotates params with matchers", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+page",
+					filePath: "/src/routes/items/[id=integer]/+page.svelte",
+					routeKind: "page",
+					isServer: false,
+					routeSegment: {
+						raw: "/items/[id=integer]",
+						params: [{ kind: "dynamic", name: "id", matcher: "integer" }],
+						groups: [],
+					},
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("id=integer");
+	});
+
+	it("annotates group layouts", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+page",
+					filePath: "/src/routes/(auth)/login/+page.svelte",
+					routeKind: "page",
+					isServer: false,
+					routeSegment: {
+						raw: "/(auth)/login",
+						params: [],
+						groups: ["auth"],
+					},
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("group: auth");
+	});
+});
