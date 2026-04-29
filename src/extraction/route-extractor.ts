@@ -1,7 +1,7 @@
 import { basename, dirname } from "node:path";
 import type { SourceFile } from "ts-morph";
 import { SyntaxKind } from "ts-morph";
-import type { FunctionSymbol } from "../types/ast.js";
+import type { FunctionSymbol, RouteParam, RouteParamKind, RouteSegment } from "../types/ast.js";
 import { shouldSkipFile } from "./skip-rules.js";
 
 /**
@@ -83,6 +83,72 @@ export function routeSegmentFromPath(filePath: string): string {
 	if (!match) return "/";
 	const segment = match[1] ?? "";
 	return segment === "" ? "/" : segment;
+}
+
+export function parseRouteParams(segment: string): RouteParam[] {
+	const params: RouteParam[] = [];
+	const re = /\[\[([^\]]+)\]\]|\[([^\]]+)\]/g;
+	for (const match of segment.matchAll(re)) {
+		const raw = match[1] ?? match[2];
+		if (!raw) continue;
+
+		let kind: RouteParamKind;
+		let name: string;
+		let matcher: string | undefined;
+
+		if (match[1] !== undefined) {
+			kind = "optional-rest";
+			const inner = raw.startsWith("...") ? raw.slice(3) : raw;
+			const eqIndex = inner.indexOf("=");
+			if (eqIndex >= 0) {
+				name = inner.slice(0, eqIndex);
+				matcher = inner.slice(eqIndex + 1);
+			} else {
+				name = inner;
+			}
+		} else if (raw.startsWith("...")) {
+			kind = "rest";
+			const inner = raw.slice(3);
+			const eqIndex = inner.indexOf("=");
+			if (eqIndex >= 0) {
+				name = inner.slice(0, eqIndex);
+				matcher = inner.slice(eqIndex + 1);
+			} else {
+				name = inner;
+			}
+		} else {
+			kind = "dynamic";
+			const eqIndex = raw.indexOf("=");
+			if (eqIndex >= 0) {
+				name = raw.slice(0, eqIndex);
+				matcher = raw.slice(eqIndex + 1);
+			} else {
+				name = raw;
+			}
+		}
+
+		const param: RouteParam = { kind, name };
+		if (matcher !== undefined) param.matcher = matcher;
+		params.push(param);
+	}
+	return params;
+}
+
+export function extractGroups(segment: string): string[] {
+	const groups: string[] = [];
+	const re = /\(([^)]+)\)/g;
+	for (const match of segment.matchAll(re)) {
+		groups.push(match[1] ?? "");
+	}
+	return groups;
+}
+
+export function parseRouteSegment(segment: string): RouteSegment {
+	return {
+		raw: segment,
+		params: parseRouteParams(segment),
+		groups: extractGroups(segment),
+	};
 }
 
 /**
