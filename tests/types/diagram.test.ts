@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { DEFAULT_DIAGRAM_OPTIONS } from "../../src/types/diagram.js";
+import { describe, expect, it } from "vitest";
 import type { DiagramKind, DiagramOptions } from "../../src/types/diagram.js";
+import { DEFAULT_DIAGRAM_OPTIONS } from "../../src/types/diagram.js";
 
 describe("src/types/diagram.ts", () => {
 	describe("DiagramKind", () => {

@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import { Project } from "ts-morph";
+import { describe, expect, it } from "vitest";
 import { extractStoreSymbols } from "../../src/extraction/store-extractor.js";
 
 function makeSourceFile(code: string, filePath = "/src/lib/stores.ts") {
@@ -37,7 +37,7 @@ describe("extractStoreSymbols", () => {
 			export const doubled = derived<typeof base, number>(base, $b => $b * 2);
 		`);
 		const result = extractStoreSymbols(sf, "/src/lib/stores.ts");
-		const doubledStore = result.find(s => s.name === "doubled");
+		const doubledStore = result.find((s) => s.name === "doubled");
 		expect(doubledStore?.storeType).toBe("derived");
 	});
 
@@ -61,9 +61,12 @@ describe("extractStoreSymbols", () => {
 	});
 
 	it("skips files in node_modules", () => {
-		const sf = makeSourceFile(`
+		const sf = makeSourceFile(
+			`
 			export const count = writable<number>(0);
-		`, "/project/node_modules/lib/stores.ts");
+		`,
+			"/project/node_modules/lib/stores.ts",
+		);
 		const result = extractStoreSymbols(sf, "/project/node_modules/lib/stores.ts");
 		expect(result).toHaveLength(0);
 	});
@@ -76,7 +79,7 @@ describe("extractStoreSymbols", () => {
 		`);
 		const result = extractStoreSymbols(sf, "/src/lib/stores.ts");
 		expect(result).toHaveLength(2);
-		const names = result.map(s => s.name);
+		const names = result.map((s) => s.name);
 		expect(names).toContain("user");
 		expect(names).toContain("theme");
 	});

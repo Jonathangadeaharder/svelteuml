@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { createEdgeSet } from "../../src/types/edge.js";
+import { describe, expect, it } from "vitest";
 import type { Edge, EdgeType } from "../../src/types/edge.js";
+import { createEdgeSet } from "../../src/types/edge.js";
 
 describe("src/types/edge.ts", () => {
 	describe("EdgeType", () => {

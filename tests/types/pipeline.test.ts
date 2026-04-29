@@ -1,6 +1,12 @@
-import { describe, it, expect } from "vitest";
-import type { ParseResult, ParseError, ExtractionResult, EmissionResult, PipelineResult } from "../../src/types/pipeline.js";
+import { describe, expect, it } from "vitest";
 import { createEdgeSet } from "../../src/types/edge.js";
+import type {
+	EmissionResult,
+	ExtractionResult,
+	ParseError,
+	ParseResult,
+	PipelineResult,
+} from "../../src/types/pipeline.js";
 
 describe("src/types/pipeline.ts", () => {
 	describe("ParseResult", () => {

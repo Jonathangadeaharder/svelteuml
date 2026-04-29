@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { shouldSkipFile, isVirtualSpecifier } from "../../src/extraction/skip-rules.js";
+import { describe, expect, it } from "vitest";
+import { isVirtualSpecifier, shouldSkipFile } from "../../src/extraction/skip-rules.js";
 
 describe("shouldSkipFile", () => {
 	it("skips .d.ts declaration files", () => {

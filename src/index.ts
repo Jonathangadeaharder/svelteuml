@@ -5,12 +5,15 @@ export {
 	safeValidateConfig,
 	validateConfig,
 } from "./config/index.js";
+export type { ResolvedImport } from "./dependency/index.js";
+export { buildEdges, scanImports } from "./dependency/index.js";
 export {
 	type DiscoveryOptions,
 	discoverFiles,
 	loadSvelteConfig,
 	loadTsConfig,
 } from "./discovery/index.js";
+export { emitPlantUML, renderClassDiagram, renderPackageDiagram } from "./emission/index.js";
 export {
 	classifyRouteFile,
 	componentNameFromPath,
