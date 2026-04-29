@@ -177,6 +177,133 @@ describe("renderPackageDiagram", () => {
 		expect(result).not.toContain("..>");
 	});
 
+	it("renders state_dependency arrow between packages", () => {
+		const edges = createEdgeSet([
+			{ source: "/src/routes/+page.ts", target: "/src/lib/store.ts", type: "state_dependency" },
+		]);
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("..>");
+	});
+
+	it("renders aggregation arrow between packages", () => {
+		const edges = createEdgeSet([
+			{ source: "/src/routes/+page.ts", target: "/src/lib/utils.ts", type: "aggregation" },
+		]);
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("o--");
+	});
+
+	it("renders association arrow between packages", () => {
+		const edges = createEdgeSet([
+			{ source: "/src/routes/+page.ts", target: "/src/lib/utils.ts", type: "association" },
+		]);
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("-->");
+	});
+
+	it("removes empty packages when hideEmptyPackages is true", () => {
+		const edges = createEdgeSet([
+			{ source: "/src/routes/a.ts", target: "/src/core/b.ts", type: "dependency" },
+		]);
+		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, hideEmptyPackages: true };
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, opts);
+		expect(result).not.toContain("package");
+		expect(result).toContain("..>");
+	});
+
+	it("renders exported class stereotype in packages", () => {
+		const symbols = makeEmptySymbolTable({
+			classes: [
+				{
+					kind: "class",
+					name: "Svc",
+					filePath: "/src/lib/svc.ts",
+					extends: undefined,
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+					isExported: true,
+				},
+			],
+		});
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<Exported>>");
+	});
+
+	it("renders exported store stereotype in packages", () => {
+		const symbols = makeEmptySymbolTable({
+			stores: [
+				{
+					kind: "store",
+					name: "myStore",
+					filePath: "/src/lib/store.ts",
+					storeType: "writable",
+					valueType: "number",
+					isExported: true,
+				},
+			],
+		});
+		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, showStores: true };
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), opts);
+		expect(result).toContain("<<Exported>>");
+	});
+
+	it("renders exported function stereotype in packages", () => {
+		const symbols = makeEmptySymbolTable({
+			functions: [
+				{
+					kind: "function",
+					name: "helper",
+					filePath: "/src/lib/utils.ts",
+					isExported: true,
+					isAsync: false,
+					parameters: [],
+					returnType: "void",
+					typeParams: [],
+				},
+			],
+		});
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<Exported>>");
+	});
+
+	it("renders state runeKind store stereotype in packages", () => {
+		const symbols = makeEmptySymbolTable({
+			stores: [
+				{
+					kind: "store",
+					name: "count",
+					filePath: "/src/lib/state.ts",
+					storeType: "writable",
+					valueType: "number",
+					runeKind: "state",
+				},
+			],
+		});
+		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, showStores: true };
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), opts);
+		expect(result).toContain("<<state>>");
+	});
+
+	it("renders derived runeKind store stereotype in packages", () => {
+		const symbols = makeEmptySymbolTable({
+			stores: [
+				{
+					kind: "store",
+					name: "doubled",
+					filePath: "/src/lib/derived.ts",
+					storeType: "derived",
+					valueType: "number",
+					runeKind: "derived",
+				},
+			],
+		});
+		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, showStores: true };
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), opts);
+		expect(result).toContain("<<derived>>");
+	});
+
 	it("renders interface in packages", () => {
 		const symbols = makeEmptySymbolTable({
 			classes: [

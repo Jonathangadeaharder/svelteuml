@@ -1,6 +1,8 @@
 import { basename } from "node:path";
 import type { SourceFile } from "ts-morph";
 import { SyntaxKind } from "ts-morph";
+import type { ScriptContextMap } from "../parsing/script-context.js";
+import { getContextForLine } from "../parsing/script-context.js";
 import type { PropSymbol } from "../types/ast.js";
 import { shouldSkipFile } from "./skip-rules.js";
 
@@ -34,12 +36,14 @@ export function extractComponentProps(
 	sourceFile: SourceFile,
 	componentName: string,
 	originalFilePath: string,
+	scriptContext?: ScriptContextMap,
 ): PropSymbol[] {
 	if (shouldSkipFile(originalFilePath)) {
 		return [];
 	}
 
 	const props: PropSymbol[] = [];
+	const propDecls = new Map<string, import("ts-morph").VariableDeclaration>();
 
 	// --- Strategy 1: Svelte 4 `export let` declarations ---
 	for (const varDecl of sourceFile.getVariableDeclarations()) {
@@ -75,6 +79,7 @@ export function extractComponentProps(
 			isRequired,
 			defaultValue: initializer?.getText(),
 		});
+		propDecls.set(name, varDecl);
 	}
 
 	// --- Strategy 2: Svelte 5 $props() rune ---
@@ -122,6 +127,7 @@ export function extractComponentProps(
 				isRequired,
 				defaultValue: defaultNode?.getText(),
 			});
+			propDecls.set(propName, varDecl);
 		}
 
 		// Only process the first $props() declaration
@@ -137,6 +143,19 @@ export function extractComponentProps(
 		if (p && !seen.has(p.name)) {
 			seen.add(p.name);
 			deduped.unshift(p);
+		}
+	}
+
+	if (scriptContext) {
+		for (const prop of deduped) {
+			const decl = propDecls.get(prop.name);
+			if (decl) {
+				const line = decl.getStartLineNumber();
+				const ctx = getContextForLine(scriptContext, line);
+				prop.accessibility = ctx === "module" ? "public" : "internal";
+			} else {
+				prop.accessibility = "internal";
+			}
 		}
 	}
 

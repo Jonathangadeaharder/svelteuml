@@ -2,6 +2,7 @@ import { existsSync, writeFileSync } from "node:fs";
 import type { SvelteUMLConfigInput } from "../config/schema.js";
 import { mergeConfigs, validateConfig } from "../config/schema.js";
 import { buildEdges, scanImports } from "../dependency/index.js";
+import { trackReactiveDependencies } from "../dependency/reactive-tracker.js";
 import { discoverFiles } from "../discovery/file-discovery.js";
 import { loadSvelteConfig } from "../discovery/svelte-config.js";
 import { loadTsConfig } from "../discovery/tsconfig.js";
@@ -9,6 +10,7 @@ import { emitPlantUML } from "../emission/plantuml-emitter.js";
 import { SymbolExtractor } from "../extraction/symbol-extractor.js";
 import { convertFiles } from "../parsing/svelte-to-tsx.js";
 import { buildParsingProject } from "../parsing/ts-morph-project.js";
+import { PipelineErrorHandler } from "../pipeline/error-handler.js";
 import type { OutputFormat } from "../types/config.js";
 import type { Edge } from "../types/edge.js";
 import { createEdgeSet } from "../types/edge.js";
@@ -145,8 +147,16 @@ export async function runPipeline(
 			aliases,
 		);
 
+		const errorHandler = new PipelineErrorHandler(cliOpts.verbose);
+
+		for (const pr of parseResults) {
+			if (!pr.success && pr.error) {
+				errorHandler.addError({ file: pr.sourceFile, phase: "parsing", message: pr.error.message });
+			}
+		}
+
 		r.startPhase("extraction", 0);
-		const extractor = new SymbolExtractor(parsingProject);
+		const extractor = new SymbolExtractor(parsingProject, errorHandler, discovered.exportedFiles);
 		const symbols = extractor.extract();
 		r.succeed("Symbols extracted");
 
@@ -154,7 +164,9 @@ export async function runPipeline(
 		const imports = scanImports(parsingProject, aliases, {
 			excludeExternals: config.excludeExternals,
 		});
-		let edges = buildEdges(imports, symbols);
+		const reactiveSymbols = symbols.stores.filter((s) => s.runeKind);
+		const stateDeps = trackReactiveDependencies(parsingProject.getProject(), reactiveSymbols);
+		let edges = buildEdges(imports, symbols, stateDeps);
 
 		edges = filterEdges(edges, {
 			hideTypeDeps: cliOpts.hideTypeDeps,
@@ -167,6 +179,9 @@ export async function runPipeline(
 		r.startPhase("emission", 0);
 		const emission = emitPlantUML(symbols, edgeSet);
 		r.succeed("Diagram generated");
+
+		const errorSummary = errorHandler.getSummary();
+		if (errorSummary) r.warn(errorSummary);
 
 		if (cliOpts.format === "text" && !cliOpts.outputPath) {
 			process.stdout.write(emission.content);

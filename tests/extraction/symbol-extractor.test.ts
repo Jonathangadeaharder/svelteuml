@@ -1,7 +1,7 @@
-import { Project } from "ts-morph";
 import { describe, expect, it } from "vitest";
 import { SymbolExtractor } from "../../src/extraction/symbol-extractor.js";
 import { ParsingProject } from "../../src/parsing/ts-morph-project.js";
+import { PipelineErrorHandler } from "../../src/pipeline/error-handler.js";
 
 /**
  * Build a ParsingProject from a map of filePath → code.
@@ -24,7 +24,7 @@ describe("SymbolExtractor", () => {
 				export const time = readable<Date>(new Date());
 			`,
 		});
-		const extractor = new SymbolExtractor(project);
+		const extractor = new SymbolExtractor(project, new PipelineErrorHandler());
 		const table = extractor.extract();
 
 		expect(table.stores).toHaveLength(2);
@@ -42,7 +42,7 @@ describe("SymbolExtractor", () => {
 				}
 			`,
 		});
-		const extractor = new SymbolExtractor(project);
+		const extractor = new SymbolExtractor(project, new PipelineErrorHandler());
 		const table = extractor.extract();
 
 		expect(table.functions).toHaveLength(2);
@@ -61,7 +61,7 @@ describe("SymbolExtractor", () => {
 				}
 			`,
 		});
-		const extractor = new SymbolExtractor(project);
+		const extractor = new SymbolExtractor(project, new PipelineErrorHandler());
 		const table = extractor.extract();
 
 		expect(table.classes).toHaveLength(1);
@@ -79,7 +79,7 @@ describe("SymbolExtractor", () => {
 				};
 			`,
 		});
-		const extractor = new SymbolExtractor(project);
+		const extractor = new SymbolExtractor(project, new PipelineErrorHandler());
 		const table = extractor.extract();
 
 		const names = table.functions.map((f) => f.name);
@@ -94,7 +94,7 @@ describe("SymbolExtractor", () => {
 				export async function POST({ request }) { return new Response('ok'); }
 			`,
 		});
-		const extractor = new SymbolExtractor(project);
+		const extractor = new SymbolExtractor(project, new PipelineErrorHandler());
 		const table = extractor.extract();
 
 		const names = table.functions.map((f) => f.name);
@@ -111,7 +111,7 @@ describe("SymbolExtractor", () => {
 				export function greet(name: string): string { return 'hi ' + name; }
 			`,
 		});
-		const extractor = new SymbolExtractor(project);
+		const extractor = new SymbolExtractor(project, new PipelineErrorHandler());
 		const table = extractor.extract();
 
 		// Classes from .d.ts should be skipped; function from .ts should be found
@@ -128,7 +128,7 @@ describe("SymbolExtractor", () => {
 				export const x = writable<number>(0);
 			`,
 		});
-		const extractor = new SymbolExtractor(project);
+		const extractor = new SymbolExtractor(project, new PipelineErrorHandler());
 		const table = extractor.extract();
 
 		// Should not include anything from node_modules
@@ -147,7 +147,7 @@ describe("SymbolExtractor", () => {
 				export function aFunc(): void {}
 			`,
 		});
-		const extractor = new SymbolExtractor(project);
+		const extractor = new SymbolExtractor(project, new PipelineErrorHandler());
 		const table1 = extractor.extract();
 		const table2 = extractor.extract();
 
@@ -160,7 +160,7 @@ describe("SymbolExtractor", () => {
 
 	it("returns empty table for empty project", () => {
 		const project = buildProject({});
-		const extractor = new SymbolExtractor(project);
+		const extractor = new SymbolExtractor(project, new PipelineErrorHandler());
 		const table = extractor.extract();
 
 		expect(table.classes).toHaveLength(0);

@@ -59,12 +59,19 @@ function buildPackages(symbols: SymbolTable, options: DiagramOptions): Map<strin
 	};
 
 	for (const cls of symbols.classes) {
-		addEntry(cls.filePath, `${cls.kind === "interface" ? "interface" : "class"} ${cls.name}`);
+		const exported = cls.isExported ? " <<Exported>>" : "";
+		addEntry(
+			cls.filePath,
+			`${cls.kind === "interface" ? "interface" : "class"} ${cls.name}${exported}`,
+		);
 	}
 
 	if (options.showStores) {
 		for (const store of symbols.stores) {
-			addEntry(store.filePath, `class "${store.name}" <<store>>`);
+			const stereotype =
+				store.runeKind === "state" ? "state" : store.runeKind === "derived" ? "derived" : "store";
+			const exported = store.isExported ? " <<Exported>>" : "";
+			addEntry(store.filePath, `class "${store.name}" <<${stereotype}>>${exported}`);
 		}
 	}
 
@@ -80,7 +87,8 @@ function buildPackages(symbols: SymbolTable, options: DiagramOptions): Map<strin
 	}
 
 	for (const fn of symbols.functions) {
-		addEntry(fn.filePath, `class "${fn.name}" <<function>>`);
+		const exported = fn.isExported ? " <<Exported>>" : "";
+		addEntry(fn.filePath, `class "${fn.name}" <<function>>${exported}`);
 	}
 
 	return packages;
@@ -111,5 +119,7 @@ function mapEdgeArrow(type: EdgeType): string {
 			return "..>";
 		case "association":
 			return "-->";
+		case "state_dependency":
+			return "..>";
 	}
 }

@@ -429,4 +429,145 @@ describe("renderClassDiagram", () => {
 		const result = renderClassDiagram(symbols, createEdgeSet([]), opts);
 		expect(result).not.toContain("<<component>>");
 	});
+
+	it("renders state_dependency edge", () => {
+		const edges = createEdgeSet([{ source: "/a.ts", target: "/b.ts", type: "state_dependency" }]);
+		const result = renderClassDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("..>");
+	});
+
+	it("renders exported class stereotype", () => {
+		const symbols = makeEmptySymbolTable({
+			classes: [
+				{
+					kind: "class",
+					name: "Svc",
+					filePath: "/a.ts",
+					extends: undefined,
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+					isExported: true,
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<Exported>>");
+	});
+
+	it("renders exported store stereotype", () => {
+		const symbols = makeEmptySymbolTable({
+			stores: [
+				{
+					kind: "store",
+					name: "myStore",
+					filePath: "/src/lib/store.ts",
+					storeType: "writable",
+					valueType: "number",
+					isExported: true,
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<Exported>>");
+	});
+
+	it("renders store with state runeKind", () => {
+		const symbols = makeEmptySymbolTable({
+			stores: [
+				{
+					kind: "store",
+					name: "count",
+					filePath: "/src/lib/store.ts",
+					storeType: "writable",
+					valueType: "number",
+					runeKind: "state",
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<state>>");
+	});
+
+	it("renders store with derived runeKind", () => {
+		const symbols = makeEmptySymbolTable({
+			stores: [
+				{
+					kind: "store",
+					name: "doubled",
+					filePath: "/src/lib/store.ts",
+					storeType: "derived",
+					valueType: "number",
+					runeKind: "derived",
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<derived>>");
+	});
+
+	it("renders edge with label", () => {
+		const edges = createEdgeSet([
+			{ source: "/a.ts", target: "/b.ts", type: "dependency", label: "import" },
+		]);
+		const result = renderClassDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain(": import");
+	});
+
+	it("renders component props when showMembers is true", () => {
+		const symbols = makeEmptySymbolTable({
+			props: [
+				{
+					kind: "prop",
+					name: "title",
+					filePath: "/src/lib/Header.svelte",
+					componentName: "Header",
+					type: "string",
+					isRequired: true,
+				},
+			],
+		});
+		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, showProps: true, showMembers: true };
+		const result = renderClassDiagram(symbols, createEdgeSet([]), opts);
+		expect(result).toContain("title: string");
+	});
+
+	it("hides component props when showMembers is false", () => {
+		const symbols = makeEmptySymbolTable({
+			props: [
+				{
+					kind: "prop",
+					name: "title",
+					filePath: "/src/lib/Header.svelte",
+					componentName: "Header",
+					type: "string",
+					isRequired: true,
+				},
+			],
+		});
+		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, showProps: true, showMembers: false };
+		const result = renderClassDiagram(symbols, createEdgeSet([]), opts);
+		expect(result).not.toContain("title: string");
+	});
+
+	it("renders non-exported function without stereotype", () => {
+		const symbols = makeEmptySymbolTable({
+			functions: [
+				{
+					kind: "function",
+					name: "internal",
+					filePath: "/src/lib/utils.ts",
+					isExported: false,
+					isAsync: false,
+					parameters: [],
+					returnType: "void",
+					typeParams: [],
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("internal");
+		expect(result).not.toContain("<<Exported>>");
+	});
 });

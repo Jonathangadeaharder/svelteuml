@@ -4,7 +4,8 @@ export type EdgeType =
 	| "composition"
 	| "aggregation"
 	| "dependency"
-	| "association";
+	| "association"
+	| "state_dependency";
 
 export interface Edge {
 	readonly source: string;

@@ -108,7 +108,7 @@ describe("extractStoreSymbols", () => {
 		expect(result[0]?.valueType).toBe("number");
 	});
 
-	it("ignores $state rune in non-svelte.ts files", () => {
+	it("detects $state rune in regular .ts files with runeKind", () => {
 		const sf = makeSourceFile(
 			`
 			export const count = $state<number>(0);
@@ -116,6 +116,63 @@ describe("extractStoreSymbols", () => {
 			"/src/lib/stores.ts",
 		);
 		const result = extractStoreSymbols(sf, "/src/lib/stores.ts");
-		expect(result).toHaveLength(0);
+		expect(result).toHaveLength(1);
+		expect(result[0]?.runeKind).toBe("state");
+	});
+
+	it("detects exported $state rune with runeKind", () => {
+		const project = new Project({ useInMemoryFileSystem: true });
+		const code = `
+import { writable } from 'svelte/store';
+export const count = $state(0);
+export const items = $state<string[]>([]);
+`;
+		const sf = project.createSourceFile("store.svelte.ts", code, { overwrite: true });
+		const results = extractStoreSymbols(sf, "store.svelte.ts");
+		expect(results).toHaveLength(2);
+		const countStore = results.find((s) => s.name === "count");
+		expect(countStore?.runeKind).toBe("state");
+		expect(countStore?.storeType).toBe("writable");
+		const itemsStore = results.find((s) => s.name === "items");
+		expect(itemsStore?.runeKind).toBe("state");
+		expect(itemsStore?.valueType).toBe("string[]");
+	});
+
+	it("detects exported $derived rune with runeKind", () => {
+		const project = new Project({ useInMemoryFileSystem: true });
+		const code = `
+export const doubled = $derived(count * 2);
+export const computed = $derived.by(() => expensive());
+`;
+		const sf = project.createSourceFile("store.svelte.ts", code, { overwrite: true });
+		const results = extractStoreSymbols(sf, "store.svelte.ts");
+		expect(results).toHaveLength(2);
+		const doubled = results.find((s) => s.name === "doubled");
+		expect(doubled?.runeKind).toBe("derived");
+		expect(doubled?.storeType).toBe("derived");
+		const computed = results.find((s) => s.name === "computed");
+		expect(computed?.runeKind).toBe("derived");
+	});
+
+	it("does not extract $effect calls", () => {
+		const project = new Project({ useInMemoryFileSystem: true });
+		const code = `
+export const count = $state(0);
+$effect(() => { console.log(count); });
+`;
+		const sf = project.createSourceFile("store.svelte.ts", code, { overwrite: true });
+		const results = extractStoreSymbols(sf, "store.svelte.ts");
+		expect(results).toHaveLength(1);
+		expect(results[0]?.name).toBe("count");
+	});
+
+	it("detects $state with union type in regular .ts files", () => {
+		const project = new Project({ useInMemoryFileSystem: true });
+		const code = `export const theme = $state<'light' | 'dark'>('light');`;
+		const sf = project.createSourceFile("theme.ts", code, { overwrite: true });
+		const results = extractStoreSymbols(sf, "theme.ts");
+		expect(results).toHaveLength(1);
+		expect(results[0]?.runeKind).toBe("state");
+		expect(results[0]?.valueType).toBe("'light' | 'dark'");
 	});
 });

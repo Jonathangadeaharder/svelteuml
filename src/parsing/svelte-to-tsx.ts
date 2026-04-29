@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import type { ParseError, ParseResult } from "../types/index.js";
+import { parseScriptContexts, type ScriptContextMap } from "./script-context.js";
 
 /** svelte2tsx is a dev/optional dependency — lazy-load to avoid crash at runtime if missing. */
 type Svelte2TsxFn = (
@@ -46,7 +47,7 @@ export interface SvelteToTsxResult {
 	sourceMap: unknown;
 	/** Whether the conversion succeeded. */
 	success: boolean;
-	/** Parse error details if conversion failed. */
+	scriptContext?: ScriptContextMap;
 	error?: ParseError;
 }
 
@@ -61,6 +62,7 @@ export async function convertSvelteToTsx(filePath: string): Promise<SvelteToTsxR
 	try {
 		const content = await readFile(filePath, "utf-8");
 		const isTs = isTypeScriptSvelte(content);
+		const scriptContext = parseScriptContexts(content);
 		const svelte2tsx = await getSvelte2Tsx();
 
 		const result = svelte2tsx(content, {
@@ -76,6 +78,7 @@ export async function convertSvelteToTsx(filePath: string): Promise<SvelteToTsxR
 			tsxCode: result.code,
 			sourceMap: result.map,
 			success: true,
+			scriptContext: { ...scriptContext, sourcePath: filePath },
 		};
 	} catch (err: unknown) {
 		const message = err instanceof Error ? err.message : String(err);

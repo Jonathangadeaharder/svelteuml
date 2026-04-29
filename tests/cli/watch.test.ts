@@ -1,9 +1,9 @@
 import { mkdir, rm, writeFile } from "node:fs/promises";
-import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
-import { startWatcher } from "../../src/cli/watch.js";
+import { join } from "node:path";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { CliOptions } from "../../src/cli/args.js";
+import { startWatcher } from "../../src/cli/watch.js";
 
 let tempDir: string;
 

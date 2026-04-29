@@ -1,8 +1,13 @@
 import type { SymbolTable } from "../types/ast.js";
 import type { Edge } from "../types/edge.js";
 import type { ResolvedImport } from "./import-scanner.js";
+import type { StateDependency } from "./reactive-tracker.js";
 
-export function buildEdges(imports: ResolvedImport[], symbols: SymbolTable): Edge[] {
+export function buildEdges(
+	imports: ResolvedImport[],
+	symbols: SymbolTable,
+	stateDeps: StateDependency[] = [],
+): Edge[] {
 	const edges: Edge[] = [];
 	const seen = new Set<string>();
 
@@ -78,6 +83,15 @@ export function buildEdges(imports: ResolvedImport[], symbols: SymbolTable): Edg
 				});
 			}
 		}
+	}
+
+	for (const dep of stateDeps) {
+		addEdge({
+			source: dep.sourceFile,
+			target: dep.targetFile,
+			type: "state_dependency",
+			label: `${dep.symbolName} <<${dep.dependencyKind}>>`,
+		});
 	}
 
 	return edges;
