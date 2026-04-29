@@ -76,6 +76,27 @@ describe("src/cli/runner.ts", () => {
 
 			expect(result.outputPath).toBe(resolve("diagram.png"));
 		});
+
+		it("uses CLI outputPath when provided", () => {
+			const cliOpts = makeCliOpts({ outputPath: "/custom/output.puml" });
+			const result = buildCliConfig(cliOpts, {});
+
+			expect(result.outputPath).toBe(resolve("/custom/output.puml"));
+		});
+
+		it("sets maxDepth from CLI when non-zero", () => {
+			const cliOpts = makeCliOpts({ maxDepth: 7 });
+			const result = buildCliConfig(cliOpts, {});
+
+			expect(result.maxDepth).toBe(7);
+		});
+
+		it("sets excludeExternals from CLI when true", () => {
+			const cliOpts = makeCliOpts({ excludeExternals: true });
+			const result = buildCliConfig(cliOpts, {});
+
+			expect(result.excludeExternals).toBe(true);
+		});
 	});
 
 	describe("filterEdges", () => {
@@ -110,6 +131,18 @@ describe("src/cli/runner.ts", () => {
 			const result = filterEdges(edges, { hideTypeDeps: false, hideStateDeps: false });
 			expect(result).toHaveLength(2);
 		});
+
+		it("filters both type and store edges when both flags are true", () => {
+			const edges = [
+				{ source: "a", target: "b", type: "dependency" as const, label: "type" },
+				{ source: "c", target: "d", type: "dependency" as const, label: "store" },
+				{ source: "e", target: "f", type: "association" as const, label: "import" },
+			];
+
+			const result = filterEdges(edges, { hideTypeDeps: true, hideStateDeps: true });
+			expect(result).toHaveLength(1);
+			expect(result[0]?.label).toBe("import");
+		});
 	});
 
 	describe("runPipeline", () => {
@@ -121,6 +154,31 @@ describe("src/cli/runner.ts", () => {
 
 			expect(result.success).toBe(false);
 			expect(result.error).toContain("does not exist");
+		});
+
+		it("returns error when config validation fails", async () => {
+			const cliOpts = makeCliOpts({ maxDepth: 0 });
+			const result = await runPipeline(cliOpts, { maxDepth: -1 });
+
+			expect(result.success).toBe(false);
+			expect(result.error).toBeDefined();
+		});
+
+		it("uses provided reporter instead of noop", async () => {
+			const reporter = {
+				start: vi.fn(),
+				update: vi.fn(),
+				succeed: vi.fn(),
+				fail: vi.fn(),
+				warn: vi.fn(),
+				info: vi.fn(),
+				stop: vi.fn(),
+				startPhase: vi.fn(),
+			};
+			const cliOpts = makeCliOpts({ maxDepth: 0 });
+			const result = await runPipeline(cliOpts, { maxDepth: -1 }, reporter);
+
+			expect(result.success).toBe(false);
 		});
 	});
 });

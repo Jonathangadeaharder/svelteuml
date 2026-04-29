@@ -124,4 +124,58 @@ describe("createProgressReporter", () => {
 			reporter.succeed();
 		}).not.toThrow();
 	});
+
+	it("start reuses existing spinner", () => {
+		vi.stubGlobal("process", {
+			...process,
+			stdout: { ...process.stdout, isTTY: true },
+		});
+		const reporter = createProgressReporter({ quiet: false });
+		expect(() => {
+			reporter.start("first");
+			reporter.start("second");
+			reporter.succeed();
+		}).not.toThrow();
+	});
+
+	it("startPhase reuses existing spinner", () => {
+		vi.stubGlobal("process", {
+			...process,
+			stdout: { ...process.stdout, isTTY: true },
+		});
+		const reporter = createProgressReporter({ quiet: false });
+		expect(() => {
+			reporter.startPhase("discovery", 0);
+			reporter.startPhase("parsing", 5);
+			reporter.succeed();
+		}).not.toThrow();
+	});
+
+	it("warn and info work after start", () => {
+		vi.stubGlobal("process", {
+			...process,
+			stdout: { ...process.stdout, isTTY: true },
+		});
+		const reporter = createProgressReporter({ quiet: false });
+		expect(() => {
+			reporter.start("loading");
+			reporter.warn("warning msg");
+			reporter.start("loading2");
+			reporter.info("info msg");
+		}).not.toThrow();
+	});
+
+	it("stop clears spinner", () => {
+		vi.stubGlobal("process", {
+			...process,
+			stdout: { ...process.stdout, isTTY: true },
+		});
+		const reporter = createProgressReporter({ quiet: false });
+		expect(() => {
+			reporter.start("loading");
+			reporter.stop();
+			reporter.start("after-stop");
+			reporter.succeed();
+		}).not.toThrow();
+	});
 });

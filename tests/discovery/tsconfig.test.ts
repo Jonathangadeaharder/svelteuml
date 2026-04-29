@@ -155,4 +155,72 @@ describe("discovery/tsconfig.ts", () => {
 		expect(res.aliases["$components"]).toContain("src/components");
 		expect(res.aliases["$utils"]).toContain("src/utils");
 	});
+
+	it("defaults baseUrl to project root when no baseUrl in config", async () => {
+		await fs.writeFile(
+			tsPath,
+			JSON.stringify({
+				compilerOptions: {},
+			}),
+			"utf8",
+		);
+
+		const res: TsConfigResult = await loadTsConfig(tmpDir);
+		expect(res.found).toBe(true);
+		expect(res.baseUrl).toBe(path.resolve(tmpDir));
+	});
+
+	it("returns empty aliases when paths is absent", async () => {
+		await fs.writeFile(
+			tsPath,
+			JSON.stringify({
+				compilerOptions: {
+					baseUrl: ".",
+				},
+			}),
+			"utf8",
+		);
+
+		const res: TsConfigResult = await loadTsConfig(tmpDir);
+		expect(res.found).toBe(true);
+		expect(res.aliases).toEqual({});
+	});
+
+	it("skips alias entries with empty targets array", async () => {
+		await fs.writeFile(
+			tsPath,
+			JSON.stringify({
+				compilerOptions: {
+					baseUrl: ".",
+					paths: {
+						"$lib/*": [],
+						"$utils/*": ["src/utils/*"],
+					},
+				},
+			}),
+			"utf8",
+		);
+
+		const res: TsConfigResult = await loadTsConfig(tmpDir);
+		expect(res.aliases).not.toHaveProperty("$lib");
+		expect(res.aliases).toHaveProperty("$utils");
+	});
+
+	it("keeps absolute target paths as-is", async () => {
+		await fs.writeFile(
+			tsPath,
+			JSON.stringify({
+				compilerOptions: {
+					baseUrl: ".",
+					paths: {
+						"$lib/*": ["/absolute/path/lib/*"],
+					},
+				},
+			}),
+			"utf8",
+		);
+
+		const res: TsConfigResult = await loadTsConfig(tmpDir);
+		expect(res.aliases["$lib"]).toBe("/absolute/path/lib");
+	});
 });

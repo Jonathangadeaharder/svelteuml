@@ -246,4 +246,57 @@ describe("buildEdges", () => {
 		expect(result).toHaveLength(1);
 		expect(result[0]?.type).toBe("dependency");
 	});
+
+	it("creates edge without label when importedNames is empty", () => {
+		const imports: ResolvedImport[] = [
+			{
+				sourceFile: "/src/lib/a.ts",
+				targetFile: "/src/lib/b.ts",
+				importedNames: [],
+				isTypeOnly: false,
+			},
+		];
+		const result = buildEdges(imports, makeSymbolTable());
+		expect(result).toHaveLength(1);
+		expect(result[0]?.type).toBe("dependency");
+		expect(result[0]?.label).toBeUndefined();
+	});
+
+	it("skips extends edge when parent class is not in symbol table", () => {
+		const symbols = makeSymbolTable({
+			classes: [
+				{
+					kind: "class",
+					name: "Orphan",
+					filePath: "/src/lib/orphan.ts",
+					extends: "UnknownParent",
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+				},
+			],
+		});
+		const result = buildEdges([], symbols);
+		expect(result).toHaveLength(0);
+	});
+
+	it("skips implements edge when interface is not in symbol table", () => {
+		const symbols = makeSymbolTable({
+			classes: [
+				{
+					kind: "class",
+					name: "MyClass",
+					filePath: "/src/lib/my.ts",
+					extends: undefined,
+					implements: ["MissingInterface"],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+				},
+			],
+		});
+		const result = buildEdges([], symbols);
+		expect(result).toHaveLength(0);
+	});
 });

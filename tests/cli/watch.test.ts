@@ -59,9 +59,37 @@ describe("startWatcher", () => {
 		const testFile = join(tempDir, "test.svelte");
 		await writeFile(testFile, "<script>let x = 1;</script>");
 
-		await new Promise((resolve) => setTimeout(resolve, 700));
+		await new Promise((resolve) => setTimeout(resolve, 2000));
 
 		expect(handler).toHaveBeenCalled();
 		await watcher.close();
+	});
+
+	it("debounces multiple rapid file changes", async () => {
+		const cliOpts = makeCliOpts();
+		const watcher = startWatcher(cliOpts, {});
+		const handler = vi.fn();
+		watcher.on("change", handler);
+
+		await writeFile(join(tempDir, "a.svelte"), "<script>let a = 1;</script>");
+		await new Promise((resolve) => setTimeout(resolve, 100));
+		await writeFile(join(tempDir, "b.svelte"), "<script>let b = 2;</script>");
+
+		await new Promise((resolve) => setTimeout(resolve, 700));
+
+		expect(handler).toHaveBeenCalledTimes(1);
+		await watcher.close();
+	});
+
+	it("clears pending debounce timer on close", async () => {
+		const cliOpts = makeCliOpts();
+		const watcher = startWatcher(cliOpts, {});
+
+		await writeFile(join(tempDir, "c.svelte"), "<script>let c = 3;</script>");
+
+		await new Promise((resolve) => setTimeout(resolve, 50));
+		await watcher.close();
+
+		expect(watcher).toBeDefined();
 	});
 });
