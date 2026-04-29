@@ -2,9 +2,9 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { SymbolExtractor } from "../../src/extraction/symbol-extractor.js";
 import { ParsingProject } from "../../src/parsing/ts-morph-project.js";
 import { PipelineErrorHandler } from "../../src/pipeline/error-handler.js";
-import { SymbolExtractor } from "../../src/extraction/symbol-extractor.js";
 
 describe("SymbolExtractor error handling", () => {
 	let tmpDir: string;
@@ -34,14 +34,8 @@ describe("SymbolExtractor error handling", () => {
 	it("catches extraction errors per file", () => {
 		const project = new ParsingProject();
 		const errorHandler = new PipelineErrorHandler();
-		project.addPlainSourceFile(
-			path.join(tmpDir, "bad.ts"),
-			"this is not valid typescript {{{",
-		);
-		project.addPlainSourceFile(
-			path.join(tmpDir, "good.ts"),
-			"export function ok(): void {}",
-		);
+		project.addPlainSourceFile(path.join(tmpDir, "bad.ts"), "this is not valid typescript {{{");
+		project.addPlainSourceFile(path.join(tmpDir, "good.ts"), "export function ok(): void {}");
 		const extractor = new SymbolExtractor(project, errorHandler);
 		const symbols = extractor.extract();
 		expect(errorHandler.getFailedFiles().length).toBeGreaterThanOrEqual(0);

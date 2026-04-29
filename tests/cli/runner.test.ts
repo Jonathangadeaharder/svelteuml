@@ -8,9 +8,68 @@ vi.mock("node:fs", () => ({
 	writeFileSync: vi.fn(),
 }));
 
-import { existsSync } from "node:fs";
+vi.mock("../../src/discovery/file-discovery.js", () => ({
+	discoverFiles: vi.fn().mockResolvedValue({
+		svelte: [],
+		typescript: [],
+		javascript: [],
+		svelteModules: [],
+		exportedFiles: new Set(),
+	}),
+}));
+
+vi.mock("../../src/discovery/svelte-config.js", () => ({
+	loadSvelteConfig: vi.fn().mockResolvedValue({ aliases: {} }),
+}));
+
+vi.mock("../../src/discovery/tsconfig.js", () => ({
+	loadTsConfig: vi.fn().mockResolvedValue({ aliases: {} }),
+}));
+
+vi.mock("../../src/parsing/svelte-to-tsx.js", () => ({
+	convertFiles: vi.fn().mockResolvedValue({
+		results: [],
+		parseResults: [],
+	}),
+}));
+
+vi.mock("../../src/parsing/ts-morph-project.js", () => ({
+	buildParsingProject: vi.fn().mockReturnValue({
+		getProject: vi.fn().mockReturnValue({
+			getSourceFile: vi.fn().mockReturnValue(undefined),
+		}),
+	}),
+}));
+
+vi.mock("../../src/extraction/symbol-extractor.js", () => ({
+	SymbolExtractor: vi.fn().mockImplementation(() => ({
+		extract: vi.fn().mockReturnValue({
+			classes: [],
+			functions: [],
+			stores: [],
+			props: [],
+			exports: [],
+		}),
+	})),
+}));
+
+vi.mock("../../src/dependency/index.js", () => ({
+	scanImports: vi.fn().mockReturnValue([]),
+	buildEdges: vi.fn().mockReturnValue([]),
+}));
+
+vi.mock("../../src/dependency/reactive-tracker.js", () => ({
+	trackReactiveDependencies: vi.fn().mockReturnValue([]),
+}));
+
+vi.mock("../../src/emission/plantuml-emitter.js", () => ({
+	emitPlantUML: vi.fn().mockReturnValue({ content: "@startuml\n@enduml" }),
+}));
+
+import { existsSync, writeFileSync } from "node:fs";
 
 const mockedExistsSync = vi.mocked(existsSync);
+const mockedWriteFileSync = vi.mocked(writeFileSync);
 
 function makeCliOpts(overrides: Partial<CliOptions> = {}): CliOptions {
 	return {
@@ -181,6 +240,47 @@ describe("src/cli/runner.ts", () => {
 			const result = await runPipeline(cliOpts, { maxDepth: -1 }, reporter);
 
 			expect(result.success).toBe(false);
+		});
+
+		it("writes file when format is not text or outputPath is set", async () => {
+			const cliOpts = makeCliOpts({ format: "text", outputPath: "/tmp/out.puml" });
+			const result = await runPipeline(cliOpts, {});
+
+			expect(result.success).toBe(true);
+			expect(mockedWriteFileSync).toHaveBeenCalled();
+		});
+
+		it("writes file for svg format without outputPath", async () => {
+			const cliOpts = makeCliOpts({ format: "svg" });
+			const result = await runPipeline(cliOpts, {});
+
+			expect(result.success).toBe(true);
+			expect(mockedWriteFileSync).toHaveBeenCalled();
+		});
+
+		it("returns success for text format without outputPath (stdout)", async () => {
+			const originalWrite = process.stdout.write;
+			process.stdout.write = vi.fn().mockReturnValue(true);
+
+			const cliOpts = makeCliOpts({ format: "text" });
+			const result = await runPipeline(cliOpts, {});
+
+			expect(result.success).toBe(true);
+			expect(result.fileCount).toBe(0);
+			expect(mockedWriteFileSync).not.toHaveBeenCalled();
+
+			process.stdout.write = originalWrite;
+		});
+
+		it("catches unexpected errors and returns failure", async () => {
+			const { discoverFiles } = await import("../../src/discovery/file-discovery.js");
+			vi.mocked(discoverFiles).mockRejectedValueOnce(new Error("disk failure"));
+
+			const cliOpts = makeCliOpts();
+			const result = await runPipeline(cliOpts, {});
+
+			expect(result.success).toBe(false);
+			expect(result.error).toContain("disk failure");
 		});
 	});
 });
