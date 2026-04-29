@@ -65,6 +65,7 @@ export class SymbolExtractor {
 			stores: sortBy(stores, (s) => `${s.filePath}::${s.name}`),
 			props: sortBy(props, (p) => `${p.filePath}::${p.componentName}::${p.name}`),
 			exports,
+			routes: [],
 		};
 	}
 
