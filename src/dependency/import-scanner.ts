@@ -58,9 +58,7 @@ function extractImportsFromFile(
 		}
 
 		const defaultImport = importDecl.getDefaultImport();
-		const importedNames = defaultImport
-			? [defaultImport.getText(), ...namedImports]
-			: namedImports;
+		const importedNames = defaultImport ? [defaultImport.getText(), ...namedImports] : namedImports;
 
 		results.push({
 			sourceFile: originalPath,
