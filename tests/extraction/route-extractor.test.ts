@@ -285,3 +285,33 @@ describe("extractRouteFileSymbol", () => {
 		expect(result?.exportedFunctions).toHaveLength(1);
 	});
 });
+
+describe("routeSegmentFromPath with dynamic segments", () => {
+	it("preserves [param] in segment", () => {
+		expect(routeSegmentFromPath("/project/src/routes/users/[id]/+page.svelte")).toBe("/users/[id]");
+	});
+
+	it("preserves [...slug] in segment", () => {
+		expect(routeSegmentFromPath("/project/src/routes/docs/[...slug]/+page.svelte")).toBe(
+			"/docs/[...slug]",
+		);
+	});
+
+	it("preserves [[optional]] in segment", () => {
+		expect(routeSegmentFromPath("/project/src/routes/docs/[[lang]]/+page.svelte")).toBe(
+			"/docs/[[lang]]",
+		);
+	});
+
+	it("preserves (group) in segment", () => {
+		expect(routeSegmentFromPath("/project/src/routes/(auth)/login/+page.svelte")).toBe(
+			"/(auth)/login",
+		);
+	});
+
+	it("preserves [param=matcher] in segment", () => {
+		expect(routeSegmentFromPath("/project/src/routes/items/[id=integer]/+page.svelte")).toBe(
+			"/items/[id=integer]",
+		);
+	});
+});

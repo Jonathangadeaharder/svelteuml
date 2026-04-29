@@ -79,8 +79,39 @@ export interface ExportSymbol {
 	typeAnnotation?: string;
 }
 
+export type RouteParamKind = "dynamic" | "rest" | "optional";
+
+export interface RouteParam {
+	kind: RouteParamKind;
+	name: string;
+	matcher?: string;
+}
+
+export interface RouteSegment {
+	raw: string;
+	params: RouteParam[];
+	groups: string[];
+}
+
+export type RouteFileKind = "page" | "layout" | "error" | "server";
+
+export interface RouteSymbol {
+	kind: "route";
+	name: string;
+	filePath: string;
+	routeKind: RouteFileKind;
+	isServer: boolean;
+	routeSegment: RouteSegment;
+}
+
 /** Union of all extractable symbols. */
-export type SymbolInfo = ClassSymbol | FunctionSymbol | StoreSymbol | PropSymbol | ExportSymbol;
+export type SymbolInfo =
+	| ClassSymbol
+	| FunctionSymbol
+	| StoreSymbol
+	| PropSymbol
+	| ExportSymbol
+	| RouteSymbol;
 
 /** Complete symbol table for a project. */
 export interface SymbolTable {
@@ -89,4 +120,5 @@ export interface SymbolTable {
 	stores: StoreSymbol[];
 	props: PropSymbol[];
 	exports: ExportSymbol[];
+	routes: RouteSymbol[];
 }

@@ -1,6 +1,7 @@
 import type { SymbolTable } from "../types/ast.js";
 import type { DiagramOptions } from "../types/diagram.js";
 import type { EdgeSet, EdgeType } from "../types/edge.js";
+import { routeStereotype } from "./route-utils.js";
 
 export function renderPackageDiagram(
 	symbols: SymbolTable,
@@ -89,6 +90,11 @@ function buildPackages(symbols: SymbolTable, options: DiagramOptions): Map<strin
 	for (const fn of symbols.functions) {
 		const exported = fn.isExported ? " <<Exported>>" : "";
 		addEntry(fn.filePath, `class "${fn.name}" <<function>>${exported}`);
+	}
+
+	for (const route of symbols.routes ?? []) {
+		const stereotype = routeStereotype(route);
+		addEntry(route.filePath, `class "${route.name}" <<${stereotype}>>`);
 	}
 
 	return packages;

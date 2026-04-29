@@ -1,6 +1,13 @@
-import type { ClassSymbol, PropSymbol, StoreSymbol, SymbolTable } from "../types/ast.js";
+import type {
+	ClassSymbol,
+	PropSymbol,
+	RouteSymbol,
+	StoreSymbol,
+	SymbolTable,
+} from "../types/ast.js";
 import type { DiagramOptions } from "../types/diagram.js";
 import type { EdgeSet, EdgeType } from "../types/edge.js";
+import { routeStereotype } from "./route-utils.js";
 
 export function renderClassDiagram(
 	symbols: SymbolTable,
@@ -39,6 +46,10 @@ export function renderClassDiagram(
 		lines.push("");
 	}
 
+	for (const route of symbols.routes ?? []) {
+		renderRoute(lines, route);
+	}
+
 	for (const edge of edgeSet.edges) {
 		renderEdge(lines, edge, nameMap);
 	}
@@ -60,6 +71,10 @@ function buildNameMap(symbols: SymbolTable): Map<string, string> {
 	for (const fn of symbols.functions) {
 		map.set(fn.name, sanitizeId(fn.name));
 		map.set(fn.filePath, sanitizeId(fn.name));
+	}
+	for (const route of symbols.routes ?? []) {
+		map.set(route.name, sanitizeId(route.name));
+		map.set(route.filePath, sanitizeId(route.name));
 	}
 	const components = groupPropsByComponent(symbols.props);
 	for (const [name, props] of components) {
@@ -120,6 +135,21 @@ function renderComponent(
 			const suffix = prop.isRequired ? "" : "?";
 			lines.push(`  + ${prop.name}${suffix}: ${prop.type}`);
 		}
+	}
+	lines.push("}");
+	lines.push("");
+}
+
+function renderRoute(lines: string[], route: RouteSymbol): void {
+	const stereotype = routeStereotype(route);
+	lines.push(`class "${route.name}" as ${sanitizeId(route.name)} <<${stereotype}>> {`);
+	lines.push(`  path: ${route.routeSegment.raw}`);
+	for (const param of route.routeSegment.params) {
+		const matcherSuffix = param.matcher ? `=${param.matcher}` : "";
+		lines.push(`  ${param.kind} ${param.name}${matcherSuffix}`);
+	}
+	for (const group of route.routeSegment.groups) {
+		lines.push(`  group: ${group}`);
 	}
 	lines.push("}");
 	lines.push("");
