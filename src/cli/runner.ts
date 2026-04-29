@@ -9,6 +9,7 @@ import { emitPlantUML } from "../emission/plantuml-emitter.js";
 import { SymbolExtractor } from "../extraction/symbol-extractor.js";
 import { convertFiles } from "../parsing/svelte-to-tsx.js";
 import { buildParsingProject } from "../parsing/ts-morph-project.js";
+import { PipelineErrorHandler } from "../pipeline/error-handler.js";
 import type { OutputFormat } from "../types/config.js";
 import type { Edge } from "../types/edge.js";
 import { createEdgeSet } from "../types/edge.js";
@@ -145,8 +146,16 @@ export async function runPipeline(
 			aliases,
 		);
 
+		const errorHandler = new PipelineErrorHandler(cliOpts.verbose);
+
+		for (const pr of parseResults) {
+			if (!pr.success && pr.error) {
+				errorHandler.addError({ file: pr.sourceFile, phase: "parsing", message: pr.error.message });
+			}
+		}
+
 		r.startPhase("extraction", 0);
-		const extractor = new SymbolExtractor(parsingProject);
+		const extractor = new SymbolExtractor(parsingProject, errorHandler);
 		const symbols = extractor.extract();
 		r.succeed("Symbols extracted");
 
@@ -167,6 +176,9 @@ export async function runPipeline(
 		r.startPhase("emission", 0);
 		const emission = emitPlantUML(symbols, edgeSet);
 		r.succeed("Diagram generated");
+
+		const errorSummary = errorHandler.getSummary();
+		if (errorSummary) r.warn(errorSummary);
 
 		if (cliOpts.format === "text" && !cliOpts.outputPath) {
 			process.stdout.write(emission.content);
