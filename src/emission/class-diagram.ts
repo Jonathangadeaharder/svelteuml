@@ -142,7 +142,7 @@ function renderComponent(
 
 function renderRoute(lines: string[], route: RouteSymbol): void {
 	const stereotype = routeStereotype(route);
-	lines.push(`class "${route.name}" <<${stereotype}>> {`);
+	lines.push(`class "${route.name}" as ${sanitizeId(route.name)} <<${stereotype}>> {`);
 	lines.push(`  path: ${route.routeSegment.raw}`);
 	for (const param of route.routeSegment.params) {
 		const matcherSuffix = param.matcher ? `=${param.matcher}` : "";
