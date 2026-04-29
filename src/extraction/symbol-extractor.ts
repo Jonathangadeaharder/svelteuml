@@ -49,8 +49,13 @@ export class SymbolExtractor {
 				props.push(...extracted.props);
 			} catch (err: unknown) {
 				const message = err instanceof Error ? err.message : String(err);
-				const stack = err instanceof Error ? err.stack : undefined;
-				this.errorHandler.addError({ file: originalPath, phase: "extraction", message, stack });
+				const error: import("../pipeline/error-handler.js").PipelineError = {
+					file: originalPath,
+					phase: "extraction",
+					message,
+				};
+				if (err instanceof Error && err.stack) error.stack = err.stack;
+				this.errorHandler.addError(error);
 			}
 		}
 
