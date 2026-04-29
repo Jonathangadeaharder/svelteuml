@@ -160,6 +160,7 @@ describe("discovery/tsconfig.ts", () => {
 		await fs.writeFile(tsPath, JSON.stringify({}), "utf8");
 		const res: TsConfigResult = await loadTsConfig(tmpDir);
 		expect(res.found).toBe(true);
+		expect(res.baseUrl).toBe(path.resolve(tmpDir));
 		expect(res.aliases).toEqual({});
 	});
 
@@ -182,6 +183,8 @@ describe("discovery/tsconfig.ts", () => {
 		);
 		const res: TsConfigResult = await loadTsConfig(tmpDir);
 		expect(res.found).toBe(true);
+		expect(res.baseUrl).toBe(path.resolve(tmpDir));
+		expect(res.aliases["$lib"]).toContain("src/lib");
 	});
 
 	it("skips paths with empty targets", async () => {
@@ -197,19 +200,21 @@ describe("discovery/tsconfig.ts", () => {
 		expect(res.aliases).not.toHaveProperty("$lib");
 	});
 
-	it("handles absolute target paths in paths", async () => {
+	it("keeps absolute target paths as-is", async () => {
 		await fs.writeFile(
 			tsPath,
 			JSON.stringify({
 				compilerOptions: {
 					baseUrl: ".",
-					paths: { "$lib/*": ["/absolute/lib/*"] },
+					paths: {
+						"$lib/*": ["/absolute/path/lib/*"],
+					},
 				},
 			}),
 			"utf8",
 		);
+
 		const res: TsConfigResult = await loadTsConfig(tmpDir);
-		expect(res.found).toBe(true);
-		expect(res.aliases["$lib"]).toBe("/absolute/lib");
+		expect(res.aliases["$lib"]).toBe("/absolute/path/lib");
 	});
 });

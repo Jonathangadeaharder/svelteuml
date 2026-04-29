@@ -247,7 +247,7 @@ describe("buildEdges", () => {
 		expect(result[0]?.type).toBe("dependency");
 	});
 
-	it("creates edge without label for namespace import", () => {
+	it("creates edge without label when importedNames is empty", () => {
 		const imports: ResolvedImport[] = [
 			{
 				sourceFile: "/src/lib/a.ts",
@@ -258,16 +258,17 @@ describe("buildEdges", () => {
 		];
 		const result = buildEdges(imports, makeSymbolTable());
 		expect(result).toHaveLength(1);
+		expect(result[0]?.type).toBe("dependency");
 		expect(result[0]?.label).toBeUndefined();
 	});
 
-	it("skips extends edge when parent class is not in project", () => {
+	it("skips extends edge when parent class is not in symbol table", () => {
 		const symbols = makeSymbolTable({
 			classes: [
 				{
 					kind: "class",
-					name: "Child",
-					filePath: "/src/lib/child.ts",
+					name: "Orphan",
+					filePath: "/src/lib/orphan.ts",
 					extends: "UnknownParent",
 					implements: [],
 					members: [],
@@ -280,15 +281,15 @@ describe("buildEdges", () => {
 		expect(result).toHaveLength(0);
 	});
 
-	it("skips implements edge when interface is not in project", () => {
+	it("skips implements edge when interface is not in symbol table", () => {
 		const symbols = makeSymbolTable({
 			classes: [
 				{
 					kind: "class",
-					name: "Repo",
-					filePath: "/src/lib/repo.ts",
+					name: "MyClass",
+					filePath: "/src/lib/my.ts",
 					extends: undefined,
-					implements: ["UnknownInterface"],
+					implements: ["MissingInterface"],
 					members: [],
 					isGeneric: false,
 					typeParams: [],

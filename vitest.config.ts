@@ -9,6 +9,7 @@ export default defineConfig({
 			include: ["src/**/*.ts"],
 			exclude: [
 				"src/**/index.ts",
+				"src/cli.ts",
 				"src/types/ast.ts",
 				"src/types/config.ts",
 				"src/types/pipeline.ts",

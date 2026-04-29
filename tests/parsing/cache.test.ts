@@ -124,14 +124,14 @@ describe("ConversionCache", () => {
 });
 
 describe("ConversionCache computeHash", () => {
-	let hashTempDir: string;
+	let tmpDir: string;
 
 	beforeEach(() => {
-		hashTempDir = fs.mkdtempSync(path.join(os.tmpdir(), "cache-hash-"));
+		tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "cache-hash-"));
 	});
 
 	afterEach(() => {
-		fs.rmSync(hashTempDir, { recursive: true, force: true });
+		fs.rmSync(tmpDir, { recursive: true, force: true });
 	});
 
 	it("matches contentHash for same content", () => {
@@ -140,47 +140,36 @@ describe("ConversionCache computeHash", () => {
 	});
 
 	it("static computeHash returns hash for existing file", async () => {
-		const filePath = path.join(hashTempDir, "hash-test.txt");
+		const filePath = path.join(tmpDir, "hash-test.txt");
 		fs.writeFileSync(filePath, "test content", "utf-8");
 		const result = await ConversionCache.computeHash(filePath);
 		expect(result.hash).toBe(contentHash("test content"));
 		expect(result.mtimeMs).toBeGreaterThan(0);
 	});
 
-	it("static computeHash returns empty hash for nonexistent file", async () => {
+	it("static computeHash returns empty hash for non-existent file", async () => {
 		const result = await ConversionCache.computeHash("/nonexistent/file.txt");
 		expect(result.hash).toBe("");
 		expect(result.mtimeMs).toBe(0);
 	});
 });
 
-describe("ConversionCache error paths", () => {
-	let errTempDir: string;
+describe("ConversionCache error branches", () => {
+	let tempDir: string;
 
 	beforeEach(() => {
-		errTempDir = fs.mkdtempSync(path.join(os.tmpdir(), "cache-err-"));
+		tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "cache-err-"));
 	});
 
 	afterEach(() => {
-		fs.rmSync(errTempDir, { recursive: true, force: true });
+		fs.rmSync(tempDir, { recursive: true, force: true });
 	});
 
-	it("set falls back to empty hash for nonexistent file", () => {
+	it("has() returns false when cached file is deleted", () => {
 		const cache = new ConversionCache();
-		cache.set("/nonexistent/ghost.svelte", {
-			sourcePath: "/nonexistent/ghost.svelte",
-			virtualPath: "/nonexistent/ghost.svelte.tsx",
-			tsxCode: "code",
-			sourceMap: {},
-			success: true,
-		});
-		expect(cache.size).toBe(1);
-	});
-
-	it("get returns undefined when cached file is deleted", () => {
-		const cache = new ConversionCache();
-		const filePath = path.join(errTempDir, "temp.svelte");
+		const filePath = path.join(tempDir, "temp.svelte");
 		fs.writeFileSync(filePath, "content", "utf-8");
+
 		cache.set(filePath, {
 			sourcePath: filePath,
 			virtualPath: `${filePath}.tsx`,
@@ -188,14 +177,32 @@ describe("ConversionCache error paths", () => {
 			sourceMap: {},
 			success: true,
 		});
+
+		fs.unlinkSync(filePath);
+		expect(cache.has(filePath)).toBe(false);
+	});
+
+	it("get() returns undefined when cached file is deleted", () => {
+		const cache = new ConversionCache();
+		const filePath = path.join(tempDir, "temp.svelte");
+		fs.writeFileSync(filePath, "content", "utf-8");
+
+		cache.set(filePath, {
+			sourcePath: filePath,
+			virtualPath: `${filePath}.tsx`,
+			tsxCode: "code",
+			sourceMap: {},
+			success: true,
+		});
+
 		fs.unlinkSync(filePath);
 		expect(cache.get(filePath)).toBeUndefined();
 	});
 
-	it("has returns false when cached file is deleted", () => {
+	it("set() handles non-existent file gracefully", () => {
 		const cache = new ConversionCache();
-		const filePath = path.join(errTempDir, "temp2.svelte");
-		fs.writeFileSync(filePath, "content", "utf-8");
+		const filePath = path.join(tempDir, "nonexistent.svelte");
+
 		cache.set(filePath, {
 			sourcePath: filePath,
 			virtualPath: `${filePath}.tsx`,
@@ -203,7 +210,7 @@ describe("ConversionCache error paths", () => {
 			sourceMap: {},
 			success: true,
 		});
-		fs.unlinkSync(filePath);
-		expect(cache.has(filePath)).toBe(false);
+
+		expect(cache.size).toBe(1);
 	});
 });

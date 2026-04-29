@@ -181,24 +181,39 @@ describe("svelte-config discovery", () => {
 	});
 
 	it("handles config with escaped quotes in strings", async () => {
-		const cfgPath = path.join(tempDir, "svelte.config.js");
 		fs.writeFileSync(
-			cfgPath,
-			'module.exports = { kit: { alias: { $lib: "src\\"lib" } } };',
+			path.join(tempDir, "svelte.config.js"),
+			`
+module.exports = {
+  kit: {
+    alias: { "$lib": "src/lib" },
+    name: "test\\"value"
+  }
+};
+`,
 			"utf8",
 		);
 		const res = await loadSvelteConfig(tempDir);
 		expect(res.found).toBe(true);
+		expect(res.configPath).toBeDefined();
+		expect(res.aliases).toHaveProperty("$lib");
 	});
 
 	it("handles config with unbalanced braces gracefully", async () => {
-		const cfgPath = path.join(tempDir, "svelte.config.js");
 		fs.writeFileSync(
-			cfgPath,
-			`module.exports = { kit: { alias: { $lib: "src/lib"`,
+			path.join(tempDir, "svelte.config.js"),
+			`
+module.exports = {
+  kit: {
+    alias: { "$lib": "src/lib"
+  }
+};
+`,
 			"utf8",
 		);
 		const res = await loadSvelteConfig(tempDir);
 		expect(res.found).toBe(true);
+		expect(res.configPath).toBeDefined();
+		expect(res.aliases).toHaveProperty("$lib");
 	});
 });

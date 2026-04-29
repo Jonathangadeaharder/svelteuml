@@ -106,6 +106,26 @@ describe("SourceMapDecoder", () => {
 		const result = decoder.originalPositionFor({ line: 1, column: 0 });
 		expect(result?.source).toBe("");
 	});
+
+	it("binary search navigates left when target column is before mid", () => {
+		const decoder = new SourceMapDecoder({
+			sources: ["App.svelte"],
+			mappings: "AAAA;;KAAE",
+		});
+
+		const result = decoder.originalPositionFor({ line: 2, column: 0 });
+		expect(result).toBeUndefined();
+	});
+
+	it("binary search returns undefined for position before all segments", () => {
+		const decoder = new SourceMapDecoder({
+			sources: ["App.svelte"],
+			mappings: "KAAE",
+		});
+
+		const result = decoder.originalPositionFor({ line: 1, column: 0 });
+		expect(result).toBeUndefined();
+	});
 });
 
 describe("contentHash", () => {
