@@ -88,7 +88,7 @@ function resolveTarget(
 	options?: ScanOptions,
 ): string | undefined {
 	if (resolvedTarget) {
-		if (options?.excludeExternals && resolvedTarget.includes("node_modules")) {
+		if (options?.excludeExternals && resolvedTarget.split("/").includes("node_modules")) {
 			return `<<External>>/${extractPackageName(specifier)}`;
 		}
 		return resolvedTarget;

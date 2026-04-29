@@ -56,6 +56,8 @@ describe("startWatcher", () => {
 		const handler = vi.fn();
 		watcher.on("change", handler);
 
+		await watcher.ready;
+
 		const testFile = join(tempDir, "test.svelte");
 		await writeFile(testFile, "<script>let x = 1;</script>");
 

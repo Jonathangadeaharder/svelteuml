@@ -6,7 +6,7 @@ Command-line interface for SvelteUML. Parses arguments, loads optional config fi
 
 ## File Structure
 
-```
+```text
 src/
   cli.ts              # Entry point: shebang, imports, calls run()
   cli/
@@ -19,7 +19,7 @@ src/
 
 ## CLI Flags
 
-```
+```text
 svelteuml <target-directory> [options]
 
 Positional:
@@ -74,7 +74,7 @@ interface CliOptions {
 
 ## Data Flow
 
-```
+```text
 1. parseArgs(process.argv) → CliOptions
 2. loadConfigFile(targetDir) → Partial<SvelteUMLConfigInput>  (SUML-29)
 3. mergeConfigs(fileConfig, cliConfig) → SvelteUMLConfigInput
@@ -127,7 +127,7 @@ Same fields as `SvelteUMLConfigInput`, all optional. Validated against existing 
 
 ### Completion Summary
 
-```
+```text
 ✓ 42 files analyzed, 127 relationships found → diagram.puml
 ```
 

@@ -48,19 +48,21 @@ describe("src/cli/runner.ts", () => {
 
 		it("file config overrides defaults", () => {
 			const cliOpts = makeCliOpts();
-			const fileConfig = { maxDepth: 5, excludeExternals: true };
+			const fileConfig = { maxDepth: 5, excludeExternals: true, exclude: ["**/*.test.ts"] };
 			const result = buildCliConfig(cliOpts, fileConfig);
 
 			expect(result.maxDepth).toBe(5);
 			expect(result.excludeExternals).toBe(true);
+			expect(result.exclude).toEqual(["**/*.test.ts"]);
 		});
 
 		it("CLI flags override file config", () => {
-			const cliOpts = makeCliOpts({ maxDepth: 3 });
+			const cliOpts = makeCliOpts({ maxDepth: 3, exclude: ["**/*.spec.ts"] });
 			const fileConfig = { maxDepth: 5 };
 			const result = buildCliConfig(cliOpts, fileConfig);
 
 			expect(result.maxDepth).toBe(3);
+			expect(result.exclude).toEqual(["**/*.spec.ts"]);
 		});
 
 		it("SVG format gets .svg default output path", () => {

@@ -5,6 +5,7 @@ import type { ProgressReporter } from "./progress.js";
 import { runPipeline } from "./runner.js";
 
 export interface Watcher {
+	readonly ready: Promise<void>;
 	close(): Promise<void>;
 	on(event: "change", callback: (file: string) => void): void;
 }
@@ -27,6 +28,10 @@ export function startWatcher(
 		persistent: true,
 	});
 
+	const ready = new Promise<void>((resolve) => {
+		chokidarWatcher.on("ready", () => resolve());
+	});
+
 	const triggerChange = (file: string) => {
 		if (debounceTimer !== undefined) {
 			clearTimeout(debounceTimer);
@@ -45,6 +50,7 @@ export function startWatcher(
 	chokidarWatcher.on("unlink", triggerChange);
 
 	return {
+		ready,
 		on(event: "change", callback: ChangeCallback) {
 			if (event === "change") {
 				callbacks.push(callback);

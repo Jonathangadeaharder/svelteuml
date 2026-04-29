@@ -54,8 +54,8 @@ export function buildCliConfig(
 	const cliMergeArgs: Partial<SvelteUMLConfigInput> = {
 		targetDir: cliOpts.targetDir,
 		outputPath,
-		exclude: cliOpts.exclude,
 	};
+	if (cliOpts.exclude.length > 0) cliMergeArgs.exclude = cliOpts.exclude;
 	if (cliOpts.maxDepth !== 0) cliMergeArgs.maxDepth = cliOpts.maxDepth;
 	if (cliOpts.excludeExternals) cliMergeArgs.excludeExternals = cliOpts.excludeExternals;
 
@@ -151,7 +151,9 @@ export async function runPipeline(
 		r.succeed("Symbols extracted");
 
 		r.startPhase("resolution", 0);
-		const imports = scanImports(parsingProject, aliases);
+		const imports = scanImports(parsingProject, aliases, {
+			excludeExternals: config.excludeExternals,
+		});
 		let edges = buildEdges(imports, symbols);
 
 		edges = filterEdges(edges, {

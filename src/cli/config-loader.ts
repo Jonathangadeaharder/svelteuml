@@ -38,10 +38,15 @@ function loadJSONConfig(configPath: string): Record<string, unknown> {
 }
 
 async function loadTypeScriptConfig(configPath: string): Promise<Record<string, unknown>> {
-	const module = await import(configPath);
-	const config = (module.default ?? module) as Record<string, unknown>;
-	warnUnknownFields(config);
-	return config;
+	try {
+		const module = await import(configPath);
+		const config = (module.default ?? module) as Record<string, unknown>;
+		warnUnknownFields(config);
+		return config;
+	} catch (err: unknown) {
+		const message = err instanceof Error ? err.message : String(err);
+		throw new Error(`Failed to load TypeScript config "${configPath}": ${message}`);
+	}
 }
 
 export async function loadConfigFile(configPath: string): Promise<Record<string, unknown>> {
@@ -50,7 +55,10 @@ export async function loadConfigFile(configPath: string): Promise<Record<string,
 			return await loadTypeScriptConfig(configPath);
 		}
 		return loadJSONConfig(configPath);
-	} catch {
+	} catch (err: unknown) {
+		const message = err instanceof Error ? err.message : String(err);
+		// biome-ignore lint/suspicious/noConsole: CLI warns user about config load failure
+		console.warn(`Warning: ${message}`);
 		return {};
 	}
 }
