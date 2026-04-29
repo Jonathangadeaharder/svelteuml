@@ -156,54 +156,48 @@ describe("discovery/tsconfig.ts", () => {
 		expect(res.aliases["$utils"]).toContain("src/utils");
 	});
 
-	it("defaults baseUrl to project root when no baseUrl in config", async () => {
-		await fs.writeFile(
-			tsPath,
-			JSON.stringify({
-				compilerOptions: {},
-			}),
-			"utf8",
-		);
-
+	it("handles tsconfig without compilerOptions", async () => {
+		await fs.writeFile(tsPath, JSON.stringify({}), "utf8");
 		const res: TsConfigResult = await loadTsConfig(tmpDir);
 		expect(res.found).toBe(true);
 		expect(res.baseUrl).toBe(path.resolve(tmpDir));
+		expect(res.aliases).toEqual({});
 	});
 
-	it("returns empty aliases when paths is absent", async () => {
+	it("handles tsconfig without paths", async () => {
 		await fs.writeFile(
 			tsPath,
-			JSON.stringify({
-				compilerOptions: {
-					baseUrl: ".",
-				},
-			}),
+			JSON.stringify({ compilerOptions: { baseUrl: "." } }),
 			"utf8",
 		);
-
 		const res: TsConfigResult = await loadTsConfig(tmpDir);
 		expect(res.found).toBe(true);
 		expect(res.aliases).toEqual({});
 	});
 
-	it("skips alias entries with empty targets array", async () => {
+	it("handles tsconfig with non-string baseUrl", async () => {
+		await fs.writeFile(
+			tsPath,
+			JSON.stringify({ compilerOptions: { baseUrl: 42, paths: { "$lib/*": ["src/lib/*"] } } }),
+			"utf8",
+		);
+		const res: TsConfigResult = await loadTsConfig(tmpDir);
+		expect(res.found).toBe(true);
+		expect(res.baseUrl).toBe(path.resolve(tmpDir));
+		expect(res.aliases["$lib"]).toContain("src/lib");
+	});
+
+	it("skips paths with empty targets", async () => {
 		await fs.writeFile(
 			tsPath,
 			JSON.stringify({
-				compilerOptions: {
-					baseUrl: ".",
-					paths: {
-						"$lib/*": [],
-						"$utils/*": ["src/utils/*"],
-					},
-				},
+				compilerOptions: { baseUrl: ".", paths: { "$lib/*": [] } },
 			}),
 			"utf8",
 		);
-
 		const res: TsConfigResult = await loadTsConfig(tmpDir);
+		expect(res.found).toBe(true);
 		expect(res.aliases).not.toHaveProperty("$lib");
-		expect(res.aliases).toHaveProperty("$utils");
 	});
 
 	it("keeps absolute target paths as-is", async () => {

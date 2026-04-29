@@ -177,7 +177,6 @@ describe("svelte-config discovery", () => {
 		});
 		const res = await loadSvelteConfig(tempDir);
 		expect(res.aliases).toHaveProperty("$special");
-		// Paths starting with "/" are kept as-is (resolve treats them as absolute)
 		expect(res.aliases["$special"]).toBe("/src/special");
 	});
 
@@ -196,6 +195,7 @@ module.exports = {
 		);
 		const res = await loadSvelteConfig(tempDir);
 		expect(res.found).toBe(true);
+		expect(res.configPath).toBeDefined();
 		expect(res.aliases).toHaveProperty("$lib");
 	});
 
@@ -213,5 +213,7 @@ module.exports = {
 		);
 		const res = await loadSvelteConfig(tempDir);
 		expect(res.found).toBe(true);
+		expect(res.configPath).toBeDefined();
+		expect(res.aliases).toHaveProperty("$lib");
 	});
 });
