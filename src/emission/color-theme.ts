@@ -3,9 +3,29 @@ import type { StereotypeColors } from "../types/diagram.js";
 const STEREOTYPE_RE = /^[a-zA-Z0-9_-]+$/;
 const COLOR_HEX_RE = /^#[0-9a-fA-F]{6}$/;
 const NAMED_COLORS = new Set([
-	"black", "white", "red", "green", "blue", "yellow", "orange", "purple",
-	"gray", "grey", "cyan", "magenta", "pink", "brown", "gold", "silver",
-	"navy", "teal", "maroon", "olive", "lime", "aqua", "fuchsia",
+	"black",
+	"white",
+	"red",
+	"green",
+	"blue",
+	"yellow",
+	"orange",
+	"purple",
+	"gray",
+	"grey",
+	"cyan",
+	"magenta",
+	"pink",
+	"brown",
+	"gold",
+	"silver",
+	"navy",
+	"teal",
+	"maroon",
+	"olive",
+	"lime",
+	"aqua",
+	"fuchsia",
 	"transparent",
 ]);
 
