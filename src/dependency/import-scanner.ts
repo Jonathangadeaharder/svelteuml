@@ -9,7 +9,11 @@ export interface ResolvedImport {
 	isTypeOnly: boolean;
 }
 
-export function scanImports(parsingProject: ParsingProject, aliases: AliasMap): ResolvedImport[] {
+export interface ScanOptions {
+	excludeExternals?: boolean;
+}
+
+export function scanImports(parsingProject: ParsingProject, aliases: AliasMap, options?: ScanOptions): ResolvedImport[] {
 	const allFiles = parsingProject.getAllSourceFiles();
 	const results: ResolvedImport[] = [];
 	const knownFiles = new Set(allFiles.keys());
@@ -17,7 +21,7 @@ export function scanImports(parsingProject: ParsingProject, aliases: AliasMap): 
 	for (const [originalPath, sourceFile] of allFiles) {
 		if (originalPath.endsWith(".svelte.tsx")) continue;
 
-		const imports = extractImportsFromFile(sourceFile, originalPath, aliases, knownFiles);
+		const imports = extractImportsFromFile(sourceFile, originalPath, aliases, knownFiles, options);
 		results.push(...imports);
 	}
 
@@ -29,6 +33,7 @@ function extractImportsFromFile(
 	originalPath: string,
 	aliases: AliasMap,
 	knownFiles: Set<string>,
+	options?: ScanOptions,
 ): ResolvedImport[] {
 	const results: ResolvedImport[] = [];
 
@@ -37,8 +42,6 @@ function extractImportsFromFile(
 		if (!specifier) continue;
 
 		const resolvedTarget = resolveSpecifier(specifier, originalPath, aliases, knownFiles);
-		if (!resolvedTarget) continue;
-
 		const isTypeOnly = importDecl.isTypeOnly();
 
 		const namedImports: string[] = [];
@@ -48,9 +51,11 @@ function extractImportsFromFile(
 
 		const namespaceImport = importDecl.getNamespaceImport();
 		if (namespaceImport) {
+			const target = resolveTarget(resolvedTarget, specifier, options);
+			if (!target) continue;
 			results.push({
 				sourceFile: originalPath,
-				targetFile: resolvedTarget,
+				targetFile: target,
 				importedNames: [],
 				isTypeOnly,
 			});
@@ -60,15 +65,42 @@ function extractImportsFromFile(
 		const defaultImport = importDecl.getDefaultImport();
 		const importedNames = defaultImport ? [defaultImport.getText(), ...namedImports] : namedImports;
 
+		const target = resolveTarget(resolvedTarget, specifier, options);
+		if (!target) continue;
 		results.push({
 			sourceFile: originalPath,
-			targetFile: resolvedTarget,
+			targetFile: target,
 			importedNames,
 			isTypeOnly,
 		});
 	}
 
 	return results;
+}
+
+function resolveTarget(
+	resolvedTarget: string | undefined,
+	specifier: string,
+	options?: ScanOptions,
+): string | undefined {
+	if (resolvedTarget) {
+		if (options?.excludeExternals && resolvedTarget.includes("node_modules")) {
+			return `<<External>>/${extractPackageName(specifier)}`;
+		}
+		return resolvedTarget;
+	}
+	if (options?.excludeExternals && !specifier.startsWith(".")) {
+		return `<<External>>/${extractPackageName(specifier)}`;
+	}
+	return undefined;
+}
+
+function extractPackageName(specifier: string): string {
+	if (specifier.startsWith("@")) {
+		const parts = specifier.split("/");
+		return parts.length >= 2 ? `${parts[0]}/${parts[1]}` : specifier;
+	}
+	return specifier.split("/")[0] ?? specifier;
 }
 
 function resolveSpecifier(
