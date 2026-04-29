@@ -138,7 +138,7 @@ function orientEdge(edge: { source: string; target: string; type: EdgeType }): {
 	arrow: string;
 } {
 	const arrow = mapEdgeArrow(edge.type);
-	if (edge.type === "extends" || edge.type === "implements") {
+	if (edge.type === "extends") {
 		return { from: edge.target, to: edge.source, arrow };
 	}
 	return { from: edge.source, to: edge.target, arrow };

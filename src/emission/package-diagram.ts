@@ -40,7 +40,9 @@ export function renderPackageDiagram(
 			if (!renderedEdges.has(key)) {
 				renderedEdges.add(key);
 				const arrow = mapEdgeArrow(edge.type);
-				lines.push(`${sanitizeId(sourcePkg)} ${arrow} ${sanitizeId(targetPkg)}`);
+				const [fromPkg, toPkg] =
+					edge.type === "extends" ? [targetPkg, sourcePkg] : [sourcePkg, targetPkg];
+				lines.push(`${sanitizeId(fromPkg)} ${arrow} ${sanitizeId(toPkg)}`);
 			}
 		}
 	}

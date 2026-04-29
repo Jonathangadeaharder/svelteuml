@@ -165,7 +165,7 @@ describe("renderClassDiagram", () => {
 			{ source: "/b.ts", target: "/a.ts", type: "implements", label: "IRepo" },
 		]);
 		const result = renderClassDiagram(symbols, edges, DEFAULT_DIAGRAM_OPTIONS);
-		expect(result).toContain("IRepo ..|> Repo");
+		expect(result).toContain("Repo ..|> IRepo");
 	});
 
 	it("renders dependency edge", () => {

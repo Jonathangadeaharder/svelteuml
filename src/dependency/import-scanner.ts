@@ -58,20 +58,14 @@ function extractImportsFromFile(
 		}
 
 		const defaultImport = importDecl.getDefaultImport();
-		if (defaultImport && namedImports.length === 0) {
-			results.push({
-				sourceFile: originalPath,
-				targetFile: resolvedTarget,
-				importedNames: [defaultImport.getText()],
-				isTypeOnly,
-			});
-			continue;
-		}
+		const importedNames = defaultImport
+			? [defaultImport.getText(), ...namedImports]
+			: namedImports;
 
 		results.push({
 			sourceFile: originalPath,
 			targetFile: resolvedTarget,
-			importedNames: namedImports,
+			importedNames,
 			isTypeOnly,
 		});
 	}

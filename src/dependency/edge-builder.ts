@@ -7,7 +7,7 @@ export function buildEdges(imports: ResolvedImport[], symbols: SymbolTable): Edg
 	const seen = new Set<string>();
 
 	const addEdge = (edge: Edge) => {
-		const key = `${edge.source}|${edge.target}|${edge.type}`;
+		const key = `${edge.source}|${edge.target}|${edge.type}|${edge.label ?? ""}`;
 		if (!seen.has(key)) {
 			seen.add(key);
 			edges.push(edge);
