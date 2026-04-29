@@ -20,9 +20,9 @@ describe("parseRouteParams", () => {
 		expect(result).toEqual([{ kind: "rest", name: "slug" }]);
 	});
 
-	it("parses optional rest param [[slug]]", () => {
+	it("parses optional param [[slug]]", () => {
 		const result = parseRouteParams("/docs/[[slug]]");
-		expect(result).toEqual([{ kind: "optional-rest", name: "slug" }]);
+		expect(result).toEqual([{ kind: "optional", name: "slug" }]);
 	});
 
 	it("parses param with matcher [id=integer]", () => {
@@ -61,7 +61,7 @@ describe("extractGroups", () => {
 		expect(extractGroups("/(marketing)/(public)/about")).toEqual(["marketing", "public"]);
 	});
 
-	it("extracts nested group", () => {
+	it("extracts groups from multiple segments", () => {
 		expect(extractGroups("/(app)/settings/(admin)/users")).toEqual(["app", "admin"]);
 	});
 
@@ -96,9 +96,9 @@ describe("parseRouteSegment", () => {
 });
 
 describe("parseRouteParams edge cases", () => {
-	it("parses optional-rest param with matcher [[lang=word]]", () => {
+	it("parses optional param with matcher [[lang=word]]", () => {
 		const result = parseRouteParams("/docs/[[lang=word]]");
-		expect(result).toEqual([{ kind: "optional-rest", name: "lang", matcher: "word" }]);
+		expect(result).toEqual([{ kind: "optional", name: "lang", matcher: "word" }]);
 	});
 
 	it("parses multiple different param types", () => {
@@ -137,5 +137,39 @@ describe("parseRouteSegment edge cases", () => {
 		const result = parseRouteSegment("/(auth)/(protected)/dashboard");
 		expect(result.params).toEqual([]);
 		expect(result.groups).toEqual(["auth", "protected"]);
+	});
+});
+
+describe("malformed segment handling", () => {
+	it("handles unmatched opening bracket", () => {
+		expect(parseRouteParams("/docs/[lang")).toEqual([]);
+	});
+
+	it("handles unmatched closing bracket", () => {
+		expect(parseRouteParams("/docs/lang]")).toEqual([]);
+	});
+
+	it("handles empty brackets", () => {
+		expect(parseRouteParams("/docs/[]")).toEqual([]);
+	});
+
+	it("handles empty matcher value", () => {
+		expect(parseRouteParams("/items/[slug=]")).toEqual([{ kind: "dynamic", name: "slug", matcher: "" }]);
+	});
+
+	it("handles empty param name with matcher", () => {
+		expect(parseRouteParams("/items/[=matcher]")).toEqual([{ kind: "dynamic", name: "", matcher: "matcher" }]);
+	});
+
+	it("handles unmatched opening paren for groups", () => {
+		expect(extractGroups("/(app")).toEqual([]);
+	});
+
+	it("handles unmatched closing paren for groups", () => {
+		expect(extractGroups("/app)")).toEqual([]);
+	});
+
+	it("handles empty group parens", () => {
+		expect(extractGroups("/()")).toEqual([]);
 	});
 });

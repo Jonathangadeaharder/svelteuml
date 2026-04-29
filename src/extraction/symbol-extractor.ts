@@ -1,3 +1,4 @@
+import { basename } from "node:path";
 import type { SourceFile } from "ts-morph";
 import type { ParsingProject } from "../parsing/ts-morph-project.js";
 import type { PipelineErrorHandler } from "../pipeline/error-handler.js";
@@ -6,12 +7,18 @@ import type {
 	ExportSymbol,
 	FunctionSymbol,
 	PropSymbol,
+	RouteSymbol,
 	StoreSymbol,
 	SymbolTable,
 } from "../types/ast.js";
 import { componentNameFromPath, extractComponentProps } from "./component-extractor.js";
 import { extractLibClasses, extractLibFunctions } from "./lib-extractor.js";
-import { classifyRouteFile, extractRouteExports } from "./route-extractor.js";
+import {
+	classifyRouteFile,
+	extractRouteExports,
+	parseRouteSegment,
+	routeSegmentFromPath,
+} from "./route-extractor.js";
 import { extractServerExports } from "./server-extractor.js";
 import { shouldSkipFile } from "./skip-rules.js";
 import { extractStoreSymbols } from "./store-extractor.js";
@@ -37,6 +44,7 @@ export class SymbolExtractor {
 		const stores: StoreSymbol[] = [];
 		const props: PropSymbol[] = [];
 		const exports: ExportSymbol[] = [];
+		const routes: RouteSymbol[] = [];
 
 		for (const [originalPath, sourceFile] of this.project.getAllSourceFiles()) {
 			if (shouldSkipFile(originalPath)) continue;
@@ -47,6 +55,7 @@ export class SymbolExtractor {
 				functions.push(...extracted.functions);
 				stores.push(...extracted.stores);
 				props.push(...extracted.props);
+				routes.push(...extracted.routes);
 			} catch (err: unknown) {
 				const message = err instanceof Error ? err.message : String(err);
 				const error: import("../pipeline/error-handler.js").PipelineError = {
@@ -65,7 +74,7 @@ export class SymbolExtractor {
 			stores: sortBy(stores, (s) => `${s.filePath}::${s.name}`),
 			props: sortBy(props, (p) => `${p.filePath}::${p.componentName}::${p.name}`),
 			exports,
-			routes: [],
+			routes: sortBy(routes, (r) => `${r.filePath}::${r.name}`),
 		};
 	}
 
@@ -77,11 +86,13 @@ export class SymbolExtractor {
 		functions: FunctionSymbol[];
 		stores: StoreSymbol[];
 		props: PropSymbol[];
+		routes: RouteSymbol[];
 	} {
 		const classes: ClassSymbol[] = [];
 		const functions: FunctionSymbol[] = [];
 		const stores: StoreSymbol[] = [];
 		const props: PropSymbol[] = [];
+		const routes: RouteSymbol[] = [];
 
 		const isSvelte = originalPath.endsWith(".svelte") || originalPath.endsWith(".svelte.tsx");
 
@@ -96,12 +107,40 @@ export class SymbolExtractor {
 				scriptContext,
 			);
 			props.push(...componentProps);
-			return { classes, functions, stores, props };
+
+			const svelteRouteClass = classifyRouteFile(originalPath);
+			if (svelteRouteClass) {
+				const routeSegment = routeSegmentFromPath(originalPath);
+				const parsedSegment = parseRouteSegment(routeSegment);
+				const routeName = basename(originalPath).replace(/\.svelte$/, "");
+				routes.push({
+					kind: "route",
+					name: routeName,
+					filePath: originalPath,
+					routeKind: svelteRouteClass.kind,
+					isServer: svelteRouteClass.isServer,
+					routeSegment: parsedSegment,
+				});
+			}
+
+			return { classes, functions, stores, props, routes };
 		}
 
 		const routeClass = classifyRouteFile(originalPath);
 
 		if (routeClass) {
+			const routeSegment = routeSegmentFromPath(originalPath);
+			const parsedSegment = parseRouteSegment(routeSegment);
+			const routeName = basename(originalPath).replace(/\.(ts|js)$/, "");
+			routes.push({
+				kind: "route",
+				name: routeName,
+				filePath: originalPath,
+				routeKind: routeClass.kind,
+				isServer: routeClass.isServer,
+				routeSegment: parsedSegment,
+			});
+
 			const routeFns = extractRouteExports(sourceFile, originalPath);
 			functions.push(...routeFns);
 
@@ -114,7 +153,7 @@ export class SymbolExtractor {
 					}
 				}
 			}
-			return { classes, functions, stores, props };
+			return { classes, functions, stores, props, routes };
 		}
 
 		const storeSymbols = extractStoreSymbols(sourceFile, originalPath);
@@ -131,7 +170,7 @@ export class SymbolExtractor {
 			for (const store of stores) store.isExported = true;
 		}
 
-		return { classes, functions, stores, props };
+		return { classes, functions, stores, props, routes };
 	}
 }
 

@@ -85,6 +85,14 @@ export function routeSegmentFromPath(filePath: string): string {
 	return segment === "" ? "/" : segment;
 }
 
+function parseNameAndMatcher(raw: string): { name: string; matcher?: string } {
+	const eqIndex = raw.indexOf("=");
+	if (eqIndex >= 0) {
+		return { name: raw.slice(0, eqIndex), matcher: raw.slice(eqIndex + 1) };
+	}
+	return { name: raw };
+}
+
 export function parseRouteParams(segment: string): RouteParam[] {
 	const params: RouteParam[] = [];
 	const re = /\[\[([^\]]+)\]\]|\[([^\]]+)\]/g;
@@ -93,42 +101,22 @@ export function parseRouteParams(segment: string): RouteParam[] {
 		if (!raw) continue;
 
 		let kind: RouteParamKind;
-		let name: string;
-		let matcher: string | undefined;
+		let parsed: { name: string; matcher?: string };
 
 		if (match[1] !== undefined) {
-			kind = "optional-rest";
+			kind = "optional";
 			const inner = raw.startsWith("...") ? raw.slice(3) : raw;
-			const eqIndex = inner.indexOf("=");
-			if (eqIndex >= 0) {
-				name = inner.slice(0, eqIndex);
-				matcher = inner.slice(eqIndex + 1);
-			} else {
-				name = inner;
-			}
+			parsed = parseNameAndMatcher(inner);
 		} else if (raw.startsWith("...")) {
 			kind = "rest";
-			const inner = raw.slice(3);
-			const eqIndex = inner.indexOf("=");
-			if (eqIndex >= 0) {
-				name = inner.slice(0, eqIndex);
-				matcher = inner.slice(eqIndex + 1);
-			} else {
-				name = inner;
-			}
+			parsed = parseNameAndMatcher(raw.slice(3));
 		} else {
 			kind = "dynamic";
-			const eqIndex = raw.indexOf("=");
-			if (eqIndex >= 0) {
-				name = raw.slice(0, eqIndex);
-				matcher = raw.slice(eqIndex + 1);
-			} else {
-				name = raw;
-			}
+			parsed = parseNameAndMatcher(raw);
 		}
 
-		const param: RouteParam = { kind, name };
-		if (matcher !== undefined) param.matcher = matcher;
+		const param: RouteParam = { kind, name: parsed.name };
+		if (parsed.matcher !== undefined) param.matcher = parsed.matcher;
 		params.push(param);
 	}
 	return params;

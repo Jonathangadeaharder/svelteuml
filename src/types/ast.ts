@@ -79,7 +79,7 @@ export interface ExportSymbol {
 	typeAnnotation?: string;
 }
 
-export type RouteParamKind = "static" | "dynamic" | "rest" | "optional-rest";
+export type RouteParamKind = "dynamic" | "rest" | "optional";
 
 export interface RouteParam {
 	kind: RouteParamKind;
