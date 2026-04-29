@@ -94,3 +94,48 @@ describe("parseRouteSegment", () => {
 		expect(result.groups).toEqual(["app"]);
 	});
 });
+
+describe("parseRouteParams edge cases", () => {
+	it("parses optional-rest param with matcher [[lang=word]]", () => {
+		const result = parseRouteParams("/docs/[[lang=word]]");
+		expect(result).toEqual([{ kind: "optional-rest", name: "lang", matcher: "word" }]);
+	});
+
+	it("parses multiple different param types", () => {
+		const result = parseRouteParams("/(app)/[org]/repos/[...path]/+page");
+		expect(result).toEqual([
+			{ kind: "dynamic", name: "org" },
+			{ kind: "rest", name: "path" },
+		]);
+	});
+
+	it("parses param with complex matcher name", () => {
+		const result = parseRouteParams("/items/[slug=my-custom-matcher]");
+		expect(result).toEqual([{ kind: "dynamic", name: "slug", matcher: "my-custom-matcher" }]);
+	});
+});
+
+describe("extractGroups edge cases", () => {
+	it("handles segment with params and groups mixed", () => {
+		const result = extractGroups("/(marketing)/campaigns/[id]/(analytics)/report");
+		expect(result).toEqual(["marketing", "analytics"]);
+	});
+});
+
+describe("parseRouteSegment edge cases", () => {
+	it("parses complex mixed segment", () => {
+		const result = parseRouteSegment("/(app)/org/[orgId]/settings/[...path=word]");
+		expect(result.raw).toBe("/(app)/org/[orgId]/settings/[...path=word]");
+		expect(result.params).toEqual([
+			{ kind: "dynamic", name: "orgId" },
+			{ kind: "rest", name: "path", matcher: "word" },
+		]);
+		expect(result.groups).toEqual(["app"]);
+	});
+
+	it("parses segment with only groups", () => {
+		const result = parseRouteSegment("/(auth)/(protected)/dashboard");
+		expect(result.params).toEqual([]);
+		expect(result.groups).toEqual(["auth", "protected"]);
+	});
+});
