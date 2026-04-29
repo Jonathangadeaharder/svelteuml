@@ -5,14 +5,11 @@ export type AliasMap = Record<string, string>;
 
 /** Categorised file lists returned by the discovery engine. */
 export interface DiscoveredFiles {
-	/** All .svelte component files found. */
 	svelte: string[];
-	/** All .ts TypeScript files found (excluding .svelte.ts). */
 	typescript: string[];
-	/** All .js JavaScript files found (excluding .svelte.js). */
 	javascript: string[];
-	/** Svelte 5 signal-based module files (.svelte.ts / .svelte.js). */
 	svelteModules: string[];
+	exportedFiles?: Set<string>;
 }
 
 /** Result of parsing svelte.config.js for path aliases. */

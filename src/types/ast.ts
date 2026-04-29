@@ -11,6 +11,7 @@ export interface ClassSymbol {
 	members: MemberSymbol[];
 	isGeneric: boolean;
 	typeParams: string[];
+	isExported?: boolean;
 }
 
 /** Represents a class member (property or method). */
@@ -54,6 +55,7 @@ export interface StoreSymbol {
 	storeType: "writable" | "readable" | "derived";
 	valueType: string;
 	runeKind?: "state" | "derived";
+	isExported?: boolean;
 }
 
 /** Svelte component prop. */

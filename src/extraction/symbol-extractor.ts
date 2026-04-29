@@ -19,10 +19,16 @@ import { extractStoreSymbols } from "./store-extractor.js";
 export class SymbolExtractor {
 	private readonly project: ParsingProject;
 	private readonly errorHandler: PipelineErrorHandler;
+	private readonly exportedFiles: Set<string>;
 
-	constructor(project: ParsingProject, errorHandler: PipelineErrorHandler) {
+	constructor(
+		project: ParsingProject,
+		errorHandler: PipelineErrorHandler,
+		exportedFiles?: Set<string>,
+	) {
 		this.project = project;
 		this.errorHandler = errorHandler;
+		this.exportedFiles = exportedFiles ?? new Set();
 	}
 
 	extract(): SymbolTable {
@@ -113,6 +119,11 @@ export class SymbolExtractor {
 
 		const libClasses = extractLibClasses(sourceFile, originalPath);
 		classes.push(...libClasses);
+
+		if (this.exportedFiles.has(originalPath)) {
+			for (const cls of classes) cls.isExported = true;
+			for (const store of stores) store.isExported = true;
+		}
 
 		return { classes, functions, stores, props };
 	}

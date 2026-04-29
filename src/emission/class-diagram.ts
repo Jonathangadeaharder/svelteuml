@@ -33,7 +33,8 @@ export function renderClassDiagram(
 	}
 
 	for (const fn of symbols.functions) {
-		lines.push(`class "${fn.name}" <<function>> {`);
+		const fnStereotype = fn.isExported ? " <<Exported>>" : "";
+		lines.push(`class "${fn.name}" <<function>>${fnStereotype} {`);
 		lines.push("}");
 		lines.push("");
 	}
@@ -77,7 +78,8 @@ function renderClass(lines: string[], cls: ClassSymbol, options: DiagramOptions)
 			: cls.kind === "abstract-class"
 				? "abstract class"
 				: "class";
-	lines.push(`${keyword} "${cls.name}" as ${sanitizeId(cls.name)} {`);
+	const exportedStereotype = cls.isExported ? " <<Exported>>" : "";
+	lines.push(`${keyword} "${cls.name}" as ${sanitizeId(cls.name)}${exportedStereotype} {`);
 	if (options.showMembers) {
 		for (const member of cls.members) {
 			if (member.kind === "method" && !options.showMethods) continue;
@@ -98,7 +100,8 @@ function renderClass(lines: string[], cls: ClassSymbol, options: DiagramOptions)
 function renderStore(lines: string[], store: StoreSymbol): void {
 	const stereotype =
 		store.runeKind === "state" ? "state" : store.runeKind === "derived" ? "derived" : "store";
-	lines.push(`class "${store.name}" <<${stereotype}>> {`);
+	const exportedStereotype = store.isExported ? " <<Exported>>" : "";
+	lines.push(`class "${store.name}" <<${stereotype}>>${exportedStereotype} {`);
 	lines.push(`  storeType: ${store.storeType}`);
 	lines.push(`  valueType: ${store.valueType}`);
 	lines.push("}");

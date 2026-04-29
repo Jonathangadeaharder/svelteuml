@@ -156,7 +156,7 @@ export async function runPipeline(
 		}
 
 		r.startPhase("extraction", 0);
-		const extractor = new SymbolExtractor(parsingProject, errorHandler);
+		const extractor = new SymbolExtractor(parsingProject, errorHandler, discovered.exportedFiles);
 		const symbols = extractor.extract();
 		r.succeed("Symbols extracted");
 

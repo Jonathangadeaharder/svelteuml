@@ -1,6 +1,7 @@
 import { extname, resolve } from "node:path";
 import fg from "fast-glob";
 import type { DiscoveredFiles } from "../types/index.js";
+import { resolvePackageExports } from "./package-exports.js";
 
 const DEFAULT_INCLUDE_PATTERNS = [
 	"**/*.svelte",
@@ -46,7 +47,14 @@ export async function discoverFiles(
 		dot: false,
 	});
 
-	return categorizeFiles(entries);
+	const result = categorizeFiles(entries);
+
+	const exportMap = resolvePackageExports(absoluteRoot);
+	if (exportMap) {
+		result.exportedFiles = new Set(exportMap.exports.map((e) => e.resolvedPath));
+	}
+
+	return result;
 }
 
 function categorizeFiles(files: string[]): DiscoveredFiles {
