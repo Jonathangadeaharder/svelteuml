@@ -1,13 +1,19 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { validateConfig, safeValidateConfig, getDefaultConfig, mergeConfigs } from "../../src/config/schema.js";
-import type { SvelteUMLConfigInput } from "../../src/config/schema.js";
 import { resolve } from "node:path";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { SvelteUMLConfigInput } from "../../src/config/schema.js";
+import {
+	getDefaultConfig,
+	mergeConfigs,
+	safeValidateConfig,
+	validateConfig,
+} from "../../src/config/schema.js";
 
 vi.mock("node:fs", () => ({
 	existsSync: vi.fn(),
 }));
 
 import { existsSync } from "node:fs";
+
 const mockedExistsSync = vi.mocked(existsSync);
 
 describe("src/config/schema.ts", () => {

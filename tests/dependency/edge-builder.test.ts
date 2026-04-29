@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { buildEdges } from "../../src/dependency/edge-builder.js";
 import type { ResolvedImport } from "../../src/dependency/import-scanner.js";
 import type { SymbolTable } from "../../src/types/ast.js";
@@ -22,11 +22,25 @@ describe("buildEdges", () => {
 
 	it("creates dependency edge for function import", () => {
 		const imports: ResolvedImport[] = [
-			{ sourceFile: "/src/lib/api.ts", targetFile: "/src/lib/utils.ts", importedNames: ["formatDate"], isTypeOnly: false },
+			{
+				sourceFile: "/src/lib/api.ts",
+				targetFile: "/src/lib/utils.ts",
+				importedNames: ["formatDate"],
+				isTypeOnly: false,
+			},
 		];
 		const symbols = makeSymbolTable({
 			functions: [
-				{ kind: "function", name: "formatDate", filePath: "/src/lib/utils.ts", isExported: true, isAsync: false, parameters: [], returnType: "string", typeParams: [] },
+				{
+					kind: "function",
+					name: "formatDate",
+					filePath: "/src/lib/utils.ts",
+					isExported: true,
+					isAsync: false,
+					parameters: [],
+					returnType: "string",
+					typeParams: [],
+				},
 			],
 		});
 		const result = buildEdges(imports, symbols);
@@ -41,17 +55,29 @@ describe("buildEdges", () => {
 		const symbols = makeSymbolTable({
 			classes: [
 				{
-					kind: "class", name: "BaseService", filePath: "/src/lib/base.ts",
-					extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [],
+					kind: "class",
+					name: "BaseService",
+					filePath: "/src/lib/base.ts",
+					extends: undefined,
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
 				},
 				{
-					kind: "class", name: "ApiService", filePath: "/src/lib/api.ts",
-					extends: "BaseService", implements: [], members: [], isGeneric: false, typeParams: [],
+					kind: "class",
+					name: "ApiService",
+					filePath: "/src/lib/api.ts",
+					extends: "BaseService",
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
 				},
 			],
 		});
 		const result = buildEdges([], symbols);
-		const extendsEdge = result.find(e => e.type === "extends");
+		const extendsEdge = result.find((e) => e.type === "extends");
 		expect(extendsEdge).toBeDefined();
 		expect(extendsEdge?.source).toBe("/src/lib/api.ts");
 		expect(extendsEdge?.target).toBe("/src/lib/base.ts");
@@ -62,17 +88,28 @@ describe("buildEdges", () => {
 		const symbols = makeSymbolTable({
 			classes: [
 				{
-					kind: "interface", name: "IRepo", filePath: "/src/lib/types.ts",
-					implements: [], members: [], isGeneric: false, typeParams: [],
+					kind: "interface",
+					name: "IRepo",
+					filePath: "/src/lib/types.ts",
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
 				},
 				{
-					kind: "class", name: "Repo", filePath: "/src/lib/repo.ts",
-					extends: undefined, implements: ["IRepo"], members: [], isGeneric: false, typeParams: [],
+					kind: "class",
+					name: "Repo",
+					filePath: "/src/lib/repo.ts",
+					extends: undefined,
+					implements: ["IRepo"],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
 				},
 			],
 		});
 		const result = buildEdges([], symbols);
-		const implEdge = result.find(e => e.type === "implements");
+		const implEdge = result.find((e) => e.type === "implements");
 		expect(implEdge).toBeDefined();
 		expect(implEdge?.source).toBe("/src/lib/repo.ts");
 		expect(implEdge?.target).toBe("/src/lib/types.ts");
@@ -81,11 +118,22 @@ describe("buildEdges", () => {
 
 	it("creates composition edge for store import", () => {
 		const imports: ResolvedImport[] = [
-			{ sourceFile: "/src/routes/+page.svelte", targetFile: "/src/lib/stores.ts", importedNames: ["user"], isTypeOnly: false },
+			{
+				sourceFile: "/src/routes/+page.svelte",
+				targetFile: "/src/lib/stores.ts",
+				importedNames: ["user"],
+				isTypeOnly: false,
+			},
 		];
 		const symbols = makeSymbolTable({
 			stores: [
-				{ kind: "store", name: "user", filePath: "/src/lib/stores.ts", storeType: "writable", valueType: "User" },
+				{
+					kind: "store",
+					name: "user",
+					filePath: "/src/lib/stores.ts",
+					storeType: "writable",
+					valueType: "User",
+				},
 			],
 		});
 		const result = buildEdges(imports, symbols);
@@ -96,11 +144,23 @@ describe("buildEdges", () => {
 
 	it("creates association edge for route importing component", () => {
 		const imports: ResolvedImport[] = [
-			{ sourceFile: "/src/routes/+page.svelte", targetFile: "/src/lib/Button.svelte", importedNames: ["Button"], isTypeOnly: false },
+			{
+				sourceFile: "/src/routes/+page.svelte",
+				targetFile: "/src/lib/Button.svelte",
+				importedNames: ["Button"],
+				isTypeOnly: false,
+			},
 		];
 		const symbols = makeSymbolTable({
 			props: [
-				{ kind: "prop", name: "label", filePath: "/src/lib/Button.svelte", componentName: "Button", type: "string", isRequired: true },
+				{
+					kind: "prop",
+					name: "label",
+					filePath: "/src/lib/Button.svelte",
+					componentName: "Button",
+					type: "string",
+					isRequired: true,
+				},
 			],
 		});
 		const result = buildEdges(imports, symbols);
@@ -111,12 +171,35 @@ describe("buildEdges", () => {
 
 	it("deduplicates edges between same source and target", () => {
 		const imports: ResolvedImport[] = [
-			{ sourceFile: "/src/lib/a.ts", targetFile: "/src/lib/b.ts", importedNames: ["x", "y"], isTypeOnly: false },
+			{
+				sourceFile: "/src/lib/a.ts",
+				targetFile: "/src/lib/b.ts",
+				importedNames: ["x", "y"],
+				isTypeOnly: false,
+			},
 		];
 		const symbols = makeSymbolTable({
 			functions: [
-				{ kind: "function", name: "x", filePath: "/src/lib/b.ts", isExported: true, isAsync: false, parameters: [], returnType: "void", typeParams: [] },
-				{ kind: "function", name: "y", filePath: "/src/lib/b.ts", isExported: true, isAsync: false, parameters: [], returnType: "void", typeParams: [] },
+				{
+					kind: "function",
+					name: "x",
+					filePath: "/src/lib/b.ts",
+					isExported: true,
+					isAsync: false,
+					parameters: [],
+					returnType: "void",
+					typeParams: [],
+				},
+				{
+					kind: "function",
+					name: "y",
+					filePath: "/src/lib/b.ts",
+					isExported: true,
+					isAsync: false,
+					parameters: [],
+					returnType: "void",
+					typeParams: [],
+				},
 			],
 		});
 		const result = buildEdges(imports, symbols);
@@ -125,11 +208,24 @@ describe("buildEdges", () => {
 
 	it("handles type-only imports as dependency edges", () => {
 		const imports: ResolvedImport[] = [
-			{ sourceFile: "/src/lib/api.ts", targetFile: "/src/lib/types.ts", importedNames: ["User"], isTypeOnly: true },
+			{
+				sourceFile: "/src/lib/api.ts",
+				targetFile: "/src/lib/types.ts",
+				importedNames: ["User"],
+				isTypeOnly: true,
+			},
 		];
 		const symbols = makeSymbolTable({
 			classes: [
-				{ kind: "interface", name: "User", filePath: "/src/lib/types.ts", implements: [], members: [], isGeneric: false, typeParams: [] },
+				{
+					kind: "interface",
+					name: "User",
+					filePath: "/src/lib/types.ts",
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+				},
 			],
 		});
 		const result = buildEdges(imports, symbols);
@@ -139,7 +235,12 @@ describe("buildEdges", () => {
 
 	it("defaults to dependency when imported symbol kind is unknown", () => {
 		const imports: ResolvedImport[] = [
-			{ sourceFile: "/src/lib/a.ts", targetFile: "/src/lib/b.ts", importedNames: ["default"], isTypeOnly: false },
+			{
+				sourceFile: "/src/lib/a.ts",
+				targetFile: "/src/lib/b.ts",
+				importedNames: ["default"],
+				isTypeOnly: false,
+			},
 		];
 		const result = buildEdges(imports, makeSymbolTable());
 		expect(result).toHaveLength(1);

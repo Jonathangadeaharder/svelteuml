@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
 import { Project } from "ts-morph";
-import { extractLibFunctions, extractLibClasses } from "../../src/extraction/lib-extractor.js";
+import { describe, expect, it } from "vitest";
+import { extractLibClasses, extractLibFunctions } from "../../src/extraction/lib-extractor.js";
 
 function makeSourceFile(code: string, filePath = "/src/lib/utils.ts") {
 	const project = new Project({ useInMemoryFileSystem: true });
@@ -54,17 +54,23 @@ describe("extractLibFunctions", () => {
 	});
 
 	it("skips route files (+page.ts)", () => {
-		const sf = makeSourceFile(`
+		const sf = makeSourceFile(
+			`
 			export function load() { return {}; }
-		`, "/src/routes/+page.ts");
+		`,
+			"/src/routes/+page.ts",
+		);
 		const result = extractLibFunctions(sf, "/src/routes/+page.ts");
 		expect(result).toHaveLength(0);
 	});
 
 	it("skips node_modules files", () => {
-		const sf = makeSourceFile(`
+		const sf = makeSourceFile(
+			`
 			export function helper() {}
-		`, "/project/node_modules/pkg/index.ts");
+		`,
+			"/project/node_modules/pkg/index.ts",
+		);
 		const result = extractLibFunctions(sf, "/project/node_modules/pkg/index.ts");
 		expect(result).toHaveLength(0);
 	});
@@ -103,11 +109,11 @@ describe("extractLibClasses", () => {
 		const result = extractLibClasses(sf, "/src/lib/counter.ts");
 		const cls = result[0];
 		expect(cls?.members).toHaveLength(3);
-		const countProp = cls?.members.find(m => m.name === "count");
+		const countProp = cls?.members.find((m) => m.name === "count");
 		expect(countProp?.visibility).toBe("private");
-		const labelProp = cls?.members.find(m => m.name === "label");
+		const labelProp = cls?.members.find((m) => m.name === "label");
 		expect(labelProp?.visibility).toBe("protected");
-		const incMethod = cls?.members.find(m => m.name === "increment");
+		const incMethod = cls?.members.find((m) => m.name === "increment");
 		expect(incMethod?.visibility).toBe("public");
 		expect(incMethod?.kind).toBe("method");
 	});
@@ -130,7 +136,7 @@ describe("extractLibClasses", () => {
 			}
 		`);
 		const result = extractLibClasses(sf, "/src/lib/services.ts");
-		const cls = result.find(c => c.name === "ConcreteService");
+		const cls = result.find((c) => c.name === "ConcreteService");
 		expect(cls?.extends).toBe("BaseService");
 		expect(cls?.implements).toContain("IInit");
 	});
@@ -161,9 +167,12 @@ describe("extractLibClasses", () => {
 	});
 
 	it("skips route files", () => {
-		const sf = makeSourceFile(`
+		const sf = makeSourceFile(
+			`
 			export class LoadData {}
-		`, "/src/routes/+page.ts");
+		`,
+			"/src/routes/+page.ts",
+		);
 		const result = extractLibClasses(sf, "/src/routes/+page.ts");
 		expect(result).toHaveLength(0);
 	});

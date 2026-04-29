@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { renderClassDiagram } from "../../src/emission/class-diagram.js";
 import type { SymbolTable } from "../../src/types/ast.js";
-import { createEdgeSet } from "../../src/types/edge.js";
 import { DEFAULT_DIAGRAM_OPTIONS } from "../../src/types/diagram.js";
+import { createEdgeSet } from "../../src/types/edge.js";
 
 function makeEmptySymbolTable(overrides: Partial<SymbolTable> = {}): SymbolTable {
 	return {
@@ -134,7 +134,7 @@ describe("renderClassDiagram", () => {
 			{ source: "/b.ts", target: "/a.ts", type: "extends", label: "Base" },
 		]);
 		const result = renderClassDiagram(symbols, edges, DEFAULT_DIAGRAM_OPTIONS);
-		expect(result).toContain("Child <|-- Base");
+		expect(result).toContain("Base <|-- Child");
 	});
 
 	it("renders implements edge", () => {
@@ -165,13 +165,11 @@ describe("renderClassDiagram", () => {
 			{ source: "/b.ts", target: "/a.ts", type: "implements", label: "IRepo" },
 		]);
 		const result = renderClassDiagram(symbols, edges, DEFAULT_DIAGRAM_OPTIONS);
-		expect(result).toContain("Repo ..|> IRepo");
+		expect(result).toContain("IRepo ..|> Repo");
 	});
 
 	it("renders dependency edge", () => {
-		const edges = createEdgeSet([
-			{ source: "/a.ts", target: "/b.ts", type: "dependency" },
-		]);
+		const edges = createEdgeSet([{ source: "/a.ts", target: "/b.ts", type: "dependency" }]);
 		const result = renderClassDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
 		expect(result).toContain("..>");
 	});
@@ -282,39 +280,47 @@ describe("renderClassDiagram", () => {
 	});
 
 	it("renders aggregation edge", () => {
-		const edges = createEdgeSet([
-			{ source: "/a.ts", target: "/b.ts", type: "aggregation" },
-		]);
+		const edges = createEdgeSet([{ source: "/a.ts", target: "/b.ts", type: "aggregation" }]);
 		const result = renderClassDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
 		expect(result).toContain("o--");
 	});
 
 	it("renders association edge", () => {
-		const edges = createEdgeSet([
-			{ source: "/a.ts", target: "/b.ts", type: "association" },
-		]);
+		const edges = createEdgeSet([{ source: "/a.ts", target: "/b.ts", type: "association" }]);
 		const result = renderClassDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
 		expect(result).toContain("-->");
 	});
 
 	it("renders composition edge", () => {
-		const edges = createEdgeSet([
-			{ source: "/a.ts", target: "/b.ts", type: "composition" },
-		]);
+		const edges = createEdgeSet([{ source: "/a.ts", target: "/b.ts", type: "composition" }]);
 		const result = renderClassDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
 		expect(result).toContain("*--");
 	});
 
 	it("renders class with protected member", () => {
 		const symbols = makeEmptySymbolTable({
-			classes: [{
-				kind: "class", name: "Svc", filePath: "/a.ts",
-				extends: undefined, implements: [],
-				members: [
-					{ kind: "property", name: "data", visibility: "protected", type: "string", isStatic: false, isAbstract: false, isReadonly: false },
-				],
-				isGeneric: false, typeParams: [],
-			}],
+			classes: [
+				{
+					kind: "class",
+					name: "Svc",
+					filePath: "/a.ts",
+					extends: undefined,
+					implements: [],
+					members: [
+						{
+							kind: "property",
+							name: "data",
+							visibility: "protected",
+							type: "string",
+							isStatic: false,
+							isAbstract: false,
+							isReadonly: false,
+						},
+					],
+					isGeneric: false,
+					typeParams: [],
+				},
+			],
 		});
 		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
 		expect(result).toContain("# data: string");
@@ -322,14 +328,28 @@ describe("renderClassDiagram", () => {
 
 	it("hides visibility when showVisibility is false", () => {
 		const symbols = makeEmptySymbolTable({
-			classes: [{
-				kind: "class", name: "Svc", filePath: "/a.ts",
-				extends: undefined, implements: [],
-				members: [
-					{ kind: "property", name: "x", visibility: "private", type: "number", isStatic: false, isAbstract: false, isReadonly: false },
-				],
-				isGeneric: false, typeParams: [],
-			}],
+			classes: [
+				{
+					kind: "class",
+					name: "Svc",
+					filePath: "/a.ts",
+					extends: undefined,
+					implements: [],
+					members: [
+						{
+							kind: "property",
+							name: "x",
+							visibility: "private",
+							type: "number",
+							isStatic: false,
+							isAbstract: false,
+							isReadonly: false,
+						},
+					],
+					isGeneric: false,
+					typeParams: [],
+				},
+			],
 		});
 		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, showVisibility: false };
 		const result = renderClassDiagram(symbols, createEdgeSet([]), opts);
@@ -339,7 +359,15 @@ describe("renderClassDiagram", () => {
 	it("renders component with optional prop", () => {
 		const symbols = makeEmptySymbolTable({
 			props: [
-				{ kind: "prop", name: "size", filePath: "/src/lib/Card.svelte", componentName: "Card", type: "number", isRequired: false, defaultValue: "16" },
+				{
+					kind: "prop",
+					name: "size",
+					filePath: "/src/lib/Card.svelte",
+					componentName: "Card",
+					type: "number",
+					isRequired: false,
+					defaultValue: "16",
+				},
 			],
 		});
 		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, showProps: true };
@@ -350,7 +378,16 @@ describe("renderClassDiagram", () => {
 	it("renders function stereotype", () => {
 		const symbols = makeEmptySymbolTable({
 			functions: [
-				{ kind: "function", name: "helper", filePath: "/src/lib/utils.ts", isExported: true, isAsync: false, parameters: [], returnType: "void", typeParams: [] },
+				{
+					kind: "function",
+					name: "helper",
+					filePath: "/src/lib/utils.ts",
+					isExported: true,
+					isAsync: false,
+					parameters: [],
+					returnType: "void",
+					typeParams: [],
+				},
 			],
 		});
 		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
@@ -361,7 +398,13 @@ describe("renderClassDiagram", () => {
 	it("hides stores when showStores is false", () => {
 		const symbols = makeEmptySymbolTable({
 			stores: [
-				{ kind: "store", name: "count", filePath: "/src/lib/stores.ts", storeType: "writable", valueType: "number" },
+				{
+					kind: "store",
+					name: "count",
+					filePath: "/src/lib/stores.ts",
+					storeType: "writable",
+					valueType: "number",
+				},
 			],
 		});
 		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, showStores: false };
@@ -372,7 +415,14 @@ describe("renderClassDiagram", () => {
 	it("hides props when showProps is false", () => {
 		const symbols = makeEmptySymbolTable({
 			props: [
-				{ kind: "prop", name: "label", filePath: "/src/lib/Button.svelte", componentName: "Button", type: "string", isRequired: true },
+				{
+					kind: "prop",
+					name: "label",
+					filePath: "/src/lib/Button.svelte",
+					componentName: "Button",
+					type: "string",
+					isRequired: true,
+				},
 			],
 		});
 		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, showProps: false };

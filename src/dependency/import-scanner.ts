@@ -85,7 +85,8 @@ function resolveSpecifier(
 	aliases: AliasMap,
 	knownFiles: Set<string>,
 ): string | undefined {
-	for (const [alias, resolved] of Object.entries(aliases)) {
+	const sortedAliases = Object.entries(aliases).sort((a, b) => b[0].length - a[0].length);
+	for (const [alias, resolved] of sortedAliases) {
 		if (specifier === alias || specifier.startsWith(`${alias}/`)) {
 			const relativePart = specifier.slice(alias.length);
 			const candidate = `${resolved}${relativePart}`;

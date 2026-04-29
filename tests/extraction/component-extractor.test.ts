@@ -1,6 +1,9 @@
-import { describe, it, expect } from "vitest";
 import { Project } from "ts-morph";
-import { componentNameFromPath, extractComponentProps } from "../../src/extraction/component-extractor.js";
+import { describe, expect, it } from "vitest";
+import {
+	componentNameFromPath,
+	extractComponentProps,
+} from "../../src/extraction/component-extractor.js";
 
 describe("componentNameFromPath", () => {
 	it("extracts name from a lib component", () => {
@@ -59,7 +62,7 @@ describe("extractComponentProps (Svelte 4 export let)", () => {
 		`);
 		const props = extractComponentProps(sf, "Counter", "/src/lib/Counter.svelte");
 		expect(props).toHaveLength(3);
-		const names = props.map(p => p.name);
+		const names = props.map((p) => p.name);
 		expect(names).toContain("label");
 		expect(names).toContain("disabled");
 		expect(names).toContain("count");
@@ -82,16 +85,19 @@ describe("extractComponentProps (Svelte 4 export let)", () => {
 		`);
 		const props = extractComponentProps(sf, "Btn", "/src/lib/Btn.svelte");
 		// onClick is a prop (typed as function), handleEvent is a function export
-		const onClick = props.find(p => p.name === "onClick");
+		const onClick = props.find((p) => p.name === "onClick");
 		expect(onClick).toBeDefined();
-		const handleEvent = props.find(p => p.name === "handleEvent");
+		const handleEvent = props.find((p) => p.name === "handleEvent");
 		expect(handleEvent).toBeUndefined();
 	});
 
 	it("skips files in node_modules", () => {
-		const sf = makeSourceFile(`
+		const sf = makeSourceFile(
+			`
 			export let label: string;
-		`, "/project/node_modules/ui/Button.svelte.tsx");
+		`,
+			"/project/node_modules/ui/Button.svelte.tsx",
+		);
 		const props = extractComponentProps(sf, "Button", "/project/node_modules/ui/Button.svelte");
 		expect(props).toHaveLength(0);
 	});
@@ -121,7 +127,7 @@ describe("extractComponentProps (Svelte 5 $props rune)", () => {
 		`);
 		const props = extractComponentProps(sf, "HitCard", "/src/lib/HitCard.svelte");
 		expect(props.length).toBeGreaterThanOrEqual(1);
-		const songProp = props.find(p => p.name === "song");
+		const songProp = props.find((p) => p.name === "song");
 		expect(songProp).toBeDefined();
 		expect(songProp?.isRequired).toBe(true);
 	});
@@ -131,8 +137,8 @@ describe("extractComponentProps (Svelte 5 $props rune)", () => {
 			let { label = 'default', value }: { label?: string; value: number } = $props();
 		`);
 		const props = extractComponentProps(sf, "Input", "/src/lib/Input.svelte");
-		const labelProp = props.find(p => p.name === "label");
-		const valueProp = props.find(p => p.name === "value");
+		const labelProp = props.find((p) => p.name === "label");
+		const valueProp = props.find((p) => p.name === "value");
 		expect(labelProp?.isRequired).toBe(false);
 		expect(valueProp?.isRequired).toBe(true);
 	});
@@ -142,7 +148,7 @@ describe("extractComponentProps (Svelte 5 $props rune)", () => {
 			let { theme = 'light' }: { theme?: string } = $props();
 		`);
 		const props = extractComponentProps(sf, "App", "/src/lib/App.svelte");
-		const themeProp = props.find(p => p.name === "theme");
+		const themeProp = props.find((p) => p.name === "theme");
 		expect(themeProp?.defaultValue).toBe("'light'");
 	});
 });

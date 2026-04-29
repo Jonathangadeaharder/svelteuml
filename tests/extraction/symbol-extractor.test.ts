@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
 import { Project } from "ts-morph";
-import { ParsingProject } from "../../src/parsing/ts-morph-project.js";
+import { describe, expect, it } from "vitest";
 import { SymbolExtractor } from "../../src/extraction/symbol-extractor.js";
+import { ParsingProject } from "../../src/parsing/ts-morph-project.js";
 
 /**
  * Build a ParsingProject from a map of filePath → code.
@@ -28,7 +28,7 @@ describe("SymbolExtractor", () => {
 		const table = extractor.extract();
 
 		expect(table.stores).toHaveLength(2);
-		const names = table.stores.map(s => s.name);
+		const names = table.stores.map((s) => s.name);
 		expect(names).toContain("count");
 		expect(names).toContain("time");
 	});
@@ -46,7 +46,7 @@ describe("SymbolExtractor", () => {
 		const table = extractor.extract();
 
 		expect(table.functions).toHaveLength(2);
-		const names = table.functions.map(f => f.name);
+		const names = table.functions.map((f) => f.name);
 		expect(names).toContain("formatDate");
 		expect(names).toContain("clamp");
 	});
@@ -82,7 +82,7 @@ describe("SymbolExtractor", () => {
 		const extractor = new SymbolExtractor(project);
 		const table = extractor.extract();
 
-		const names = table.functions.map(f => f.name);
+		const names = table.functions.map((f) => f.name);
 		expect(names).toContain("load");
 		expect(names).toContain("actions");
 	});
@@ -97,7 +97,7 @@ describe("SymbolExtractor", () => {
 		const extractor = new SymbolExtractor(project);
 		const table = extractor.extract();
 
-		const names = table.functions.map(f => f.name);
+		const names = table.functions.map((f) => f.name);
 		expect(names).toContain("GET");
 		expect(names).toContain("POST");
 	});
@@ -115,7 +115,7 @@ describe("SymbolExtractor", () => {
 		const table = extractor.extract();
 
 		// Classes from .d.ts should be skipped; function from .ts should be found
-		expect(table.functions.some(f => f.name === "greet")).toBe(true);
+		expect(table.functions.some((f) => f.name === "greet")).toBe(true);
 	});
 
 	it("skips node_modules files", () => {
@@ -132,8 +132,9 @@ describe("SymbolExtractor", () => {
 		const table = extractor.extract();
 
 		// Should not include anything from node_modules
-		const fromNodeModules = [...table.functions, ...table.stores, ...table.classes]
-			.filter(s => s.filePath.includes("node_modules"));
+		const fromNodeModules = [...table.functions, ...table.stores, ...table.classes].filter((s) =>
+			s.filePath.includes("node_modules"),
+		);
 		expect(fromNodeModules).toHaveLength(0);
 	});
 
@@ -150,8 +151,8 @@ describe("SymbolExtractor", () => {
 		const table1 = extractor.extract();
 		const table2 = extractor.extract();
 
-		const names1 = table1.functions.map(f => f.name);
-		const names2 = table2.functions.map(f => f.name);
+		const names1 = table1.functions.map((f) => f.name);
+		const names2 = table2.functions.map((f) => f.name);
 		expect(names1).toEqual(names2);
 		// aFunc should come before bFunc due to path sorting
 		expect(names1.indexOf("aFunc")).toBeLessThan(names1.indexOf("bFunc"));

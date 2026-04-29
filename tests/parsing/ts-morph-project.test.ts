@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { ParsingProject, buildParsingProject } from "../../src/parsing/ts-morph-project.js";
+import { describe, expect, it } from "vitest";
 import type { SvelteToTsxResult } from "../../src/parsing/svelte-to-tsx.js";
+import { buildParsingProject, ParsingProject } from "../../src/parsing/ts-morph-project.js";
 
 function makeResult(
 	sourcePath: string,
@@ -67,9 +67,7 @@ describe("ParsingProject", () => {
 
 	it("returns all source files", () => {
 		const project = new ParsingProject();
-		project.addConvertedFile(
-			makeResult("/app/src/A.svelte", "/app/src/A.svelte.tsx", "a", true),
-		);
+		project.addConvertedFile(makeResult("/app/src/A.svelte", "/app/src/A.svelte.tsx", "a", true));
 		project.addPlainSourceFile("/app/src/b.ts", "export const b = 1;");
 
 		expect(project.getAllSourceFiles().size).toBe(2);
@@ -85,12 +83,20 @@ describe("ParsingProject", () => {
 describe("buildParsingProject", () => {
 	it("builds project from svelte results and plain files", () => {
 		const svelteResults: SvelteToTsxResult[] = [
-			makeResult("/app/src/A.svelte", "/app/src/A.svelte.tsx", "export default function A() {}", true),
-			makeResult("/app/src/B.svelte", "/app/src/B.svelte.tsx", "export default function B() {}", true),
+			makeResult(
+				"/app/src/A.svelte",
+				"/app/src/A.svelte.tsx",
+				"export default function A() {}",
+				true,
+			),
+			makeResult(
+				"/app/src/B.svelte",
+				"/app/src/B.svelte.tsx",
+				"export default function B() {}",
+				true,
+			),
 		];
-		const plainFiles = [
-			{ path: "/app/src/utils.ts", content: "export const x = 1;" },
-		];
+		const plainFiles = [{ path: "/app/src/utils.ts", content: "export const x = 1;" }];
 
 		const project = buildParsingProject(svelteResults, plainFiles);
 

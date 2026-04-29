@@ -36,7 +36,7 @@ export function renderPackageDiagram(
 		const sourcePkg = extractPackage(edge.source);
 		const targetPkg = extractPackage(edge.target);
 		if (sourcePkg && targetPkg && sourcePkg !== targetPkg) {
-			const key = `${sourcePkg}|${targetPkg}`;
+			const key = `${sourcePkg}|${targetPkg}|${edge.type}`;
 			if (!renderedEdges.has(key)) {
 				renderedEdges.add(key);
 				const arrow = mapEdgeArrow(edge.type);
@@ -77,8 +77,9 @@ function buildPackages(symbols: SymbolTable, options: DiagramOptions): Map<strin
 	if (options.showProps) {
 		const seen = new Set<string>();
 		for (const prop of symbols.props) {
-			if (!seen.has(prop.componentName)) {
-				seen.add(prop.componentName);
+			const key = `${prop.filePath}::${prop.componentName}`;
+			if (!seen.has(key)) {
+				seen.add(key);
 				addEntry(prop.filePath, `class "${prop.componentName}" <<component>>`);
 			}
 		}

@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-	SourceMapDecoder,
-	decodeVLQMappings,
 	contentHash,
+	decodeVLQMappings,
+	SourceMapDecoder,
 	type SourcePosition,
 } from "../../src/parsing/source-map.js";
 

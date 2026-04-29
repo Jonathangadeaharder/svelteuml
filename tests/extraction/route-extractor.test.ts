@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-	isRouteFile,
 	classifyRouteFile,
+	isRouteFile,
 	routeSegmentFromPath,
 } from "../../src/extraction/route-extractor.js";
 
@@ -89,7 +89,9 @@ describe("routeSegmentFromPath", () => {
 	});
 
 	it("returns /game/[code] for nested route", () => {
-		expect(routeSegmentFromPath("/project/src/routes/game/[code]/+page.svelte")).toBe("/game/[code]");
+		expect(routeSegmentFromPath("/project/src/routes/game/[code]/+page.svelte")).toBe(
+			"/game/[code]",
+		);
 	});
 
 	it("returns /auth/login for auth login route", () => {

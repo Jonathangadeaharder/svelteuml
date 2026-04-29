@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { ParsingProject } from "../../src/parsing/ts-morph-project.js";
+import { describe, expect, it } from "vitest";
 import { scanImports } from "../../src/dependency/import-scanner.js";
+import { ParsingProject } from "../../src/parsing/ts-morph-project.js";
 import type { AliasMap } from "../../src/types/config.js";
 
 function buildProject(files: Record<string, string>): ParsingProject {
@@ -93,7 +93,7 @@ describe("scanImports", () => {
 		});
 		const result = scanImports(project, {});
 		expect(result).toHaveLength(2);
-		const targets = result.map(r => r.targetFile);
+		const targets = result.map((r) => r.targetFile);
 		expect(targets).toContain("/src/lib/a.ts");
 		expect(targets).toContain("/src/lib/b.ts");
 	});

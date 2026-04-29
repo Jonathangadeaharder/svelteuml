@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { renderPackageDiagram } from "../../src/emission/package-diagram.js";
 import type { SymbolTable } from "../../src/types/ast.js";
-import { createEdgeSet } from "../../src/types/edge.js";
 import { DEFAULT_DIAGRAM_OPTIONS } from "../../src/types/diagram.js";
+import { createEdgeSet } from "../../src/types/edge.js";
 
 function makeEmptySymbolTable(overrides: Partial<SymbolTable> = {}): SymbolTable {
 	return { classes: [], functions: [], stores: [], props: [], exports: [], ...overrides };
@@ -181,9 +181,7 @@ describe("renderPackageDiagram", () => {
 	});
 
 	it("skips edges where source or target has no package", () => {
-		const edges = createEdgeSet([
-			{ source: "a.ts", target: "/src/lib/b.ts", type: "dependency" },
-		]);
+		const edges = createEdgeSet([{ source: "a.ts", target: "/src/lib/b.ts", type: "dependency" }]);
 		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
 		expect(result).not.toContain("..>");
 	});

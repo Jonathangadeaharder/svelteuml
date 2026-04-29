@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import * as fs from "node:fs";
-import * as path from "node:path";
 import * as os from "node:os";
+import * as path from "node:path";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
-	convertSvelteToTsx,
 	convertPlainTsFile,
+	convertSvelteToTsx,
 	isTypeScriptSvelte,
 } from "../../src/parsing/svelte-to-tsx.js";
 
@@ -36,7 +36,10 @@ describe("isTypeScriptSvelte", () => {
 
 describe("convertPlainTsFile", () => {
 	it("passes through TypeScript content unchanged", () => {
-		const result = convertPlainTsFile("/app/src/lib/utils.ts", "export function add(a: number, b: number): number { return a + b; }");
+		const result = convertPlainTsFile(
+			"/app/src/lib/utils.ts",
+			"export function add(a: number, b: number): number { return a + b; }",
+		);
 		expect(result.virtualPath).toBe("/app/src/lib/utils.ts");
 		expect(result.code).toBe("export function add(a: number, b: number): number { return a + b; }");
 		expect(result.success).toBe(true);
@@ -63,7 +66,11 @@ describe("convertSvelteToTsx", () => {
 
 	it("converts a simple Svelte component with script tag", async () => {
 		const filePath = path.join(tempDir, "Simple.svelte");
-		fs.writeFileSync(filePath, `<script>let count = 0;</script>\n\n<button on:click={() => count++}>{count}</button>`, "utf-8");
+		fs.writeFileSync(
+			filePath,
+			`<script>let count = 0;</script>\n\n<button on:click={() => count++}>{count}</button>`,
+			"utf-8",
+		);
 
 		const result = await convertSvelteToTsx(filePath);
 
@@ -76,7 +83,11 @@ describe("convertSvelteToTsx", () => {
 
 	it("detects TypeScript Svelte component", async () => {
 		const filePath = path.join(tempDir, "Typed.svelte");
-		fs.writeFileSync(filePath, `<script lang="ts">let count: number = 0;</script>\n\n<span>{count}</span>`, "utf-8");
+		fs.writeFileSync(
+			filePath,
+			`<script lang="ts">let count: number = 0;</script>\n\n<span>{count}</span>`,
+			"utf-8",
+		);
 
 		const result = await convertSvelteToTsx(filePath);
 

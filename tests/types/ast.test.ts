@@ -1,12 +1,12 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import type {
 	ClassSymbol,
+	ExportSymbol,
+	FunctionSymbol,
 	MemberSymbol,
 	ParameterSymbol,
-	FunctionSymbol,
-	StoreSymbol,
 	PropSymbol,
-	ExportSymbol,
+	StoreSymbol,
 	SymbolTable,
 	Visibility,
 } from "../../src/types/ast.js";
@@ -37,9 +37,7 @@ describe("src/types/ast.ts", () => {
 				isStatic: false,
 				isAbstract: false,
 				isReadonly: false,
-				parameters: [
-					{ name: "input", type: "string", isOptional: false },
-				],
+				parameters: [{ name: "input", type: "string", isOptional: false }],
 				returnType: "void",
 			};
 			const cls: ClassSymbol = {

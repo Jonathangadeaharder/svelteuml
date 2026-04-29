@@ -125,11 +125,23 @@ function renderEdge(
 	edge: { source: string; target: string; type: EdgeType; label?: string },
 	nameMap: Map<string, string>,
 ): void {
-	const arrow = mapEdgeArrow(edge.type);
+	const { from, to, arrow } = orientEdge(edge);
 	const labelText = edge.label ? ` : ${edge.label}` : "";
-	const sourceId = nameMap.get(edge.source) ?? sanitizeId(edge.source);
-	const targetId = nameMap.get(edge.target) ?? sanitizeId(edge.target);
-	lines.push(`${sourceId} ${arrow} ${targetId}${labelText}`);
+	const fromId = nameMap.get(from) ?? sanitizeId(from);
+	const toId = nameMap.get(to) ?? sanitizeId(to);
+	lines.push(`${fromId} ${arrow} ${toId}${labelText}`);
+}
+
+function orientEdge(edge: { source: string; target: string; type: EdgeType }): {
+	from: string;
+	to: string;
+	arrow: string;
+} {
+	const arrow = mapEdgeArrow(edge.type);
+	if (edge.type === "extends" || edge.type === "implements") {
+		return { from: edge.target, to: edge.source, arrow };
+	}
+	return { from: edge.source, to: edge.target, arrow };
 }
 
 function mapEdgeArrow(type: EdgeType): string {
@@ -168,10 +180,11 @@ function sanitizeId(name: string): string {
 function groupPropsByComponent(props: PropSymbol[]): Map<string, PropSymbol[]> {
 	const map = new Map<string, PropSymbol[]>();
 	for (const prop of props) {
-		let list = map.get(prop.componentName);
+		const key = `${prop.filePath}::${prop.componentName}`;
+		let list = map.get(key);
 		if (!list) {
 			list = [];
-			map.set(prop.componentName, list);
+			map.set(key, list);
 		}
 		list.push(prop);
 	}
