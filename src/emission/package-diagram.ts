@@ -1,4 +1,4 @@
-import type { SymbolTable } from "../types/ast.js";
+import type { RouteSymbol, SymbolTable } from "../types/ast.js";
 import type { DiagramOptions } from "../types/diagram.js";
 import type { EdgeSet, EdgeType } from "../types/edge.js";
 
@@ -91,7 +91,22 @@ function buildPackages(symbols: SymbolTable, options: DiagramOptions): Map<strin
 		addEntry(fn.filePath, `class "${fn.name}" <<function>>${exported}`);
 	}
 
+	for (const route of symbols.routes ?? []) {
+		const stereotype = routeStereotype(route);
+		addEntry(route.filePath, `class "${route.name}" <<${stereotype}>>`);
+	}
+
 	return packages;
+}
+
+function routeStereotype(route: RouteSymbol): string {
+	if (route.routeKind === "server") return "endpoint";
+	if (route.routeKind === "error") return "error-page";
+	if (route.routeKind === "page" && route.isServer) return "PageLoad";
+	if (route.routeKind === "layout" && route.isServer) return "LayoutLoad";
+	if (route.routeKind === "page") return "page";
+	if (route.routeKind === "layout") return "layout";
+	return route.routeKind;
 }
 
 function extractPackage(filePath: string): string | undefined {

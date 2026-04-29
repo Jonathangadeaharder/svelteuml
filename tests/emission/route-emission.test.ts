@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { renderClassDiagram } from "../../src/emission/class-diagram.js";
+import { renderPackageDiagram } from "../../src/emission/package-diagram.js";
 import type { SymbolTable } from "../../src/types/ast.js";
 import { DEFAULT_DIAGRAM_OPTIONS } from "../../src/types/diagram.js";
 import { createEdgeSet } from "../../src/types/edge.js";
@@ -223,5 +224,124 @@ describe("route stereotype rendering in class diagram", () => {
 		});
 		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
 		expect(result).toContain("group: auth");
+	});
+});
+
+describe("route stereotype rendering in package diagram", () => {
+	it("renders page route inside package with <<page>> stereotype", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+page",
+					filePath: "/src/routes/+page.svelte",
+					routeKind: "page",
+					isServer: false,
+					routeSegment: { raw: "/", params: [], groups: [] },
+				},
+			],
+		});
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<page>>");
+		expect(result).toContain("+page");
+	});
+
+	it("renders route in correct package directory", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+page",
+					filePath: "/src/routes/users/[id]/+page.svelte",
+					routeKind: "page",
+					isServer: false,
+					routeSegment: {
+						raw: "/users/[id]",
+						params: [{ kind: "dynamic", name: "id" }],
+						groups: [],
+					},
+				},
+			],
+		});
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("/src/routes/users/[id]");
+		expect(result).toContain("<<page>>");
+	});
+
+	it("renders server route with <<endpoint>> in package", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+server",
+					filePath: "/src/routes/api/+server.ts",
+					routeKind: "server",
+					isServer: true,
+					routeSegment: { raw: "/api", params: [], groups: [] },
+				},
+			],
+		});
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<endpoint>>");
+	});
+
+	it("renders layout route with <<layout>> in package", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+layout",
+					filePath: "/src/routes/+layout.svelte",
+					routeKind: "layout",
+					isServer: false,
+					routeSegment: { raw: "/", params: [], groups: [] },
+				},
+			],
+		});
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<layout>>");
+	});
+
+	it("renders error route with <<error-page>> in package", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+error",
+					filePath: "/src/routes/+error.svelte",
+					routeKind: "error",
+					isServer: false,
+					routeSegment: { raw: "/", params: [], groups: [] },
+				},
+			],
+		});
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<error-page>>");
+	});
+
+	it("renders PageLoad and LayoutLoad stereotypes", () => {
+		const symbols = makeEmptySymbolTable({
+			routes: [
+				{
+					kind: "route",
+					name: "+page.server",
+					filePath: "/src/routes/+page.server.ts",
+					routeKind: "page",
+					isServer: true,
+					routeSegment: { raw: "/", params: [], groups: [] },
+				},
+				{
+					kind: "route",
+					name: "+layout.server",
+					filePath: "/src/routes/+layout.server.ts",
+					routeKind: "layout",
+					isServer: true,
+					routeSegment: { raw: "/", params: [], groups: [] },
+				},
+			],
+		});
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("<<PageLoad>>");
+		expect(result).toContain("<<LayoutLoad>>");
 	});
 });
