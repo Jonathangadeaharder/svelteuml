@@ -28,6 +28,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:e2e": "vitest run tests/e2e/",
     "test:mutation": "stryker run",
     "lint": "pnpm dlx @biomejs/biome check src/",
     "format": "pnpm dlx @biomejs/biome format --write src/",
