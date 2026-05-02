@@ -37,7 +37,7 @@ svelteuml ./my-sveltekit-app -f svg -o diagram.svg
 
 ## Usage
 
-```bash
+```
 svelteuml <target-directory> [options]
 ```
 
