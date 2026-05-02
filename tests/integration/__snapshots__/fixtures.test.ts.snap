@@ -146,7 +146,7 @@ class "+page" as _page <<page>> {
   path: /
 }
 
-createAuthActions ..> _Users_jonathangadeaharder_Documents_projects_svelteuml_tests_fixtures_svelte_stores_src_lib_stores_user_svelte_ts : userStore
+createAuthActions ..> src_lib_stores_user_svelte_ts : userStore
 useCounters ..> useCounters : counter
 @enduml"
 `;

@@ -1,14 +1,18 @@
-import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { describe, expect, it } from "vitest";
+import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
+import { afterEach, describe, expect, it } from "vitest";
 import { runPipeline } from "../../src/cli/runner.js";
 import type { CliOptions } from "../../src/cli/args.js";
 
+const testOutputDir = join(tmpdir(), "svelteuml-integration-tests");
+
 function makeCliOptions(fixtureName: string, overrides: Partial<CliOptions> = {}): CliOptions {
 	const fixtureDir = resolve(import.meta.dirname, `../fixtures/${fixtureName}`);
+	mkdirSync(testOutputDir, { recursive: true });
 	return {
 		targetDir: fixtureDir,
-		outputPath: resolve(import.meta.dirname, `../fixtures/${fixtureName}/output.puml`),
+		outputPath: join(testOutputDir, `${fixtureName}-output.puml`),
 		format: "text",
 		excludeExternals: false,
 		maxDepth: 0,
@@ -27,6 +31,10 @@ async function getOutput(fixtureName: string, overrides: Partial<CliOptions> = {
 	await runPipeline(opts, {});
 	return readFileSync(opts.outputPath!, "utf-8");
 }
+
+afterEach(() => {
+	rmSync(testOutputDir, { recursive: true, force: true });
+});
 
 describe("Integration: minimal-sveltekit fixture", () => {
 	it("produces valid PlantUML output", async () => {
