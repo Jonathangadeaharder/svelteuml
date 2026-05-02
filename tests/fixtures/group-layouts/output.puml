@@ -1,0 +1,59 @@
+@startuml Diagram
+skinparam classAttributeIconSize 0
+
+class "load" <<function>> <<Exported>> {
+}
+
+class "load" <<function>> <<Exported>> {
+}
+
+class "+layout" as _layout <<layout>> {
+  path: /(app)
+  group: app
+}
+
+class "+page" as _page <<page>> {
+  path: /(app)/dashboard
+  group: app
+}
+
+class "+page" as _page <<page>> {
+  path: /(app)/docs/[...slug]
+  rest slug
+  group: app
+}
+
+class "+page" as _page <<page>> {
+  path: /(app)/docs/[...slug]
+  rest slug
+  group: app
+}
+
+class "+page" as _page <<page>> {
+  path: /(app)/users/[id]
+  dynamic id
+  group: app
+}
+
+class "+page" as _page <<page>> {
+  path: /(app)/users/[id]
+  dynamic id
+  group: app
+}
+
+class "+layout" as _layout <<layout>> {
+  path: /(auth)
+  group: auth
+}
+
+class "+page" as _page <<page>> {
+  path: /(auth)/login
+  group: auth
+}
+
+class "+page" as _page <<page>> {
+  path: /(auth)/register
+  group: auth
+}
+
+@enduml

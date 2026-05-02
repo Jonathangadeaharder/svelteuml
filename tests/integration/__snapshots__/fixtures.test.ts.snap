@@ -1,0 +1,152 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Integration: group-layouts fixture > matches snapshot 1`] = `
+"@startuml Diagram
+skinparam classAttributeIconSize 0
+
+class "load" <<function>> <<Exported>> {
+}
+
+class "load" <<function>> <<Exported>> {
+}
+
+class "+layout" as _layout <<layout>> {
+  path: /(app)
+  group: app
+}
+
+class "+page" as _page <<page>> {
+  path: /(app)/dashboard
+  group: app
+}
+
+class "+page" as _page <<page>> {
+  path: /(app)/docs/[...slug]
+  rest slug
+  group: app
+}
+
+class "+page" as _page <<page>> {
+  path: /(app)/docs/[...slug]
+  rest slug
+  group: app
+}
+
+class "+page" as _page <<page>> {
+  path: /(app)/users/[id]
+  dynamic id
+  group: app
+}
+
+class "+page" as _page <<page>> {
+  path: /(app)/users/[id]
+  dynamic id
+  group: app
+}
+
+class "+layout" as _layout <<layout>> {
+  path: /(auth)
+  group: auth
+}
+
+class "+page" as _page <<page>> {
+  path: /(auth)/login
+  group: auth
+}
+
+class "+page" as _page <<page>> {
+  path: /(auth)/register
+  group: auth
+}
+
+@enduml"
+`;
+
+exports[`Integration: minimal-sveltekit fixture > matches snapshot 1`] = `
+"@startuml Diagram
+skinparam classAttributeIconSize 0
+
+class "userStore" <<store>> {
+  storeType: writable
+  valueType: User | null
+}
+
+class "clearUser" <<function>> <<Exported>> {
+}
+
+class "setUser" <<function>> <<Exported>> {
+}
+
+class "load" <<function>> <<Exported>> {
+}
+
+class "load" <<function>> <<Exported>> {
+}
+
+class "GET" <<function>> <<Exported>> {
+}
+
+class "POST" <<function>> <<Exported>> {
+}
+
+class "+layout" as _layout <<layout>> {
+  path: /
+}
+
+class "+layout" as _layout <<layout>> {
+  path: /
+}
+
+class "+page" as _page <<page>> {
+  path: /
+}
+
+class "+page" as _page <<page>> {
+  path: /
+}
+
+class "+server" as _server <<endpoint>> {
+  path: /api/users
+}
+
+class "+page" as _page <<page>> {
+  path: /auth
+}
+
+@enduml"
+`;
+
+exports[`Integration: svelte-stores fixture > matches snapshot 1`] = `
+"@startuml Diagram
+skinparam classAttributeIconSize 0
+
+class "isLoggedIn" <<store>> {
+  storeType: derived
+  valueType: unknown
+}
+
+class "userName" <<store>> {
+  storeType: derived
+  valueType: unknown
+}
+
+class "createAuthActions" <<function>> <<Exported>> {
+}
+
+class "useCounters" <<function>> <<Exported>> {
+}
+
+class "debounce" <<function>> <<Exported>> {
+}
+
+class "formatDate" <<function>> <<Exported>> {
+}
+
+class "+page" as _page <<page>> {
+  path: /
+}
+
+createAuthActions ..> _Users_jonathangadeaharder_Documents_projects_svelteuml_tests_fixtures_svelte_stores_src_lib_stores_user_svelte_ts : userStore
+useCounters ..> useCounters : counter
+@enduml"
+`;
