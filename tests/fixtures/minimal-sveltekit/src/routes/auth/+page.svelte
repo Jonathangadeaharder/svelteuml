@@ -3,7 +3,7 @@
 	let password = $state('');
 
 	function handleSubmit() {
-		console.log('Login attempt');
+		console.log('Login', email, password);
 	}
 </script>
 
