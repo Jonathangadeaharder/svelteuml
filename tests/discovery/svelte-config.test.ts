@@ -216,4 +216,26 @@ module.exports = {
 		expect(res.configPath).toBeDefined();
 		expect(res.aliases).toHaveProperty("$lib");
 	});
+
+	it("handles kit block with no closing brace", async () => {
+		fs.writeFileSync(
+			path.join(tempDir, "svelte.config.js"),
+			`module.exports = { kit: { alias: { "$lib": "src/lib" }`,
+			"utf8",
+		);
+		const res = await loadSvelteConfig(tempDir);
+		expect(res.found).toBe(true);
+		expect(res.aliases["$lib"]).toBe("src/lib"); // falls back to default
+	});
+
+	it("handles vite block without resolve", async () => {
+		writeJSConfig(tempDir, {
+			vite: {
+				server: { port: 3000 },
+			},
+		});
+		const res = await loadSvelteConfig(tempDir);
+		expect(res.found).toBe(true);
+		expect(res.aliases["$lib"]).toBe("src/lib"); // default alias
+	});
 });

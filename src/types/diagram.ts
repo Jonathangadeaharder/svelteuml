@@ -17,6 +17,8 @@ export interface DiagramOptions {
 	title?: string;
 	layoutDirection?: LayoutDirection;
 	stereotypeColors?: StereotypeColors;
+	/** Project root directory — used to normalize absolute paths to relative for portable output. */
+	targetDir?: string;
 }
 
 export const DEFAULT_STEREOTYPE_COLORS: StereotypeColors = {

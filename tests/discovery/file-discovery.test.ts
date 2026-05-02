@@ -122,4 +122,26 @@ describe("src/discovery/file-discovery.ts", () => {
 			expect.arrayContaining([expect.stringMatching(/bar\.svelte\.js$/)]),
 		);
 	});
+
+	it("categorizes .tsx files into typescript", async () => {
+		writeFileSync(join(rootDir, "component.tsx"), "export const A = () => <div/>;");
+		const res = await discoverFiles(rootDir);
+		expect(res.typescript).toEqual(expect.arrayContaining([expect.stringMatching(/component\.tsx$/)]));
+	});
+
+	it("resolves package exports when package.json has exports field", async () => {
+		writeFileSync(
+			join(rootDir, "package.json"),
+			JSON.stringify({
+				name: "test-pkg",
+				exports: {
+					".": "./index.ts",
+					"./utils": "./util.ts",
+				},
+			}),
+		);
+		const res = await discoverFiles(rootDir);
+		expect(res.exportedFiles).toBeDefined();
+		expect(res.exportedFiles!.size).toBeGreaterThan(0);
+	});
 });

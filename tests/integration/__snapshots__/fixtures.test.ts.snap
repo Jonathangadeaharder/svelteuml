@@ -1,0 +1,308 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Integration: group-layouts fixture > matches snapshot 1`] = `
+"@startuml Diagram
+skinparam classAttributeIconSize 0
+
+top to bottom direction
+skinparam class<<component>> {
+  BackgroundColor #4A90D9
+}
+skinparam class<<store>> {
+  BackgroundColor #E67E22
+}
+skinparam class<<state>> {
+  BackgroundColor #E74C3C
+}
+skinparam class<<derived>> {
+  BackgroundColor #9B59B6
+}
+skinparam class<<page>> {
+  BackgroundColor #27AE60
+}
+skinparam class<<layout>> {
+  BackgroundColor #2ECC71
+}
+skinparam class<<PageLoad>> {
+  BackgroundColor #16A085
+}
+skinparam class<<LayoutLoad>> {
+  BackgroundColor #1ABC9C
+}
+skinparam class<<endpoint>> {
+  BackgroundColor #E74C3C
+}
+skinparam class<<error-page>> {
+  BackgroundColor #C0392B
+}
+skinparam class<<function>> {
+  BackgroundColor #3498DB
+}
+skinparam class<<Exported>> {
+  BackgroundColor #95A5A6
+}
+legend right
+  |= component |= #4A90D9 |
+  |= store |= #E67E22 |
+  |= state |= #E74C3C |
+  |= derived |= #9B59B6 |
+  |= page |= #27AE60 |
+  |= layout |= #2ECC71 |
+  |= PageLoad |= #16A085 |
+  |= LayoutLoad |= #1ABC9C |
+  |= endpoint |= #E74C3C |
+  |= error-page |= #C0392B |
+  |= function |= #3498DB |
+  |= Exported |= #95A5A6 |
+endlegend
+
+class "load" <<function>> <<Exported>> {
+}
+
+class "load" <<function>> <<Exported>> {
+}
+
+class "+layout" as _layout <<layout>> {
+  path: /(app)
+  group: app
+}
+
+class "+page" as _page <<page>> {
+  path: /(app)/dashboard
+  group: app
+}
+
+class "+page" as _page <<page>> {
+  path: /(app)/docs/[...slug]
+  rest slug
+  group: app
+}
+
+class "+page" as _page <<page>> {
+  path: /(app)/docs/[...slug]
+  rest slug
+  group: app
+}
+
+class "+page" as _page <<page>> {
+  path: /(app)/users/[id]
+  dynamic id
+  group: app
+}
+
+class "+page" as _page <<page>> {
+  path: /(app)/users/[id]
+  dynamic id
+  group: app
+}
+
+class "+layout" as _layout <<layout>> {
+  path: /(auth)
+  group: auth
+}
+
+class "+page" as _page <<page>> {
+  path: /(auth)/login
+  group: auth
+}
+
+class "+page" as _page <<page>> {
+  path: /(auth)/register
+  group: auth
+}
+
+@enduml"
+`;
+
+exports[`Integration: minimal-sveltekit fixture > matches snapshot 1`] = `
+"@startuml Diagram
+skinparam classAttributeIconSize 0
+
+top to bottom direction
+skinparam class<<component>> {
+  BackgroundColor #4A90D9
+}
+skinparam class<<store>> {
+  BackgroundColor #E67E22
+}
+skinparam class<<state>> {
+  BackgroundColor #E74C3C
+}
+skinparam class<<derived>> {
+  BackgroundColor #9B59B6
+}
+skinparam class<<page>> {
+  BackgroundColor #27AE60
+}
+skinparam class<<layout>> {
+  BackgroundColor #2ECC71
+}
+skinparam class<<PageLoad>> {
+  BackgroundColor #16A085
+}
+skinparam class<<LayoutLoad>> {
+  BackgroundColor #1ABC9C
+}
+skinparam class<<endpoint>> {
+  BackgroundColor #E74C3C
+}
+skinparam class<<error-page>> {
+  BackgroundColor #C0392B
+}
+skinparam class<<function>> {
+  BackgroundColor #3498DB
+}
+skinparam class<<Exported>> {
+  BackgroundColor #95A5A6
+}
+legend right
+  |= component |= #4A90D9 |
+  |= store |= #E67E22 |
+  |= state |= #E74C3C |
+  |= derived |= #9B59B6 |
+  |= page |= #27AE60 |
+  |= layout |= #2ECC71 |
+  |= PageLoad |= #16A085 |
+  |= LayoutLoad |= #1ABC9C |
+  |= endpoint |= #E74C3C |
+  |= error-page |= #C0392B |
+  |= function |= #3498DB |
+  |= Exported |= #95A5A6 |
+endlegend
+
+class "userStore" <<store>> {
+  storeType: writable
+  valueType: User | null
+}
+
+class "clearUser" <<function>> <<Exported>> {
+}
+
+class "setUser" <<function>> <<Exported>> {
+}
+
+class "load" <<function>> <<Exported>> {
+}
+
+class "load" <<function>> <<Exported>> {
+}
+
+class "GET" <<function>> <<Exported>> {
+}
+
+class "POST" <<function>> <<Exported>> {
+}
+
+class "+layout" as _layout <<layout>> {
+  path: /
+}
+
+class "+layout" as _layout <<layout>> {
+  path: /
+}
+
+class "+page" as _page <<page>> {
+  path: /
+}
+
+class "+page" as _page <<page>> {
+  path: /
+}
+
+class "+server" as _server <<endpoint>> {
+  path: /api/users
+}
+
+class "+page" as _page <<page>> {
+  path: /auth
+}
+
+@enduml"
+`;
+
+exports[`Integration: svelte-stores fixture > matches snapshot 1`] = `
+"@startuml Diagram
+skinparam classAttributeIconSize 0
+
+top to bottom direction
+skinparam class<<component>> {
+  BackgroundColor #4A90D9
+}
+skinparam class<<store>> {
+  BackgroundColor #E67E22
+}
+skinparam class<<state>> {
+  BackgroundColor #E74C3C
+}
+skinparam class<<derived>> {
+  BackgroundColor #9B59B6
+}
+skinparam class<<page>> {
+  BackgroundColor #27AE60
+}
+skinparam class<<layout>> {
+  BackgroundColor #2ECC71
+}
+skinparam class<<PageLoad>> {
+  BackgroundColor #16A085
+}
+skinparam class<<LayoutLoad>> {
+  BackgroundColor #1ABC9C
+}
+skinparam class<<endpoint>> {
+  BackgroundColor #E74C3C
+}
+skinparam class<<error-page>> {
+  BackgroundColor #C0392B
+}
+skinparam class<<function>> {
+  BackgroundColor #3498DB
+}
+skinparam class<<Exported>> {
+  BackgroundColor #95A5A6
+}
+legend right
+  |= component |= #4A90D9 |
+  |= store |= #E67E22 |
+  |= state |= #E74C3C |
+  |= derived |= #9B59B6 |
+  |= page |= #27AE60 |
+  |= layout |= #2ECC71 |
+  |= PageLoad |= #16A085 |
+  |= LayoutLoad |= #1ABC9C |
+  |= endpoint |= #E74C3C |
+  |= error-page |= #C0392B |
+  |= function |= #3498DB |
+  |= Exported |= #95A5A6 |
+endlegend
+
+class "isLoggedIn" <<store>> {
+  storeType: derived
+  valueType: unknown
+}
+
+class "userName" <<store>> {
+  storeType: derived
+  valueType: unknown
+}
+
+class "createAuthActions" <<function>> <<Exported>> {
+}
+
+class "useCounters" <<function>> <<Exported>> {
+}
+
+class "debounce" <<function>> <<Exported>> {
+}
+
+class "formatDate" <<function>> <<Exported>> {
+}
+
+class "+page" as _page <<page>> {
+  path: /
+}
+
+createAuthActions ..> src_lib_stores_user_svelte_ts : userStore
+useCounters ..> useCounters : counter
+@enduml"
+`;
