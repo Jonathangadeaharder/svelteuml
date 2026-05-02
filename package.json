@@ -27,6 +27,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
     "lint": "pnpm dlx @biomejs/biome check src/",
     "format": "pnpm dlx @biomejs/biome format --write src/",
     "typecheck": "pnpm exec tsc --noEmit",
