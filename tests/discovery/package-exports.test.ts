@@ -113,4 +113,37 @@ describe("resolvePackageExports", () => {
 		const result = resolvePackageExports(rootDir);
 		expect(result?.projectRoot).toBe(rootDir);
 	});
+
+	it("skips export entries with no matching conditions", () => {
+		writeFileSync(
+			join(rootDir, "package.json"),
+			JSON.stringify({
+				name: "my-lib",
+				exports: {
+					".": {
+						browser: "./dist/browser.js",
+						node: "./dist/node.js",
+					},
+				},
+			}),
+		);
+		const result = resolvePackageExports(rootDir);
+		expect(result).not.toBeNull();
+		expect(result?.exports).toHaveLength(0);
+	});
+
+	it("handles absolute paths in exports", () => {
+		writeFileSync(
+			join(rootDir, "package.json"),
+			JSON.stringify({
+				name: "my-lib",
+				exports: {
+					".": "/absolute/path/index.ts",
+				},
+			}),
+		);
+		const result = resolvePackageExports(rootDir);
+		expect(result).not.toBeNull();
+		expect(result?.exports[0]?.resolvedPath).toBe("/absolute/path/index.ts");
+	});
 });
