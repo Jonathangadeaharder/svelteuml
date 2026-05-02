@@ -220,7 +220,7 @@ module.exports = {
 	it("handles kit block with no closing brace", async () => {
 		fs.writeFileSync(
 			path.join(tempDir, "svelte.config.js"),
-			`module.exports = { kit: { alias: { "$lib": "src/lib" }`,
+			`module.exports = { kit: { alias: { "$lib": "src/nonDefaultAlias" }`,
 			"utf8",
 		);
 		const res = await loadSvelteConfig(tempDir);
