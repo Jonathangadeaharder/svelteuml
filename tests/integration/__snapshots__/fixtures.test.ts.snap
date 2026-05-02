@@ -4,6 +4,58 @@ exports[`Integration: group-layouts fixture > matches snapshot 1`] = `
 "@startuml Diagram
 skinparam classAttributeIconSize 0
 
+top to bottom direction
+skinparam class<<component>> {
+  BackgroundColor #4A90D9
+}
+skinparam class<<store>> {
+  BackgroundColor #E67E22
+}
+skinparam class<<state>> {
+  BackgroundColor #E74C3C
+}
+skinparam class<<derived>> {
+  BackgroundColor #9B59B6
+}
+skinparam class<<page>> {
+  BackgroundColor #27AE60
+}
+skinparam class<<layout>> {
+  BackgroundColor #2ECC71
+}
+skinparam class<<PageLoad>> {
+  BackgroundColor #16A085
+}
+skinparam class<<LayoutLoad>> {
+  BackgroundColor #1ABC9C
+}
+skinparam class<<endpoint>> {
+  BackgroundColor #E74C3C
+}
+skinparam class<<error-page>> {
+  BackgroundColor #C0392B
+}
+skinparam class<<function>> {
+  BackgroundColor #3498DB
+}
+skinparam class<<Exported>> {
+  BackgroundColor #95A5A6
+}
+legend right
+  |= component |= #4A90D9 |
+  |= store |= #E67E22 |
+  |= state |= #E74C3C |
+  |= derived |= #9B59B6 |
+  |= page |= #27AE60 |
+  |= layout |= #2ECC71 |
+  |= PageLoad |= #16A085 |
+  |= LayoutLoad |= #1ABC9C |
+  |= endpoint |= #E74C3C |
+  |= error-page |= #C0392B |
+  |= function |= #3498DB |
+  |= Exported |= #95A5A6 |
+endlegend
+
 class "load" <<function>> <<Exported>> {
 }
 
@@ -66,6 +118,58 @@ exports[`Integration: minimal-sveltekit fixture > matches snapshot 1`] = `
 "@startuml Diagram
 skinparam classAttributeIconSize 0
 
+top to bottom direction
+skinparam class<<component>> {
+  BackgroundColor #4A90D9
+}
+skinparam class<<store>> {
+  BackgroundColor #E67E22
+}
+skinparam class<<state>> {
+  BackgroundColor #E74C3C
+}
+skinparam class<<derived>> {
+  BackgroundColor #9B59B6
+}
+skinparam class<<page>> {
+  BackgroundColor #27AE60
+}
+skinparam class<<layout>> {
+  BackgroundColor #2ECC71
+}
+skinparam class<<PageLoad>> {
+  BackgroundColor #16A085
+}
+skinparam class<<LayoutLoad>> {
+  BackgroundColor #1ABC9C
+}
+skinparam class<<endpoint>> {
+  BackgroundColor #E74C3C
+}
+skinparam class<<error-page>> {
+  BackgroundColor #C0392B
+}
+skinparam class<<function>> {
+  BackgroundColor #3498DB
+}
+skinparam class<<Exported>> {
+  BackgroundColor #95A5A6
+}
+legend right
+  |= component |= #4A90D9 |
+  |= store |= #E67E22 |
+  |= state |= #E74C3C |
+  |= derived |= #9B59B6 |
+  |= page |= #27AE60 |
+  |= layout |= #2ECC71 |
+  |= PageLoad |= #16A085 |
+  |= LayoutLoad |= #1ABC9C |
+  |= endpoint |= #E74C3C |
+  |= error-page |= #C0392B |
+  |= function |= #3498DB |
+  |= Exported |= #95A5A6 |
+endlegend
+
 class "userStore" <<store>> {
   storeType: writable
   valueType: User | null
@@ -119,6 +223,58 @@ class "+page" as _page <<page>> {
 exports[`Integration: svelte-stores fixture > matches snapshot 1`] = `
 "@startuml Diagram
 skinparam classAttributeIconSize 0
+
+top to bottom direction
+skinparam class<<component>> {
+  BackgroundColor #4A90D9
+}
+skinparam class<<store>> {
+  BackgroundColor #E67E22
+}
+skinparam class<<state>> {
+  BackgroundColor #E74C3C
+}
+skinparam class<<derived>> {
+  BackgroundColor #9B59B6
+}
+skinparam class<<page>> {
+  BackgroundColor #27AE60
+}
+skinparam class<<layout>> {
+  BackgroundColor #2ECC71
+}
+skinparam class<<PageLoad>> {
+  BackgroundColor #16A085
+}
+skinparam class<<LayoutLoad>> {
+  BackgroundColor #1ABC9C
+}
+skinparam class<<endpoint>> {
+  BackgroundColor #E74C3C
+}
+skinparam class<<error-page>> {
+  BackgroundColor #C0392B
+}
+skinparam class<<function>> {
+  BackgroundColor #3498DB
+}
+skinparam class<<Exported>> {
+  BackgroundColor #95A5A6
+}
+legend right
+  |= component |= #4A90D9 |
+  |= store |= #E67E22 |
+  |= state |= #E74C3C |
+  |= derived |= #9B59B6 |
+  |= page |= #27AE60 |
+  |= layout |= #2ECC71 |
+  |= PageLoad |= #16A085 |
+  |= LayoutLoad |= #1ABC9C |
+  |= endpoint |= #E74C3C |
+  |= error-page |= #C0392B |
+  |= function |= #3498DB |
+  |= Exported |= #95A5A6 |
+endlegend
 
 class "isLoggedIn" <<store>> {
   storeType: derived
