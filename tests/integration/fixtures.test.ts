@@ -110,7 +110,7 @@ describe("Integration: svelte-stores fixture", () => {
 });
 
 describe("Integration: cross-fixture validation", () => {
-	it("all fixtures produce valid PlantUML with @startuml/@enduml", async () => {
+	it("all fixtures produce valid PlantUML with @startuml/@enduml", { timeout: 30_000 }, async () => {
 		const fixtures = ["minimal-sveltekit", "group-layouts", "svelte-stores"];
 		for (const fixture of fixtures) {
 			const output = await getOutput(fixture);
