@@ -151,6 +151,7 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
+<<<<<<< HEAD
   '@babel/plugin-proposal-decorators@7.29.0':
     resolution: {integrity: sha512-CVBVv3VY/XRMxRYq5dwr2DS7/MvqPm23cOCjbwNnVrfOqcWlnefua1uUs0sjdKOGjvPUG633o07uWzJq4oI6dA==}
     engines: {node: '>=6.9.0'}
@@ -205,10 +206,13 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   '@babel/runtime@7.29.2':
     resolution: {integrity: sha512-JiDShH45zKHWyGe4ZNVRrCjBz8Nh9TMmZG1kh4QTK8hCBTWBi8Da+i7s1fJw7/lYpM4ccepSNfqzZ/QvABBi5g==}
     engines: {node: '>=6.9.0'}
 
+<<<<<<< HEAD
   '@babel/template@7.28.6':
     resolution: {integrity: sha512-YA6Ma2KsCdGb+WC6UpBVFJGXL58MDA6oyONbjyF/+5sBgxY/dwkhLogbMT2GXXyU84/IhRw/2D1Os1B/giz+BQ==}
     engines: {node: '>=6.9.0'}
@@ -217,6 +221,8 @@ packages:
     resolution: {integrity: sha512-4HPiQr0X7+waHfyXPZpWPfWL/J7dcN1mx9gL6WdQVMbPnF3+ZhSMs8tCxN7oHddJE9fhNE7+lxdnlyemKfJRuA==}
     engines: {node: '>=6.9.0'}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   '@babel/types@7.29.0':
     resolution: {integrity: sha512-LwdZHpScM4Qz8Xw2iKSzS+cfglZzJGvofQICy7W7v4caru4EaAmyUuO6BGrbyQ2mYV11W0U8j5mBhd14dd3B0A==}
     engines: {node: '>=6.9.0'}
@@ -493,6 +499,7 @@ packages:
     cpu: [x64]
     os: [win32]
 
+<<<<<<< HEAD
   '@inquirer/ansi@2.0.5':
     resolution: {integrity: sha512-doc2sWgJpbFQ64UflSVd17ibMGDuxO1yKgOgLMwavzESnXjFWJqUeG8saYosqKpHp4kWiM5x1nXvEjbpx90gzw==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^21.7.0 || ^20.12.0'}
@@ -542,6 +549,8 @@ packages:
       '@types/node':
         optional: true
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   '@inquirer/external-editor@1.0.3':
     resolution: {integrity: sha512-RWbSrDiYmO4LbejWY7ttpxczuwQyZLBUyygsA9Nsv95hpzUWwnNTVQmAq3xuh7vNwCp07UTmE5i11XAEExx4RA==}
     engines: {node: '>=18'}
@@ -551,6 +560,7 @@ packages:
       '@types/node':
         optional: true
 
+<<<<<<< HEAD
   '@inquirer/external-editor@3.0.0':
     resolution: {integrity: sha512-lDSwMgg+M5rq6JKBYaJwSX6T9e/HK2qqZ1oxmOwn4AQoJE5D+7TumsxLGC02PWS//rkIVqbZv3XA3ejsc9FYvg==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^21.7.0 || ^20.12.0'}
@@ -636,6 +646,8 @@ packages:
       '@types/node':
         optional: true
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
@@ -919,6 +931,7 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
+<<<<<<< HEAD
   ajv@8.18.0:
     resolution: {integrity: sha512-PlXPeEWMXMZ7sPYOHqmDyCJzcfNrUr3fGNKtezX14ykXOEIvyK81d+qydx89KY5O71FKMPaQ2vBfBFI5NHR63A==}
 
@@ -926,6 +939,8 @@ packages:
     resolution: {integrity: sha512-++nLNyZwRfHqFh7akH5Gw/JYizoFlMRz0KRigfwfsLqV8ZqlcVRb1LkPEWdYvEKDnbktknM2J4BXaYUGrQZPww==}
     engines: {node: '>= 14'}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   ansi-colors@4.1.3:
     resolution: {integrity: sha512-/6w/C21Pm1A7aZitlI5Ni/2J6FFQN8i1Cvz3kHABAAbw93v/NlvKdVOqz7CCWz/3iv/JplRSEEZ83XION15ovw==}
     engines: {node: '>=6'}
@@ -978,11 +993,14 @@ packages:
     resolution: {integrity: sha512-BLrgEcRTwX2o6gGxGOCNyMvGSp35YofuYzw9h1IMTRmKqttAZZVU67bdb9Pr2vUHA8+j3i2tJfjO6C6+4myGTA==}
     engines: {node: 18 || 20 || >=22}
 
+<<<<<<< HEAD
   baseline-browser-mapping@2.10.25:
     resolution: {integrity: sha512-QO/VHsXCQdnzADMfmkeOPvHdIAkoB7i0/rGjINPJEetLx75hNttVWGQ/jycHUDP9zZ9rupbm60WRxcwViB0MiA==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   better-path-resolve@1.0.0:
     resolution: {integrity: sha512-pbnl5XzGBdrFU/wT4jqmJVPn2B6UHPBOhzMQkY/SPUPB6QtUXtmBHBIwCbXJol93mOpGMnQyP/+BB19q04xj7g==}
     engines: {node: '>=4'}
@@ -1090,9 +1108,12 @@ packages:
     resolution: {integrity: sha512-h5k/5U50IJJFpzfL6nO9jaaumfjO/f2NjK/oYB2Djzm4p9L+3T9qWpZqZ2hAbLPuuYq9wrU08WQyBTL5GbPk5Q==}
     engines: {node: '>=6'}
 
+<<<<<<< HEAD
   des.js@1.1.0:
     resolution: {integrity: sha512-r17GxjhUCjSRy8aiJpr8/UadFIzMzJGexI3Nmz4ADi9LYSFx4gTBp80+NaX/YsXWWLhpZ7v/v/ubEc/bCNfKwg==}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   detect-indent@6.1.0:
     resolution: {integrity: sha512-reYkTUJAZb9gUuZ2RvVCNhVHdg62RHnJ7WJl8ftMi4diZ6NWlciOzQN88pUhSELEwflJht4oQDv0F0BMlwaYtA==}
     engines: {node: '>=8'}
@@ -1100,17 +1121,23 @@ packages:
   devalue@5.7.1:
     resolution: {integrity: sha512-MUbZ586EgQqdRnC4yDrlod3BEdyvE4TapGYHMW2CiaW+KkkFmWEFqBUaLltEZCGi0iFXCEjRF0OjF0DV2QHjOA==}
 
+<<<<<<< HEAD
   diff-match-patch@1.0.5:
     resolution: {integrity: sha512-IayShXAgj/QMXgB0IWmKx+rOPuGMhqm5w6jvFxmVenXKIzRqTAAsbBPT3kWQeGANj3jGgvcvv4yK6SxqYmikgw==}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   dir-glob@3.0.1:
     resolution: {integrity: sha512-WkrWp9GR4KXfKGYzOLmTuGVi1UWFfws377n9cc55/tb6DuqyF6pcQ5AbiHEshaDpY9v6oaSr2XCDidGmMwdzIA==}
     engines: {node: '>=8'}
 
+<<<<<<< HEAD
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
     engines: {node: '>= 0.4'}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
@@ -1130,6 +1157,7 @@ packages:
     resolution: {integrity: sha512-rRqJg/6gd538VHvR3PSrdRBb/1Vy2YfzHqzvbhGIQpDRKIa4FgV/54b5Q1xYSxOOwKvjXweS26E0Q+nAMwp2pQ==}
     engines: {node: '>=8.6'}
 
+<<<<<<< HEAD
   es-define-property@1.0.1:
     resolution: {integrity: sha512-e3nRfgfUZ4rNGL232gUgX06QNyyez04KdjFrF+LTRoOXmrOgFKDg4BCdsjW8EnT69eqdYGmRpJwiPVYNrCaW3g==}
     engines: {node: '>= 0.4'}
@@ -1138,6 +1166,8 @@ packages:
     resolution: {integrity: sha512-Zf5H2Kxt2xjTvbJvP2ZWLEICxA6j+hAmMzIlypy4xcBg1vKVnx89Wy0GbS+kf5cwCVFFzdCFh2XSCFNULS6csw==}
     engines: {node: '>= 0.4'}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   es-module-lexer@1.7.0:
     resolution: {integrity: sha512-jEQoCwk8hyb2AZziIOLhDqpm5+2ww5uIE6lkO/6jcOCusfk6LhMHpXXfBLXTZ7Ydyt0j4VoUQv6uGNYbdW+kBA==}
 
@@ -1184,9 +1214,12 @@ packages:
   extendable-error@0.1.7:
     resolution: {integrity: sha512-UOiS2in6/Q0FK0R0q6UY9vYpQ21mr/Qn1KOnte7vsACuNJf514WvCCUHSRCPcgjPT2bAhNIJdlE6bVap1GKmeg==}
 
+<<<<<<< HEAD
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   fast-glob@3.3.3:
     resolution: {integrity: sha512-7MptL8U0cqcFdzIzwOTHoilX9x5BrNqye7Z/LuC7kCMRio1EMSyqRK3BEAUD7sXRq4iT4AzTVuZdhgQ2TCvYLg==}
     engines: {node: '>=8.6.0'}
@@ -1280,10 +1313,13 @@ packages:
     resolution: {integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==}
     engines: {node: '>=10'}
 
+<<<<<<< HEAD
   gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
     engines: {node: '>= 0.4'}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
@@ -1306,10 +1342,13 @@ packages:
     resolution: {integrity: sha512-tsYlhAYpjCKa//8rXZ9DqKEawhPoSytweBC2eNvcaDK+57RZLHGqNs3PZTQO6yekLFSuvA6AlnAfrw1uBvtb+Q==}
     hasBin: true
 
+<<<<<<< HEAD
   human-signals@8.0.1:
     resolution: {integrity: sha512-eKCa6bwnJhvxj14kZk5NCPc6Hb6BdsU9DZcOnmQKSnO1VKrfV0zCvtttPZUsBvjmNDn8rpcJfpwSYnHBjc95MQ==}
     engines: {node: '>=18.18.0'}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   iconv-lite@0.7.2:
     resolution: {integrity: sha512-im9DjEDQ55s9fL4EYzOAv0yMqmMBSZp6G0VvFyTMPKWxiSBHUj9NW/qqLmXUwXrrM7AvqSlTCfvqRb0cM8yYqw==}
     engines: {node: '>=0.10.0'}
@@ -1318,9 +1357,12 @@ packages:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
     engines: {node: '>= 4'}
 
+<<<<<<< HEAD
   inherits@2.0.4:
     resolution: {integrity: sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   is-extglob@2.1.1:
     resolution: {integrity: sha512-SbKbANkN603Vi4jEZv49LeVJMn4yGwsbzZworEoyEiutsN3nJYdbO36zfhGJ6QEDpOZIFkDtnq5JRxmvl3jsoQ==}
     engines: {node: '>=0.10.0'}
@@ -1348,10 +1390,13 @@ packages:
   is-reference@3.0.3:
     resolution: {integrity: sha512-ixkJoqQvAP88E6wLydLGGqCJsrFUnqoH6HnaczB8XmDH1oaWU+xxdptvikTgaEhtZ53Ky6YXiBuUI2WXLMCwjw==}
 
+<<<<<<< HEAD
   is-stream@4.0.1:
     resolution: {integrity: sha512-Dnz92NInDqYckGEUJv689RbRiTSEHCQ7wOVeALbkOz999YpqT46yMRIGtSNl2iCL1waAZSx40+h59NV/EwzV/A==}
     engines: {node: '>=18'}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   is-subdir@1.2.0:
     resolution: {integrity: sha512-2AT6j+gXe/1ueqbW6fLZJiIw3F8iXGJtt0yDrZaBhAZEG1raiTxKWU+IPqMCzQAXOUCKdA4UDMgacKH25XG2Cw==}
     engines: {node: '>=4'}
@@ -1406,6 +1451,7 @@ packages:
     resolution: {integrity: sha512-qQKT4zQxXl8lLwBtHMWwaTcGfFOZviOJet3Oy/xmGk2gZH677CJM9EvtfdSkgWcATZhj/55JZ0rmy3myCT5lsA==}
     hasBin: true
 
+<<<<<<< HEAD
   jsesc@3.1.0:
     resolution: {integrity: sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA==}
     engines: {node: '>=6'}
@@ -1422,6 +1468,8 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   jsonfile@4.0.0:
     resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
 
@@ -1432,9 +1480,12 @@ packages:
     resolution: {integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==}
     engines: {node: '>=8'}
 
+<<<<<<< HEAD
   lodash.groupby@4.6.0:
     resolution: {integrity: sha512-5dcWxm23+VAoz+awKmBaiBvzox8+RqMgFhi7UvX9DHZr2HdxHXM/Wrf8cfKpsW37RNrvtPn6hSwNqurSILbmJw==}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   lodash.startcase@4.4.0:
     resolution: {integrity: sha512-+WKqsK294HMSc2jEbNgpHpd0JfIBhp7rEV4aqXWqFr6AlXov+SlcgB1Fv01y2kGe3Gc8nMW7VA0SrGuSkRfIEg==}
 
@@ -1569,10 +1620,13 @@ packages:
   package-manager-detector@0.2.11:
     resolution: {integrity: sha512-BEnLolu+yuz22S56CU1SUKq3XC3PkwD5wv4ikR4MfGvnRVcmzXR9DwSlW2fEamyTPyXHomBJRzgapeuBvRNzJQ==}
 
+<<<<<<< HEAD
   parse-ms@4.0.0:
     resolution: {integrity: sha512-TXfryirbmq34y8QBwgqCVLi+8oA3oWx2eAnSn62ITyEhEYaWRlVZ2DvMM9eZbMs/RfxPu/PK/aBLyGj4IrqMHw==}
     engines: {node: '>=18'}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   path-browserify@1.0.1:
     resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
 
@@ -1627,6 +1681,7 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
+<<<<<<< HEAD
   pretty-ms@9.3.0:
     resolution: {integrity: sha512-gjVS5hOP+M3wMm5nmNOucbIrqudzs9v/57bWRHQWLYklXqoXKrVfYW2W9+glfGsqtPgpiz5WwyEEB+ksXIx3gQ==}
     engines: {node: '>=18'}
@@ -1639,6 +1694,8 @@ packages:
     resolution: {integrity: sha512-6YHEFRL9mfgcAvql/XhwTvf5jKcOiiupt2FiJxHkiX1z4j7WL8J/jRHYLluORvc1XxB5rV20KoeK00gVJamspg==}
     engines: {node: '>=0.6'}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   quansync@0.2.11:
     resolution: {integrity: sha512-AifT7QEbW9Nri4tAwR5M/uzpBuqfZf+zwaEM/QkzEjj7NBuFD2rBuy0K3dE+8wltbezDV7JMA0WfnCPYRSYbXA==}
 
@@ -1653,10 +1710,13 @@ packages:
     resolution: {integrity: sha512-9u/XQ1pvrQtYyMpZe7DXKv2p5CNvyVwzUB6uhLAnQwHMSgKMBR62lc7AHljaeteeHXn11XTAaLLUVZYVZyuRBQ==}
     engines: {node: '>= 20.19.0'}
 
+<<<<<<< HEAD
   require-from-string@2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   resolve-from@5.0.0:
     resolution: {integrity: sha512-qYg9KP24dD5qka9J47d0aVky0N+b4fTU89LN9iDnjB5waksiC49rvMB0PrUJQGoTmH50XPiqOvAjDfaijGxYZw==}
     engines: {node: '>=8'}
@@ -1677,9 +1737,12 @@ packages:
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
 
+<<<<<<< HEAD
   rxjs@7.8.2:
     resolution: {integrity: sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
@@ -1734,10 +1797,13 @@ packages:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
 
+<<<<<<< HEAD
   source-map@0.7.6:
     resolution: {integrity: sha512-i5uvt8C3ikiWeNZSVZNWcfZPItFQOsYTUAOkcUPGd8DqDy1uOUikjt5dG+uRlwyvR108Fb9DOd4GvXfT0N2/uQ==}
     engines: {node: '>= 12'}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   spawndamnit@3.0.1:
     resolution: {integrity: sha512-MmnduQUuHCoFckZoWnXsTg7JaiLBJrKFj9UI2MbRPGaJeVpsLcVBu6P/IGZovziM/YBsellCmsprgNA+w0CzVg==}
 
@@ -1778,10 +1844,13 @@ packages:
     resolution: {integrity: sha512-vavAMRXOgBVNF6nyEEmL3DBK19iRpDcoIwW+swQ+CbGiu7lju6t+JklA1MHweoWtadgt4ISVUsXLyDq34ddcwA==}
     engines: {node: '>=4'}
 
+<<<<<<< HEAD
   strip-final-newline@4.0.0:
     resolution: {integrity: sha512-aulFJcD6YK8V1G7iRB5tigAP4TsHBZZrOV8pjV++zdUwmeV8uzbY7yn6h9MswN62adStNZFuCIx4haBnRuMDaw==}
     engines: {node: '>=18'}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   strip-literal@3.1.0:
     resolution: {integrity: sha512-8r3mkIM/2+PpjHoOtiAW8Rg3jJLHaV7xPwG+YRGrv6FP0wwk/toTpATxWYOW0BKdWwl82VT2tFYi5DlROa0Mxg==}
 
@@ -1866,20 +1935,26 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
+<<<<<<< HEAD
   unicorn-magic@0.3.0:
     resolution: {integrity: sha512-+QBBXBCvifc56fsbuxZQ6Sic3wqqc3WWaqxs58gvJrcOuN83HGTCwz3oS5phzU9LthRNE9VrJCFCLUgHeeFnfA==}
     engines: {node: '>=18'}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   universalify@0.1.2:
     resolution: {integrity: sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg==}
     engines: {node: '>= 4.0.0'}
 
+<<<<<<< HEAD
   update-browserslist-db@1.2.3:
     resolution: {integrity: sha512-Js0m9cx+qOgDxo0eMiFGEueWztz+d4+M3rGlmKPT+T4IS/jP4ylw3Nwpu6cpTTP8R1MAC1kF4VbdLt3ARf209w==}
     hasBin: true
     peerDependencies:
       browserslist: '>= 4.21.0'
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   vite-node@3.2.4:
     resolution: {integrity: sha512-EbKSKh+bh1E1IFxeO0pg1n4dvoOTt0UDiXMd/qn++r98+jPO1xtJilvXldeuQ8giIB5IkpjCgMleHMNEsGH6pg==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
@@ -2120,6 +2195,7 @@ snapshots:
     dependencies:
       '@babel/types': 7.29.0
 
+<<<<<<< HEAD
   '@babel/plugin-proposal-decorators@7.29.0(@babel/core@7.29.0)':
     dependencies:
       '@babel/core': 7.29.0
@@ -2210,6 +2286,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+=======
+  '@babel/runtime@7.29.2': {}
+
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   '@babel/types@7.29.0':
     dependencies:
       '@babel/helper-string-parser': 7.27.1
@@ -2473,6 +2553,7 @@ snapshots:
   '@esbuild/win32-x64@0.27.7':
     optional: true
 
+<<<<<<< HEAD
   '@inquirer/ansi@2.0.5': {}
 
   '@inquirer/checkbox@5.1.4(@types/node@22.19.17)':
@@ -2518,6 +2599,8 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.19.17
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   '@inquirer/external-editor@1.0.3(@types/node@22.19.17)':
     dependencies:
       chardet: 2.1.1
@@ -2525,6 +2608,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.19.17
 
+<<<<<<< HEAD
   '@inquirer/external-editor@3.0.0(@types/node@22.19.17)':
     dependencies:
       chardet: 2.1.1
@@ -2599,6 +2683,8 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.19.17
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   '@isaacs/cliui@8.0.2':
     dependencies:
       string-width: 5.1.2
@@ -2896,6 +2982,7 @@ snapshots:
 
   acorn@8.16.0: {}
 
+<<<<<<< HEAD
   ajv@8.18.0:
     dependencies:
       fast-deep-equal: 3.1.3
@@ -2905,6 +2992,8 @@ snapshots:
 
   angular-html-parser@10.4.0: {}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   ansi-colors@4.1.3: {}
 
   ansi-regex@5.0.1: {}
@@ -2941,8 +3030,11 @@ snapshots:
 
   balanced-match@4.0.4: {}
 
+<<<<<<< HEAD
   baseline-browser-mapping@2.10.25: {}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   better-path-resolve@1.0.0:
     dependencies:
       is-windows: 1.0.2
@@ -3035,27 +3127,36 @@ snapshots:
 
   deep-eql@5.0.2: {}
 
+<<<<<<< HEAD
   des.js@1.1.0:
     dependencies:
       inherits: 2.0.4
       minimalistic-assert: 1.0.1
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   detect-indent@6.1.0: {}
 
   devalue@5.7.1: {}
 
+<<<<<<< HEAD
   diff-match-patch@1.0.5: {}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   dir-glob@3.0.1:
     dependencies:
       path-type: 4.0.0
 
+<<<<<<< HEAD
   dunder-proto@1.0.1:
     dependencies:
       call-bind-apply-helpers: 1.0.2
       es-errors: 1.3.0
       gopd: 1.2.0
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   eastasianwidth@0.2.0: {}
 
   electron-to-chromium@1.5.349: {}
@@ -3071,10 +3172,13 @@ snapshots:
       ansi-colors: 4.1.3
       strip-ansi: 6.0.1
 
+<<<<<<< HEAD
   es-define-property@1.0.1: {}
 
   es-errors@1.3.0: {}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   es-module-lexer@1.7.0: {}
 
   es-object-atoms@1.1.1:
@@ -3143,8 +3247,11 @@ snapshots:
 
   extendable-error@0.1.7: {}
 
+<<<<<<< HEAD
   fast-deep-equal@3.1.3: {}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   fast-glob@3.3.3:
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -3257,8 +3364,11 @@ snapshots:
       merge2: 1.4.1
       slash: 3.0.0
 
+<<<<<<< HEAD
   gopd@1.2.0: {}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   graceful-fs@4.2.11: {}
 
   has-flag@4.0.0: {}
@@ -3273,16 +3383,22 @@ snapshots:
 
   human-id@4.1.3: {}
 
+<<<<<<< HEAD
   human-signals@8.0.1: {}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   iconv-lite@0.7.2:
     dependencies:
       safer-buffer: 2.1.2
 
   ignore@5.3.2: {}
 
+<<<<<<< HEAD
   inherits@2.0.4: {}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   is-extglob@2.1.1: {}
 
   is-fullwidth-code-point@3.0.0: {}
@@ -3301,8 +3417,11 @@ snapshots:
     dependencies:
       '@types/estree': 1.0.8
 
+<<<<<<< HEAD
   is-stream@4.0.1: {}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   is-subdir@1.2.0:
     dependencies:
       better-path-resolve: 1.0.0
@@ -3357,6 +3476,7 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
+<<<<<<< HEAD
   jsesc@3.1.0: {}
 
   json-rpc-2.0@1.7.1: {}
@@ -3365,6 +3485,8 @@ snapshots:
 
   json5@2.2.3: {}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   jsonfile@4.0.0:
     optionalDependencies:
       graceful-fs: 4.2.11
@@ -3375,8 +3497,11 @@ snapshots:
     dependencies:
       p-locate: 4.1.0
 
+<<<<<<< HEAD
   lodash.groupby@4.6.0: {}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   lodash.startcase@4.4.0: {}
 
   log-symbols@7.0.1:
@@ -3497,8 +3622,11 @@ snapshots:
     dependencies:
       quansync: 0.2.11
 
+<<<<<<< HEAD
   parse-ms@4.0.0: {}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   path-browserify@1.0.1: {}
 
   path-exists@4.0.0: {}
@@ -3534,6 +3662,7 @@ snapshots:
 
   prettier@2.8.8: {}
 
+<<<<<<< HEAD
   pretty-ms@9.3.0:
     dependencies:
       parse-ms: 4.0.0
@@ -3544,6 +3673,8 @@ snapshots:
     dependencies:
       side-channel: 1.1.0
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   quansync@0.2.11: {}
 
   queue-microtask@1.2.3: {}
@@ -3557,8 +3688,11 @@ snapshots:
 
   readdirp@5.0.0: {}
 
+<<<<<<< HEAD
   require-from-string@2.0.2: {}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   resolve-from@5.0.0: {}
 
   restore-cursor@5.1.0:
@@ -3603,10 +3737,13 @@ snapshots:
     dependencies:
       queue-microtask: 1.2.3
 
+<<<<<<< HEAD
   rxjs@7.8.2:
     dependencies:
       tslib: 2.8.1
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   safer-buffer@2.1.2: {}
 
   scule@1.3.0: {}
@@ -3657,8 +3794,11 @@ snapshots:
 
   source-map-js@1.2.1: {}
 
+<<<<<<< HEAD
   source-map@0.7.6: {}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   spawndamnit@3.0.1:
     dependencies:
       cross-spawn: 7.0.6
@@ -3699,8 +3839,11 @@ snapshots:
 
   strip-bom@3.0.0: {}
 
+<<<<<<< HEAD
   strip-final-newline@4.0.0: {}
 
+=======
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   strip-literal@3.1.0:
     dependencies:
       js-tokens: 9.0.1
@@ -3791,6 +3934,7 @@ snapshots:
 
   undici-types@6.21.0: {}
 
+<<<<<<< HEAD
   unicorn-magic@0.3.0: {}
 
   universalify@0.1.2: {}
@@ -3801,6 +3945,10 @@ snapshots:
       escalade: 3.2.0
       picocolors: 1.1.1
 
+=======
+  universalify@0.1.2: {}
+
+>>>>>>> f2e373e (feat: configure npm publishing with changesets, exports map, and LICENSE)
   vite-node@3.2.4(@types/node@22.19.17):
     dependencies:
       cac: 6.7.14
