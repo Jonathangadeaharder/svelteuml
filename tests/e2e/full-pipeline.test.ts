@@ -79,10 +79,9 @@ describe("E2E: full pipeline", () => {
 			{},
 		);
 		expect(result.success).toBe(true);
-		if (existsSync(OUTPUT_PATH)) {
-			const content = readFileSync(OUTPUT_PATH, "utf-8");
-			expect(content).not.toContain("node_modules");
-		}
+		expect(existsSync(OUTPUT_PATH)).toBe(true);
+		const content = readFileSync(OUTPUT_PATH, "utf-8");
+		expect(content).not.toContain("node_modules");
 	});
 
 	it("works with stdout output (no outputPath)", async () => {

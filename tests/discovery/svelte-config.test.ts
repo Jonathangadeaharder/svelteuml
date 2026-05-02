@@ -225,7 +225,7 @@ module.exports = {
 		);
 		const res = await loadSvelteConfig(tempDir);
 		expect(res.found).toBe(true);
-		expect(res.aliases).toHaveProperty("$lib"); // falls back to default
+		expect(res.aliases["$lib"]).toBe("src/lib"); // falls back to default
 	});
 
 	it("handles vite block without resolve", async () => {
@@ -236,6 +236,6 @@ module.exports = {
 		});
 		const res = await loadSvelteConfig(tempDir);
 		expect(res.found).toBe(true);
-		expect(res.aliases).toHaveProperty("$lib"); // default alias
+		expect(res.aliases["$lib"]).toBe("src/lib"); // default alias
 	});
 });

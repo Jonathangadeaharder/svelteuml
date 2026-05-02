@@ -37,7 +37,7 @@ svelteuml ./my-sveltekit-app -f svg -o diagram.svg
 
 ## Usage
 
-```
+```bash
 svelteuml <target-directory> [options]
 ```
 
@@ -114,7 +114,7 @@ CLI flags override config file values.
 
 SvelteUML uses a 5-phase pipeline:
 
-```
+```text
 ┌─────────────┐    ┌───────────┐    ┌─────────────┐    ┌────────────┐    ┌───────────┐
 │  Discovery  │───>│  Parsing  │───>│  Extraction │───>│ Resolution │───>│ Emission  │
 │             │    │           │    │             │    │            │    │           │

@@ -219,9 +219,11 @@ function sanitizeId(name: string): string {
 
 function normalizeFilePath(filePath: string, targetDir?: string): string {
 	if (!targetDir) return filePath;
-	const prefix = targetDir.endsWith("/") ? targetDir : `${targetDir}/`;
-	if (filePath.startsWith(prefix)) return filePath.slice(prefix.length);
-	return filePath;
+	const normalizedFilePath = filePath.replace(/\\/g, "/");
+	const normalizedTargetDir = targetDir.replace(/\\/g, "/");
+	const prefix = normalizedTargetDir.endsWith("/") ? normalizedTargetDir : `${normalizedTargetDir}/`;
+	if (normalizedFilePath.startsWith(prefix)) return normalizedFilePath.slice(prefix.length);
+	return normalizedFilePath;
 }
 
 function groupPropsByComponent(props: PropSymbol[]): Map<string, PropSymbol[]> {
