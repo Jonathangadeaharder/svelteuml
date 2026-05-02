@@ -182,7 +182,7 @@ describe("trackReactiveDependencies", () => {
 		];
 
 		const deps = trackReactiveDependencies(project, reactiveSymbols);
-		expect(Array.isArray(deps)).toBe(true);
+		expect(deps).toHaveLength(0);
 	});
 
 	it("skips symbols when source file not found in project", () => {

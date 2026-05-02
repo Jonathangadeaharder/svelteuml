@@ -247,7 +247,12 @@ describe("src/cli/runner.ts", () => {
 			const result = await runPipeline(cliOpts, {});
 
 			expect(result.success).toBe(true);
-			expect(mockedWriteFileSync).toHaveBeenCalled();
+			expect(result.outputPath).toBe(resolve("/tmp/out.puml"));
+			expect(mockedWriteFileSync).toHaveBeenCalledWith(
+				resolve("/tmp/out.puml"),
+				expect.any(String),
+				"utf-8",
+			);
 		});
 
 		it("writes file for svg format without outputPath", async () => {
@@ -255,7 +260,12 @@ describe("src/cli/runner.ts", () => {
 			const result = await runPipeline(cliOpts, {});
 
 			expect(result.success).toBe(true);
-			expect(mockedWriteFileSync).toHaveBeenCalled();
+			expect(result.outputPath).toBe(resolve("diagram.svg"));
+			expect(mockedWriteFileSync).toHaveBeenCalledWith(
+				resolve("diagram.svg"),
+				expect.any(String),
+				"utf-8",
+			);
 		});
 
 		it("returns success for text format without outputPath (stdout)", async () => {
@@ -281,6 +291,20 @@ describe("src/cli/runner.ts", () => {
 
 			expect(result.success).toBe(false);
 			expect(result.error).toContain("disk failure");
+		});
+
+		it("applies focus filtering when focus option is set", async () => {
+			const cliOpts = makeCliOpts({ focus: "MyComponent", maxDepth: 2 });
+			const result = await runPipeline(cliOpts, {});
+
+			expect(result.success).toBe(true);
+		});
+
+		it("applies hideTypeDeps and hideStateDeps filtering", async () => {
+			const cliOpts = makeCliOpts({ hideTypeDeps: true, hideStateDeps: true });
+			const result = await runPipeline(cliOpts, {});
+
+			expect(result.success).toBe(true);
 		});
 	});
 });

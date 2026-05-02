@@ -34,18 +34,19 @@ describe("startWatcher", () => {
 		await rm(tempDir, { recursive: true, force: true });
 	});
 
-	it("returns a watcher with a close method", () => {
+	it("returns a watcher with correct interface", () => {
 		const cliOpts = makeCliOpts();
 		const watcher = startWatcher(cliOpts, {});
 		expect(typeof watcher.close).toBe("function");
+		expect(typeof watcher.on).toBe("function");
+		expect(watcher.ready).toBeInstanceOf(Promise);
 		return watcher.close();
 	});
 
 	it("stops the watcher after close()", async () => {
 		const cliOpts = makeCliOpts();
 		const watcher = startWatcher(cliOpts, {});
-		await watcher.close();
-		expect(watcher).toBeDefined();
+		await expect(watcher.close()).resolves.toBeUndefined();
 	});
 
 	it("has an on method for change events", async () => {
@@ -90,8 +91,6 @@ describe("startWatcher", () => {
 		await writeFile(join(tempDir, "c.svelte"), "<script>let c = 3;</script>");
 
 		await new Promise((resolve) => setTimeout(resolve, 50));
-		await watcher.close();
-
-		expect(watcher).toBeDefined();
+		await expect(watcher.close()).resolves.toBeUndefined();
 	});
 });

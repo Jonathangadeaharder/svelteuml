@@ -7,6 +7,7 @@ import type {
 } from "../types/ast.js";
 import type { DiagramOptions } from "../types/diagram.js";
 import type { EdgeSet, EdgeType } from "../types/edge.js";
+import { normalizeFilePath } from "../utils/path.js";
 import { routeStereotype } from "./route-utils.js";
 
 export function renderClassDiagram(
@@ -215,17 +216,6 @@ function mapVisibility(vis: string, show: boolean): string {
 
 function sanitizeId(name: string): string {
 	return name.replace(/[^a-zA-Z0-9_]/g, "_").replace(/_+/g, "_");
-}
-
-function normalizeFilePath(filePath: string, targetDir?: string): string {
-	if (!targetDir) return filePath;
-	const normalizedFilePath = filePath.replace(/\\/g, "/");
-	const normalizedTargetDir = targetDir.replace(/\\/g, "/");
-	const prefix = normalizedTargetDir.endsWith("/")
-		? normalizedTargetDir
-		: `${normalizedTargetDir}/`;
-	if (normalizedFilePath.startsWith(prefix)) return normalizedFilePath.slice(prefix.length);
-	return normalizedFilePath;
 }
 
 function groupPropsByComponent(props: PropSymbol[]): Map<string, PropSymbol[]> {
