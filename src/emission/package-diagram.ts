@@ -26,8 +26,8 @@ export function renderPackageDiagram(
 
 	const renderedEdges = new Set<string>();
 	for (const edge of edgeSet.edges) {
-		const sourcePkg = extractPackage(edge.source);
-		const targetPkg = extractPackage(edge.target);
+		const sourcePkg = extractPackage(normalizeFilePath(edge.source, options.targetDir));
+		const targetPkg = extractPackage(normalizeFilePath(edge.target, options.targetDir));
 		if (sourcePkg && targetPkg && sourcePkg !== targetPkg) {
 			const key = `${sourcePkg}|${targetPkg}|${edge.type}`;
 			if (!renderedEdges.has(key)) {
@@ -49,7 +49,8 @@ function buildPackages(symbols: SymbolTable, options: DiagramOptions): Map<strin
 	const packages = new Map<string, string[]>();
 
 	const addEntry = (filePath: string, line: string) => {
-		const pkg = extractPackage(filePath);
+		const normalized = normalizeFilePath(filePath, options.targetDir);
+		const pkg = extractPackage(normalized);
 		if (!pkg) return;
 		let entries = packages.get(pkg);
 		if (!entries) {
@@ -109,6 +110,13 @@ function extractPackage(filePath: string): string | undefined {
 
 function sanitizeId(path: string): string {
 	return path.replace(/[^a-zA-Z0-9_]/g, "_").replace(/_+/g, "_");
+}
+
+function normalizeFilePath(filePath: string, targetDir?: string): string {
+	if (!targetDir) return filePath;
+	const prefix = targetDir.endsWith("/") ? targetDir : `${targetDir}/`;
+	if (filePath.startsWith(prefix)) return filePath.slice(prefix.length);
+	return filePath;
 }
 
 function mapEdgeArrow(type: EdgeType): string {

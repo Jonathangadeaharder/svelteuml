@@ -20,7 +20,7 @@ export function renderClassDiagram(
 	lines.push("skinparam classAttributeIconSize 0");
 	lines.push("");
 
-	const nameMap = buildNameMap(symbols);
+	const nameMap = buildNameMap(symbols, options.targetDir);
 
 	for (const cls of symbols.classes) {
 		renderClass(lines, cls, options);
@@ -51,36 +51,36 @@ export function renderClassDiagram(
 	}
 
 	for (const edge of edgeSet.edges) {
-		renderEdge(lines, edge, nameMap);
+		renderEdge(lines, edge, nameMap, options.targetDir);
 	}
 
 	lines.push("@enduml");
 	return lines.join("\n");
 }
 
-function buildNameMap(symbols: SymbolTable): Map<string, string> {
+function buildNameMap(symbols: SymbolTable, targetDir?: string): Map<string, string> {
 	const map = new Map<string, string>();
 	for (const cls of symbols.classes) {
 		map.set(cls.name, sanitizeId(cls.name));
-		map.set(cls.filePath, sanitizeId(cls.name));
+		map.set(normalizeFilePath(cls.filePath, targetDir), sanitizeId(cls.name));
 	}
 	for (const store of symbols.stores) {
 		map.set(store.name, sanitizeId(store.name));
-		map.set(store.filePath, sanitizeId(store.name));
+		map.set(normalizeFilePath(store.filePath, targetDir), sanitizeId(store.name));
 	}
 	for (const fn of symbols.functions) {
 		map.set(fn.name, sanitizeId(fn.name));
-		map.set(fn.filePath, sanitizeId(fn.name));
+		map.set(normalizeFilePath(fn.filePath, targetDir), sanitizeId(fn.name));
 	}
 	for (const route of symbols.routes ?? []) {
 		map.set(route.name, sanitizeId(route.name));
-		map.set(route.filePath, sanitizeId(route.name));
+		map.set(normalizeFilePath(route.filePath, targetDir), sanitizeId(route.name));
 	}
 	const components = groupPropsByComponent(symbols.props);
 	for (const [name, props] of components) {
 		map.set(name, sanitizeId(name));
 		if (props[0]) {
-			map.set(props[0].filePath, sanitizeId(name));
+			map.set(normalizeFilePath(props[0].filePath, targetDir), sanitizeId(name));
 		}
 	}
 	return map;
@@ -159,11 +159,14 @@ function renderEdge(
 	lines: string[],
 	edge: { source: string; target: string; type: EdgeType; label?: string },
 	nameMap: Map<string, string>,
+	targetDir?: string,
 ): void {
 	const { from, to, arrow } = orientEdge(edge);
 	const labelText = edge.label ? ` : ${edge.label}` : "";
-	const fromId = nameMap.get(from) ?? sanitizeId(from);
-	const toId = nameMap.get(to) ?? sanitizeId(to);
+	const normalizedFrom = normalizeFilePath(from, targetDir);
+	const normalizedTo = normalizeFilePath(to, targetDir);
+	const fromId = nameMap.get(normalizedFrom) ?? sanitizeId(normalizedFrom);
+	const toId = nameMap.get(normalizedTo) ?? sanitizeId(normalizedTo);
 	lines.push(`${fromId} ${arrow} ${toId}${labelText}`);
 }
 
@@ -212,6 +215,13 @@ function mapVisibility(vis: string, show: boolean): string {
 
 function sanitizeId(name: string): string {
 	return name.replace(/[^a-zA-Z0-9_]/g, "_").replace(/_+/g, "_");
+}
+
+function normalizeFilePath(filePath: string, targetDir?: string): string {
+	if (!targetDir) return filePath;
+	const prefix = targetDir.endsWith("/") ? targetDir : `${targetDir}/`;
+	if (filePath.startsWith(prefix)) return filePath.slice(prefix.length);
+	return filePath;
 }
 
 function groupPropsByComponent(props: PropSymbol[]): Map<string, PropSymbol[]> {
