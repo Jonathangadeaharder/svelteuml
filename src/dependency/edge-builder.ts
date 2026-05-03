@@ -33,7 +33,7 @@ export function buildEdges(
 	const componentFiles = new Set(
 		[
 			...symbols.props.map((p) => p.filePath),
-			...(symbols.components ?? []).map((c) => c.filePath),
+			...symbols.components.map((c) => c.filePath),
 		],
 	);
 

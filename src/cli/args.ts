@@ -124,7 +124,7 @@ export function parseArgs(argv: string[]): CliOptions {
 
 function stripNodeArgv(argv: string[]): string[] {
 	// If argv looks like process.argv (node binary + script path), strip first 2
-	if (argv.length >= 2 && /(?:^|\/)node(?:\d+)?(?:\.exe)?$/.test(argv[0] ?? "")) {
+	if (argv.length >= 2 && /(?:^|[\\/])node(?:\d+)?(?:\.exe)?$/i.test(argv[0] ?? "")) {
 		return argv.slice(2);
 	}
 	return argv;

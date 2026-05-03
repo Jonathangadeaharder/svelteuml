@@ -117,6 +117,22 @@ describe("renderPackageDiagram", () => {
 		expect(result).toContain("Button");
 	});
 
+	it("renders component without props via symbols.components", () => {
+		const symbols = makeEmptySymbolTable({
+			components: [
+				{
+					kind: "component",
+					name: "Button",
+					filePath: "/src/lib/Button.svelte",
+				},
+			],
+		});
+		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, showProps: true };
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), opts);
+		expect(result).toContain("<<component>>");
+		expect(result).toContain("Button");
+	});
+
 	it("renders functions in packages", () => {
 		const symbols = makeEmptySymbolTable({
 			functions: [

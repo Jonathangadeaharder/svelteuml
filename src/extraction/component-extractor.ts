@@ -204,20 +204,5 @@ function escapeRegex(s: string): string {
 function getAllVariableDeclarations(
 	sourceFile: import("ts-morph").SourceFile,
 ): import("ts-morph").VariableDeclaration[] {
-	const decls: import("ts-morph").VariableDeclaration[] = [];
-	for (const fn of sourceFile.getFunctions()) {
-		const body = fn.getBody();
-		if (body) {
-			const block = body.asKind?.(SyntaxKind.Block);
-			if (block) {
-				decls.push(...block.getVariableDeclarations());
-			} else {
-				for (const vd of body.getDescendantsOfKind(SyntaxKind.VariableDeclaration)) {
-					decls.push(vd);
-				}
-			}
-		}
-	}
-	decls.push(...sourceFile.getVariableDeclarations());
-	return decls;
+	return sourceFile.getDescendantsOfKind(SyntaxKind.VariableDeclaration);
 }

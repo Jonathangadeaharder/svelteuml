@@ -196,6 +196,7 @@ describe("SymbolExtractor", () => {
 
 		const aboutRoutes = table.routes.filter((r) => r.routeSegment.raw === "/about" && r.name === "+page");
 		expect(aboutRoutes).toHaveLength(1);
+		expect(aboutRoutes[0]?.filePath).toBe("/src/routes/about/+page.svelte");
 	});
 
 	it("deduplicates paired +layout.svelte and +layout.ts routes", () => {
@@ -214,5 +215,6 @@ describe("SymbolExtractor", () => {
 			(r) => r.routeSegment.raw === "/" && r.name === "+layout",
 		);
 		expect(rootLayoutRoutes).toHaveLength(1);
+		expect(rootLayoutRoutes[0]?.filePath).toBe("/src/routes/+layout.svelte");
 	});
 });

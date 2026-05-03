@@ -242,4 +242,16 @@ describe("parseArgs", () => {
 		expect(result.excludeExternals).toBe(true);
 		expect(result.verbose).toBe(true);
 	});
+
+	it("parses from Windows process.argv format", () => {
+		const argv = [
+			"C:\\Program Files\\nodejs\\node.exe",
+			"C:\\project\\dist\\cli.js",
+			".\\src",
+			"--verbose",
+		];
+		const result = parseArgs(argv);
+		expect(result.targetDir).toBe(".\\src");
+		expect(result.verbose).toBe(true);
+	});
 });
