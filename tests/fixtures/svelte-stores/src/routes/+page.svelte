@@ -1,11 +1,11 @@
 <script lang="ts">
-import { createAuthActions } from "$lib/stores/auth.svelte";
+import { createAuthActions, userName, isLoggedIn } from "$lib/stores/auth.svelte";
 import { useCounters } from "$lib/stores/counter.svelte";
 import { formatDate } from "$lib/utils/helpers";
 
-const _auth = createAuthActions();
+const auth = createAuthActions();
 const { count, doubled, increment } = useCounters();
-const _today = formatDate(new Date());
+const today = formatDate(new Date());
 </script>
 
 <h1>Welcome, {$userName}</h1>

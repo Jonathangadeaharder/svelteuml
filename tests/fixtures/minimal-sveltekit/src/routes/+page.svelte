@@ -1,8 +1,11 @@
 <script lang="ts">
-let count = $state(0);
-const _doubled = $derived(count * 2);
+import Button from "$lib/components/Button.svelte";
+import { userStore } from "$lib/stores/user.svelte";
 
-function _increment() {
+let count = $state(0);
+const doubled = $derived(count * 2);
+
+function increment() {
 	count++;
 }
 </script>

@@ -1,8 +1,8 @@
 <script lang="ts">
-let _email = $state("");
-let _password = $state("");
+let email = $state("");
+let password = $state("");
 
-function _handleSubmit() {}
+function handleSubmit() {}
 </script>
 
 <form onsubmit={handleSubmit}>

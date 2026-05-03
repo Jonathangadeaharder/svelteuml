@@ -90,13 +90,11 @@ function resolveTarget(
 	options?: ScanOptions,
 ): string | undefined {
 	if (resolvedTarget) {
-		if (resolvedTarget.includes("/node_modules/") || resolvedTarget.includes("\\node_modules\\")) {
+		const pathSegments = resolvedTarget.split(/[/\\]/);
+		if (pathSegments.includes("node_modules")) {
 			return options?.excludeExternals
 				? `<<External>>/${extractPackageName(specifier)}`
 				: undefined;
-		}
-		if (options?.excludeExternals && resolvedTarget.split("/").includes("node_modules")) {
-			return `<<External>>/${extractPackageName(specifier)}`;
 		}
 		return resolvedTarget;
 	}

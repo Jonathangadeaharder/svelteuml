@@ -1,6 +1,6 @@
 <script lang="ts">
 let { userId } = $props<{ userId: string }>();
-let _user = $state<{ name: string; email: string } | null>(null);
+let user = $state<{ name: string; email: string } | null>(null);
 </script>
 
 {#if user}
