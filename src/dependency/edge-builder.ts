@@ -30,7 +30,10 @@ export function buildEdges(
 	}
 
 	const storeFiles = new Set(symbols.stores.map((s) => s.filePath));
-	const componentFiles = new Set(symbols.props.map((p) => p.filePath));
+	const componentFiles = new Set([
+		...symbols.props.map((p) => p.filePath),
+		...symbols.components.map((c) => c.filePath),
+	]);
 
 	for (const imp of imports) {
 		const isStoreImport = storeFiles.has(imp.targetFile);
@@ -47,13 +50,14 @@ export function buildEdges(
 			edgeType = "dependency";
 		}
 
+		const meaningfulNames = imp.importedNames.filter((n) => !isMinifiedName(n));
 		const edge: Edge =
-			imp.importedNames.length > 0
+			meaningfulNames.length > 0
 				? {
 						source: imp.sourceFile,
 						target: imp.targetFile,
 						type: edgeType,
-						label: imp.importedNames.join(", "),
+						label: meaningfulNames.join(", "),
 					}
 				: { source: imp.sourceFile, target: imp.targetFile, type: edgeType };
 		addEdge(edge);
@@ -105,4 +109,10 @@ function findClassFile(
 		if (names.has(name)) return filePath;
 	}
 	return undefined;
+}
+
+const MINIFIED_RE = /^[a-z](?:[A-Z0-9])?$/;
+
+function isMinifiedName(name: string): boolean {
+	return MINIFIED_RE.test(name);
 }

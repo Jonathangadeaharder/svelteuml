@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	let { children } = $props();
+let { children } = $props();
 </script>
 
 <div class="app-layout">

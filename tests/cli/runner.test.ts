@@ -49,6 +49,8 @@ vi.mock("../../src/extraction/symbol-extractor.js", () => ({
 			stores: [],
 			props: [],
 			exports: [],
+			routes: [],
+			components: [],
 		}),
 	})),
 }));

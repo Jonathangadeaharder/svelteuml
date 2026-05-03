@@ -56,6 +56,35 @@ legend right
   |= Exported |= #95A5A6 |
 endlegend
 
+class "UserProfile" <<component>> {
+  + userId: unknown
+}
+
+class "+layout" <<component>> {
+  + children: unknown
+}
+
+class "+page" <<component>> {
+}
+
+class "+page" <<component>> {
+  + data: unknown
+}
+
+class "+page" <<component>> {
+  + data: unknown
+}
+
+class "+layout" <<component>> {
+  + children: unknown
+}
+
+class "+page" <<component>> {
+}
+
+class "+page" <<component>> {
+}
+
 class "load" <<function>> <<Exported>> {
 }
 
@@ -75,18 +104,6 @@ class "+page" as _page <<page>> {
 class "+page" as _page <<page>> {
   path: /(app)/docs/[...slug]
   rest slug
-  group: app
-}
-
-class "+page" as _page <<page>> {
-  path: /(app)/docs/[...slug]
-  rest slug
-  group: app
-}
-
-class "+page" as _page <<page>> {
-  path: /(app)/users/[id]
-  dynamic id
   group: app
 }
 
@@ -175,6 +192,21 @@ class "userStore" <<store>> {
   valueType: User | null
 }
 
+class "Button" <<component>> {
+  + label: unknown
+  + onClick: unknown
+}
+
+class "+layout" <<component>> {
+  + children: unknown
+}
+
+class "+page" <<component>> {
+}
+
+class "+page" <<component>> {
+}
+
 class "clearUser" <<function>> <<Exported>> {
 }
 
@@ -194,14 +226,6 @@ class "POST" <<function>> <<Exported>> {
 }
 
 class "+layout" as _layout <<layout>> {
-  path: /
-}
-
-class "+layout" as _layout <<layout>> {
-  path: /
-}
-
-class "+page" as _page <<page>> {
   path: /
 }
 
@@ -284,6 +308,9 @@ class "isLoggedIn" <<store>> {
 class "userName" <<store>> {
   storeType: derived
   valueType: unknown
+}
+
+class "+page" <<component>> {
 }
 
 class "createAuthActions" <<function>> <<Exported>> {

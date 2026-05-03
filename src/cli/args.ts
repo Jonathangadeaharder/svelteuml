@@ -98,7 +98,7 @@ export function parseArgs(argv: string[]): CliOptions {
 		.option("--watch", "watch for file changes", false)
 		.exitOverride();
 
-	program.parse(argv, { from: "user" });
+	program.parse(stripNodeArgv(argv), { from: "user" });
 
 	const opts = program.opts();
 	const targetDir = program.processedArgs[0] as string;
@@ -120,4 +120,12 @@ export function parseArgs(argv: string[]): CliOptions {
 		verbose: opts.verbose as boolean,
 		watch: opts.watch as boolean,
 	};
+}
+
+function stripNodeArgv(argv: string[]): string[] {
+	// If argv looks like process.argv (node binary + script path), strip first 2
+	if (argv.length >= 2 && /(?:^|[\\/])node(?:\d+)?(?:\.exe)?$/i.test(argv[0] ?? "")) {
+		return argv.slice(2);
+	}
+	return argv;
 }

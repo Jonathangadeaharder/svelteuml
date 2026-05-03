@@ -104,6 +104,13 @@ export interface RouteSymbol {
 	routeSegment: RouteSegment;
 }
 
+/** Svelte component discovered in the project. */
+export interface ComponentSymbol {
+	kind: "component";
+	name: string;
+	filePath: string;
+}
+
 /** Union of all extractable symbols. */
 export type SymbolInfo =
 	| ClassSymbol
@@ -111,7 +118,8 @@ export type SymbolInfo =
 	| StoreSymbol
 	| PropSymbol
 	| ExportSymbol
-	| RouteSymbol;
+	| RouteSymbol
+	| ComponentSymbol;
 
 /** Complete symbol table for a project. */
 export interface SymbolTable {
@@ -121,4 +129,5 @@ export interface SymbolTable {
 	props: PropSymbol[];
 	exports: ExportSymbol[];
 	routes: RouteSymbol[];
+	components: ComponentSymbol[];
 }

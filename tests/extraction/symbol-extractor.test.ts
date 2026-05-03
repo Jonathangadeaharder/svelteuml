@@ -169,4 +169,56 @@ describe("SymbolExtractor", () => {
 		expect(table.props).toHaveLength(0);
 		expect(table.exports).toHaveLength(0);
 	});
+
+	it("classifies +page.svelte.tsx as a route", () => {
+		const project = buildProject({
+			"/src/routes/about/+page.svelte.tsx": `
+				export let title: string;
+			`,
+		});
+		const extractor = new SymbolExtractor(project, new PipelineErrorHandler());
+		const table = extractor.extract();
+
+		expect(table.routes.some((r) => r.name === "+page" && r.routeSegment.raw === "/about")).toBe(
+			true,
+		);
+	});
+
+	it("deduplicates paired +page.svelte and +page.ts routes", () => {
+		const project = buildProject({
+			"/src/routes/about/+page.svelte.tsx": `
+				export let title: string;
+			`,
+			"/src/routes/about/+page.ts": `
+				export function load({ fetch }) { return { title: 'About' }; }
+			`,
+		});
+		const extractor = new SymbolExtractor(project, new PipelineErrorHandler());
+		const table = extractor.extract();
+
+		const aboutRoutes = table.routes.filter(
+			(r) => r.routeSegment.raw === "/about" && r.name === "+page",
+		);
+		expect(aboutRoutes).toHaveLength(1);
+		expect(aboutRoutes[0]?.filePath).toBe("/src/routes/about/+page.svelte");
+	});
+
+	it("deduplicates paired +layout.svelte and +layout.ts routes", () => {
+		const project = buildProject({
+			"/src/routes/+layout.svelte.tsx": `
+				export let children: any;
+			`,
+			"/src/routes/+layout.ts": `
+				export function load() { return {}; }
+			`,
+		});
+		const extractor = new SymbolExtractor(project, new PipelineErrorHandler());
+		const table = extractor.extract();
+
+		const rootLayoutRoutes = table.routes.filter(
+			(r) => r.routeSegment.raw === "/" && r.name === "+layout",
+		);
+		expect(rootLayoutRoutes).toHaveLength(1);
+		expect(rootLayoutRoutes[0]?.filePath).toBe("/src/routes/+layout.svelte");
+	});
 });

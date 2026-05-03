@@ -16,6 +16,7 @@ function makeSymbols(overrides?: Partial<SymbolTable>): SymbolTable {
 		props: [],
 		exports: [],
 		routes: [],
+		components: [],
 		...overrides,
 	};
 }

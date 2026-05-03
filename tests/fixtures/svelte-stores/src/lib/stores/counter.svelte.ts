@@ -1,4 +1,4 @@
-import { counter } from './counter.svelte.js';
+import { counter } from "./counter.svelte.js";
 
 export function useCounters() {
 	const count = counter(0);

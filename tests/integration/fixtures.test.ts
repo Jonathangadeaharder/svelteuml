@@ -1,9 +1,9 @@
-import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { runPipeline } from "../../src/cli/runner.js";
 import type { CliOptions } from "../../src/cli/args.js";
+import { runPipeline } from "../../src/cli/runner.js";
 
 const testOutputDir = join(tmpdir(), "svelteuml-integration-tests");
 
@@ -26,7 +26,10 @@ function makeCliOptions(fixtureName: string, overrides: Partial<CliOptions> = {}
 	};
 }
 
-async function getOutput(fixtureName: string, overrides: Partial<CliOptions> = {}): Promise<string> {
+async function getOutput(
+	fixtureName: string,
+	overrides: Partial<CliOptions> = {},
+): Promise<string> {
 	const opts = makeCliOptions(fixtureName, overrides);
 	await runPipeline(opts, {});
 	return readFileSync(opts.outputPath!, "utf-8");
@@ -110,7 +113,9 @@ describe("Integration: svelte-stores fixture", () => {
 });
 
 describe("Integration: cross-fixture validation", () => {
-	it("all fixtures produce valid PlantUML with @startuml/@enduml", { timeout: 30_000 }, async () => {
+	it("all fixtures produce valid PlantUML with @startuml/@enduml", {
+		timeout: 30_000,
+	}, async () => {
 		const fixtures = ["minimal-sveltekit", "group-layouts", "svelte-stores"];
 		for (const fixture of fixtures) {
 			const output = await getOutput(fixture);

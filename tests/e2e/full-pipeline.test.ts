@@ -2,8 +2,8 @@ import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { runPipeline } from "../../src/cli/runner.js";
 import type { CliOptions } from "../../src/cli/args.js";
+import { runPipeline } from "../../src/cli/runner.js";
 
 const FIXTURE_DIR = resolve(import.meta.dirname, "../fixtures/minimal-sveltekit");
 const testOutputDir = join(tmpdir(), "svelteuml-e2e-tests");
@@ -74,10 +74,7 @@ describe("E2E: full pipeline", () => {
 	});
 
 	it("exclude-externals removes node_modules references", async () => {
-		const result = await runPipeline(
-			makeCliOptions({ excludeExternals: true }),
-			{},
-		);
+		const result = await runPipeline(makeCliOptions({ excludeExternals: true }), {});
 		expect(result.success).toBe(true);
 		expect(existsSync(OUTPUT_PATH)).toBe(true);
 		const content = readFileSync(OUTPUT_PATH, "utf-8");
@@ -85,19 +82,13 @@ describe("E2E: full pipeline", () => {
 	});
 
 	it("works with stdout output (no outputPath)", async () => {
-		const result = await runPipeline(
-			makeCliOptions({ outputPath: undefined }),
-			{},
-		);
+		const result = await runPipeline(makeCliOptions({ outputPath: undefined }), {});
 		expect(result.success).toBe(true);
 		expect(result.fileCount).toBeGreaterThan(0);
 	});
 
 	it("fails gracefully on nonexistent directory", async () => {
-		const result = await runPipeline(
-			makeCliOptions({ targetDir: "/nonexistent/path" }),
-			{},
-		);
+		const result = await runPipeline(makeCliOptions({ targetDir: "/nonexistent/path" }), {});
 		expect(result.success).toBe(false);
 		expect(result.error).toBeDefined();
 	});

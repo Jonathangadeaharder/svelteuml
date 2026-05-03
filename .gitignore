@@ -3,3 +3,4 @@ dist/
 *.tsbuildinfo
 .svelte-kit/
 coverage/
+.DS_Store

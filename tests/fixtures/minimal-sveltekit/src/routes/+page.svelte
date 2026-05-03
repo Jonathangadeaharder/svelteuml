@@ -1,13 +1,13 @@
 <script lang="ts">
-	import Button from '$lib/components/Button.svelte';
-	import { userStore } from '$lib/stores/user';
+import Button from "$lib/components/Button.svelte";
+import { userStore } from "$lib/stores/user.svelte";
 
-	let count = $state(0);
-	const doubled = $derived(count * 2);
+let count = $state(0);
+const doubled = $derived(count * 2);
 
-	function increment() {
-		count++;
-	}
+function increment() {
+	count++;
+}
 </script>
 
 <h1>Home</h1>

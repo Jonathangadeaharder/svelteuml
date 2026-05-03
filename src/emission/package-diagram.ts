@@ -87,6 +87,13 @@ function buildPackages(symbols: SymbolTable, options: DiagramOptions): Map<strin
 				addEntry(prop.filePath, `class "${prop.componentName}" <<component>>`);
 			}
 		}
+		for (const comp of symbols.components) {
+			const key = `${comp.filePath}::${comp.name}`;
+			if (!seen.has(key)) {
+				seen.add(key);
+				addEntry(comp.filePath, `class "${comp.name}" <<component>>`);
+			}
+		}
 	}
 
 	for (const fn of symbols.functions) {

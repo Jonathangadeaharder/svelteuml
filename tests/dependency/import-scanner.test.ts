@@ -198,4 +198,25 @@ describe("scanImports", () => {
 			expect(targets).toContain("<<External>>/svelte");
 		});
 	});
+
+	it("skips files inside node_modules", () => {
+		const project = buildProject({
+			"/src/lib/utils.ts": `export function helper(): void {}`,
+			"/project/node_modules/svelte/internal.ts": `export function noop() {} export { a, b, c } from './dom.js';`,
+		});
+		const result = scanImports(project, {});
+		const fromNodeModules = result.filter(
+			(r) => r.sourceFile.includes("node_modules") || r.targetFile.includes("node_modules"),
+		);
+		expect(fromNodeModules).toHaveLength(0);
+	});
+
+	it("skips import targets resolved to node_modules when excludeExternals is false", () => {
+		const project = buildProject({
+			"/src/app.ts": `import { onMount } from 'svelte/internal';`,
+			"/project/node_modules/svelte/internal/index.ts": `export function onMount() {}`,
+		});
+		const result = scanImports(project, {});
+		expect(result).toHaveLength(0);
+	});
 });

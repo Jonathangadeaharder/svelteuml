@@ -1,6 +1,6 @@
 <script lang="ts">
-	let email = $state('');
-	let password = $state('');
+let email = $state("");
+let password = $state("");
 </script>
 
 <form>

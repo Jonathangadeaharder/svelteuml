@@ -24,6 +24,8 @@ export function scanImports(
 
 	for (const [originalPath, sourceFile] of allFiles) {
 		if (originalPath.endsWith(".svelte.tsx")) continue;
+		if (originalPath.includes("/node_modules/") || originalPath.includes("\\node_modules\\"))
+			continue;
 
 		const imports = extractImportsFromFile(sourceFile, originalPath, aliases, knownFiles, options);
 		results.push(...imports);
@@ -88,8 +90,11 @@ function resolveTarget(
 	options?: ScanOptions,
 ): string | undefined {
 	if (resolvedTarget) {
-		if (options?.excludeExternals && resolvedTarget.split("/").includes("node_modules")) {
-			return `<<External>>/${extractPackageName(specifier)}`;
+		const pathSegments = resolvedTarget.split(/[/\\]/);
+		if (pathSegments.includes("node_modules")) {
+			return options?.excludeExternals
+				? `<<External>>/${extractPackageName(specifier)}`
+				: undefined;
 		}
 		return resolvedTarget;
 	}

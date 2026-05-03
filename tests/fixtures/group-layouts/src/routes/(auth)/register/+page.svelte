@@ -1,8 +1,8 @@
 <script lang="ts">
-	let username = $state('');
-	let email = $state('');
-	let password = $state('');
-	const isValid = $derived(username.length > 0 && email.includes('@') && password.length >= 8);
+let username = $state("");
+let email = $state("");
+let password = $state("");
+const _isValid = $derived(username.length > 0 && email.includes("@") && password.length >= 8);
 </script>
 
 <form>
