@@ -5,7 +5,7 @@ import { DEFAULT_DIAGRAM_OPTIONS } from "../../src/types/diagram.js";
 import { createEdgeSet } from "../../src/types/edge.js";
 
 function makeEmptySymbolTable(overrides: Partial<SymbolTable> = {}): SymbolTable {
-	return { classes: [], functions: [], stores: [], props: [], exports: [], ...overrides };
+	return { classes: [], functions: [], stores: [], props: [], exports: [], routes: [], components: [], ...overrides };
 }
 
 describe("renderPackageDiagram", () => {

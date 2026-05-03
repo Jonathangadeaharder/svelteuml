@@ -55,6 +55,7 @@ describe("route types", () => {
 			props: [],
 			exports: [],
 			routes: [],
+			components: [],
 		};
 		expect(table.routes).toEqual([]);
 	});

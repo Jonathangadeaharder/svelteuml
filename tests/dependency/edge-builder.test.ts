@@ -10,6 +10,8 @@ function makeSymbolTable(overrides: Partial<SymbolTable> = {}): SymbolTable {
 		stores: [],
 		props: [],
 		exports: [],
+		routes: [],
+		components: [],
 		...overrides,
 	};
 }
@@ -298,5 +300,65 @@ describe("buildEdges", () => {
 		});
 		const result = buildEdges([], symbols);
 		expect(result).toHaveLength(0);
+	});
+
+	it("filters single-character (minified) import names from edge labels", () => {
+		const imports: ResolvedImport[] = [
+			{
+				sourceFile: "/src/lib/a.ts",
+				targetFile: "/src/lib/b.ts",
+				importedNames: ["a", "b", "formatDate", "c"],
+				isTypeOnly: false,
+			},
+		];
+		const symbols = makeSymbolTable();
+		const result = buildEdges(imports, symbols);
+		expect(result).toHaveLength(1);
+		expect(result[0]?.label).toBe("formatDate");
+	});
+
+	it("filters two-character minified import names (e.g. a7, aG) from edge labels", () => {
+		const imports: ResolvedImport[] = [
+			{
+				sourceFile: "/src/lib/a.ts",
+				targetFile: "/src/lib/b.ts",
+				importedNames: ["a7", "aG", "formatDate", "b3"],
+				isTypeOnly: false,
+			},
+		];
+		const symbols = makeSymbolTable();
+		const result = buildEdges(imports, symbols);
+		expect(result).toHaveLength(1);
+		expect(result[0]?.label).toBe("formatDate");
+	});
+
+	it("preserves meaningful short names like db, ui, id in edge labels", () => {
+		const imports: ResolvedImport[] = [
+			{
+				sourceFile: "/src/lib/a.ts",
+				targetFile: "/src/lib/b.ts",
+				importedNames: ["db", "ui", "id"],
+				isTypeOnly: false,
+			},
+		];
+		const symbols = makeSymbolTable();
+		const result = buildEdges(imports, symbols);
+		expect(result).toHaveLength(1);
+		expect(result[0]?.label).toBe("db, ui, id");
+	});
+
+	it("omits label entirely when all import names are single-character", () => {
+		const imports: ResolvedImport[] = [
+			{
+				sourceFile: "/src/lib/a.ts",
+				targetFile: "/src/lib/b.ts",
+				importedNames: ["x", "y", "z"],
+				isTypeOnly: false,
+			},
+		];
+		const symbols = makeSymbolTable();
+		const result = buildEdges(imports, symbols);
+		expect(result).toHaveLength(1);
+		expect(result[0]?.label).toBeUndefined();
 	});
 });

@@ -48,6 +48,7 @@ function collectAllNames(symbols: SymbolTable): Set<string> {
 	for (const store of symbols.stores) names.add(store.name);
 	for (const exp of symbols.exports) names.add(exp.name);
 	for (const route of symbols.routes ?? []) names.add(route.name);
+	for (const comp of symbols.components ?? []) names.add(comp.name);
 	const componentMap = new Map<string, string[]>();
 	for (const prop of symbols.props) {
 		let list = componentMap.get(prop.componentName);
@@ -87,6 +88,7 @@ export function filterSymbolsByScope(symbols: SymbolTable, scope: Set<string>): 
 		props: symbols.props.filter((p) => scope.has(p.componentName)),
 		exports: symbols.exports.filter((e) => scope.has(e.name)),
 		routes: (symbols.routes ?? []).filter((r) => scope.has(r.name)),
+		components: (symbols.components ?? []).filter((c) => scope.has(c.name)),
 	};
 }
 

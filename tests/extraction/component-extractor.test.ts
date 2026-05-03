@@ -151,4 +151,24 @@ describe("extractComponentProps (Svelte 5 $props rune)", () => {
 		const themeProp = props.find((p) => p.name === "theme");
 		expect(themeProp?.defaultValue).toBe("'light'");
 	});
+
+	it("extracts $props() from inside $$render() function body", () => {
+		// Real svelte2tsx wraps Svelte 5 components in $$render()
+		const sf = makeSourceFile(`
+			import type { Snippet } from 'svelte';
+			;type $$ComponentProps = { kind?: 'primary' | 'ghost'; children: Snippet; };
+			function $$render() {
+				let { kind = 'primary', children }:/*\u03A9ignore_start\u03A9*/$$ComponentProps/*\u03A9ignore_end\u03A9*/ = $props();
+				const styles = {};
+			}
+		`);
+		const props = extractComponentProps(sf, "Button", "/src/lib/Button.svelte");
+		expect(props).toHaveLength(2);
+		const names = props.map((p) => p.name);
+		expect(names).toContain("kind");
+		expect(names).toContain("children");
+		const kindProp = props.find((p) => p.name === "kind");
+		expect(kindProp?.isRequired).toBe(false);
+		expect(kindProp?.defaultValue).toBe("'primary'");
+	});
 });

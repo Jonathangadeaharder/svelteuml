@@ -215,4 +215,31 @@ describe("parseArgs", () => {
 		const result = parseArgs(["./src"]);
 		expect(result.noColor).toBe(false);
 	});
+
+	it("parses from real process.argv format (node + script prefix)", () => {
+		const argv = ["node", "/usr/bin/svelteuml", "./src", "--verbose"];
+		const result = parseArgs(argv);
+		expect(result.targetDir).toBe("./src");
+		expect(result.verbose).toBe(true);
+	});
+
+	it("parses from real process.argv with multiple flags", () => {
+		const argv = [
+			"node",
+			"dist/cli.js",
+			"./my-project",
+			"--output",
+			"diagram.puml",
+			"--format",
+			"svg",
+			"--exclude-externals",
+			"--verbose",
+		];
+		const result = parseArgs(argv);
+		expect(result.targetDir).toBe("./my-project");
+		expect(result.outputPath).toBe("diagram.puml");
+		expect(result.format).toBe("svg");
+		expect(result.excludeExternals).toBe(true);
+		expect(result.verbose).toBe(true);
+	});
 });

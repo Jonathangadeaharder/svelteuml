@@ -13,6 +13,7 @@ function makeEmptySymbolTable(overrides: Partial<SymbolTable> = {}): SymbolTable
 		props: [],
 		exports: [],
 		routes: [],
+		components: [],
 		...overrides,
 	};
 }

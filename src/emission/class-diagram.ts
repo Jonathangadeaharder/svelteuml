@@ -34,9 +34,11 @@ export function renderClassDiagram(
 	}
 
 	if (options.showProps) {
-		const components = groupPropsByComponent(symbols.props);
-		for (const [name, props] of components) {
-			renderComponent(lines, name, props, options);
+		const propMap = groupPropsByComponent(symbols.props);
+		for (const comp of symbols.components) {
+			const key = `${comp.filePath}::${comp.name}`;
+			const compProps = propMap.get(key) ?? [];
+			renderComponent(lines, comp.name, compProps, options);
 		}
 	}
 
@@ -77,12 +79,9 @@ function buildNameMap(symbols: SymbolTable, targetDir?: string): Map<string, str
 		map.set(route.name, sanitizeId(route.name));
 		map.set(normalizeFilePath(route.filePath, targetDir), sanitizeId(route.name));
 	}
-	const components = groupPropsByComponent(symbols.props);
-	for (const [name, props] of components) {
-		map.set(name, sanitizeId(name));
-		if (props[0]) {
-			map.set(normalizeFilePath(props[0].filePath, targetDir), sanitizeId(name));
-		}
+	for (const comp of symbols.components) {
+		map.set(comp.name, sanitizeId(comp.name));
+		map.set(normalizeFilePath(comp.filePath, targetDir), sanitizeId(comp.name));
 	}
 	return map;
 }

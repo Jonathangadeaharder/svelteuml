@@ -84,7 +84,8 @@ export function extractComponentProps(
 
 	// --- Strategy 2: Svelte 5 $props() rune ---
 	//   `let { a, b = 'x', ...rest }: PropsType = $props();`
-	for (const varDecl of sourceFile.getVariableDeclarations()) {
+	//   svelte2tsx may wrap it inside `$$render()` so search all function bodies.
+	for (const varDecl of getAllVariableDeclarations(sourceFile)) {
 		const initializer = varDecl.getInitializer();
 		if (!initializer) continue;
 
@@ -193,4 +194,30 @@ function extractPropTypeFromObjectType(typeText: string, propName: string): stri
 
 function escapeRegex(s: string): string {
 	return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Collect variable declarations from both top-level scope and all function bodies.
+ * svelte2tsx wraps Svelte 5 component code inside `$$render()` function, so we
+ * must search inside function bodies to find `$props()` runes.
+ */
+function getAllVariableDeclarations(
+	sourceFile: import("ts-morph").SourceFile,
+): import("ts-morph").VariableDeclaration[] {
+	const decls: import("ts-morph").VariableDeclaration[] = [];
+	for (const fn of sourceFile.getFunctions()) {
+		const body = fn.getBody();
+		if (body) {
+			const block = body.asKind?.(SyntaxKind.Block);
+			if (block) {
+				decls.push(...block.getVariableDeclarations());
+			} else {
+				for (const vd of body.getDescendantsOfKind(SyntaxKind.VariableDeclaration)) {
+					decls.push(vd);
+				}
+			}
+		}
+	}
+	decls.push(...sourceFile.getVariableDeclarations());
+	return decls;
 }

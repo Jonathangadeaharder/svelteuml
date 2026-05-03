@@ -4,6 +4,7 @@ import type { ParsingProject } from "../parsing/ts-morph-project.js";
 import type { PipelineErrorHandler } from "../pipeline/error-handler.js";
 import type {
 	ClassSymbol,
+	ComponentSymbol,
 	ExportSymbol,
 	FunctionSymbol,
 	PropSymbol,
@@ -45,17 +46,19 @@ export class SymbolExtractor {
 		const props: PropSymbol[] = [];
 		const exports: ExportSymbol[] = [];
 		const routes: RouteSymbol[] = [];
+		const components: ComponentSymbol[] = [];
 
 		for (const [originalPath, sourceFile] of this.project.getAllSourceFiles()) {
 			if (shouldSkipFile(originalPath)) continue;
 
 			try {
 				const extracted = this.extractFile(originalPath, sourceFile);
-				classes.push(...extracted.classes);
-				functions.push(...extracted.functions);
-				stores.push(...extracted.stores);
-				props.push(...extracted.props);
-				routes.push(...extracted.routes);
+			classes.push(...extracted.classes);
+			functions.push(...extracted.functions);
+			stores.push(...extracted.stores);
+			props.push(...extracted.props);
+			routes.push(...extracted.routes);
+			components.push(...extracted.components);
 			} catch (err: unknown) {
 				const message = err instanceof Error ? err.message : String(err);
 				const error: import("../pipeline/error-handler.js").PipelineError = {
@@ -74,7 +77,8 @@ export class SymbolExtractor {
 			stores: sortBy(stores, (s) => `${s.filePath}::${s.name}`),
 			props: sortBy(props, (p) => `${p.filePath}::${p.componentName}::${p.name}`),
 			exports,
-			routes: sortBy(routes, (r) => `${r.filePath}::${r.name}`),
+			routes: deduplicateRoutes(routes),
+			components: sortBy(components, (c) => `${c.filePath}::${c.name}`),
 		};
 	}
 
@@ -87,12 +91,14 @@ export class SymbolExtractor {
 		stores: StoreSymbol[];
 		props: PropSymbol[];
 		routes: RouteSymbol[];
+		components: ComponentSymbol[];
 	} {
 		const classes: ClassSymbol[] = [];
 		const functions: FunctionSymbol[] = [];
 		const stores: StoreSymbol[] = [];
 		const props: PropSymbol[] = [];
 		const routes: RouteSymbol[] = [];
+		const components: ComponentSymbol[] = [];
 
 		const isSvelte = originalPath.endsWith(".svelte") || originalPath.endsWith(".svelte.tsx");
 
@@ -108,22 +114,28 @@ export class SymbolExtractor {
 			);
 			props.push(...componentProps);
 
-			const svelteRouteClass = classifyRouteFile(originalPath);
+			components.push({
+				kind: "component",
+				name: componentName,
+				filePath: originalSveltePath,
+			});
+
+			const svelteRouteClass = classifyRouteFile(originalSveltePath);
 			if (svelteRouteClass) {
-				const routeSegment = routeSegmentFromPath(originalPath);
+				const routeSegment = routeSegmentFromPath(originalSveltePath);
 				const parsedSegment = parseRouteSegment(routeSegment);
-				const routeName = basename(originalPath).replace(/\.svelte$/, "");
+				const routeName = basename(originalSveltePath).replace(/\.svelte$/, "");
 				routes.push({
 					kind: "route",
 					name: routeName,
-					filePath: originalPath,
+					filePath: originalSveltePath,
 					routeKind: svelteRouteClass.kind,
 					isServer: svelteRouteClass.isServer,
 					routeSegment: parsedSegment,
 				});
 			}
 
-			return { classes, functions, stores, props, routes };
+			return { classes, functions, stores, props, routes, components };
 		}
 
 		const routeClass = classifyRouteFile(originalPath);
@@ -153,7 +165,7 @@ export class SymbolExtractor {
 					}
 				}
 			}
-			return { classes, functions, stores, props, routes };
+			return { classes, functions, stores, props, routes, components };
 		}
 
 		const storeSymbols = extractStoreSymbols(sourceFile, originalPath);
@@ -170,10 +182,35 @@ export class SymbolExtractor {
 			for (const store of stores) store.isExported = true;
 		}
 
-		return { classes, functions, stores, props, routes };
+		return { classes, functions, stores, props, routes, components };
 	}
 }
 
 function sortBy<T>(arr: T[], key: (item: T) => string): T[] {
 	return [...arr].sort((a, b) => key(a).localeCompare(key(b)));
+}
+
+/**
+ * Deduplicate routes where both `.svelte` and `.ts/.js` files exist for the
+ * same route segment (e.g. `+page.svelte` and `+page.ts`).
+ * Keeps the `.svelte` variant (which carries component props) and drops the
+ * plain `.ts/.js` variant.
+ */
+function deduplicateRoutes(routes: RouteSymbol[]): RouteSymbol[] {
+	const deduped: RouteSymbol[] = [];
+	const svelteKeys = new Set<string>();
+
+	for (const route of routes) {
+		if (route.filePath.endsWith(".svelte")) {
+			svelteKeys.add(`${route.routeSegment.raw}::${route.name}`);
+		}
+	}
+	for (const route of routes) {
+		const key = `${route.routeSegment.raw}::${route.name}`;
+		if (!route.filePath.endsWith(".svelte") && svelteKeys.has(key)) {
+			continue;
+		}
+		deduped.push(route);
+	}
+	return sortBy(deduped, (r) => `${r.filePath}::${r.name}`);
 }
