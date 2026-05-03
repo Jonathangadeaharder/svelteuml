@@ -53,12 +53,12 @@ export class SymbolExtractor {
 
 			try {
 				const extracted = this.extractFile(originalPath, sourceFile);
-			classes.push(...extracted.classes);
-			functions.push(...extracted.functions);
-			stores.push(...extracted.stores);
-			props.push(...extracted.props);
-			routes.push(...extracted.routes);
-			components.push(...extracted.components);
+				classes.push(...extracted.classes);
+				functions.push(...extracted.functions);
+				stores.push(...extracted.stores);
+				props.push(...extracted.props);
+				routes.push(...extracted.routes);
+				components.push(...extracted.components);
 			} catch (err: unknown) {
 				const message = err instanceof Error ? err.message : String(err);
 				const error: import("../pipeline/error-handler.js").PipelineError = {

@@ -195,9 +195,7 @@ describe("renderClassDiagram", () => {
 
 	it("renders component with props when showProps is true", () => {
 		const symbols = makeEmptySymbolTable({
-			components: [
-				{ kind: "component", name: "Button", filePath: "/src/lib/Button.svelte" },
-			],
+			components: [{ kind: "component", name: "Button", filePath: "/src/lib/Button.svelte" }],
 			props: [
 				{
 					kind: "prop",
@@ -218,9 +216,7 @@ describe("renderClassDiagram", () => {
 
 	it("renders component without props when showProps is true", () => {
 		const symbols = makeEmptySymbolTable({
-			components: [
-				{ kind: "component", name: "Layout", filePath: "/src/routes/+layout.svelte" },
-			],
+			components: [{ kind: "component", name: "Layout", filePath: "/src/routes/+layout.svelte" }],
 		});
 		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, showProps: true };
 		const result = renderClassDiagram(symbols, createEdgeSet([]), opts);
@@ -375,9 +371,7 @@ describe("renderClassDiagram", () => {
 
 	it("renders component with optional prop", () => {
 		const symbols = makeEmptySymbolTable({
-			components: [
-				{ kind: "component", name: "Card", filePath: "/src/lib/Card.svelte" },
-			],
+			components: [{ kind: "component", name: "Card", filePath: "/src/lib/Card.svelte" }],
 			props: [
 				{
 					kind: "prop",
@@ -537,9 +531,7 @@ describe("renderClassDiagram", () => {
 
 	it("renders component props when showMembers is true", () => {
 		const symbols = makeEmptySymbolTable({
-			components: [
-				{ kind: "component", name: "Header", filePath: "/src/lib/Header.svelte" },
-			],
+			components: [{ kind: "component", name: "Header", filePath: "/src/lib/Header.svelte" }],
 			props: [
 				{
 					kind: "prop",
@@ -558,9 +550,7 @@ describe("renderClassDiagram", () => {
 
 	it("hides component props when showMembers is false", () => {
 		const symbols = makeEmptySymbolTable({
-			components: [
-				{ kind: "component", name: "Header", filePath: "/src/lib/Header.svelte" },
-			],
+			components: [{ kind: "component", name: "Header", filePath: "/src/lib/Header.svelte" }],
 			props: [
 				{
 					kind: "prop",

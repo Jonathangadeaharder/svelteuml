@@ -30,12 +30,10 @@ export function buildEdges(
 	}
 
 	const storeFiles = new Set(symbols.stores.map((s) => s.filePath));
-	const componentFiles = new Set(
-		[
-			...symbols.props.map((p) => p.filePath),
-			...symbols.components.map((c) => c.filePath),
-		],
-	);
+	const componentFiles = new Set([
+		...symbols.props.map((p) => p.filePath),
+		...symbols.components.map((c) => c.filePath),
+	]);
 
 	for (const imp of imports) {
 		const isStoreImport = storeFiles.has(imp.targetFile);

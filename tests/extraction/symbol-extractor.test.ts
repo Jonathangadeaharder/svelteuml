@@ -179,7 +179,9 @@ describe("SymbolExtractor", () => {
 		const extractor = new SymbolExtractor(project, new PipelineErrorHandler());
 		const table = extractor.extract();
 
-		expect(table.routes.some((r) => r.name === "+page" && r.routeSegment.raw === "/about")).toBe(true);
+		expect(table.routes.some((r) => r.name === "+page" && r.routeSegment.raw === "/about")).toBe(
+			true,
+		);
 	});
 
 	it("deduplicates paired +page.svelte and +page.ts routes", () => {
@@ -194,7 +196,9 @@ describe("SymbolExtractor", () => {
 		const extractor = new SymbolExtractor(project, new PipelineErrorHandler());
 		const table = extractor.extract();
 
-		const aboutRoutes = table.routes.filter((r) => r.routeSegment.raw === "/about" && r.name === "+page");
+		const aboutRoutes = table.routes.filter(
+			(r) => r.routeSegment.raw === "/about" && r.name === "+page",
+		);
 		expect(aboutRoutes).toHaveLength(1);
 		expect(aboutRoutes[0]?.filePath).toBe("/src/routes/about/+page.svelte");
 	});

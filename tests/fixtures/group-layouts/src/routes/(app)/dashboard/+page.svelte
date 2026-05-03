@@ -1,5 +1,5 @@
 <script lang="ts">
-	let stats = $state({ users: 0, active: 0 });
+let _stats = $state({ users: 0, active: 0 });
 </script>
 
 <h1>Dashboard</h1>

@@ -126,7 +126,9 @@ describe("src/discovery/file-discovery.ts", () => {
 	it("categorizes .tsx files into typescript", async () => {
 		writeFileSync(join(rootDir, "component.tsx"), "export const A = () => <div/>;");
 		const res = await discoverFiles(rootDir);
-		expect(res.typescript).toEqual(expect.arrayContaining([expect.stringMatching(/component\.tsx$/)]));
+		expect(res.typescript).toEqual(
+			expect.arrayContaining([expect.stringMatching(/component\.tsx$/)]),
+		);
 	});
 
 	it("resolves package exports when package.json has exports field", async () => {
@@ -142,6 +144,6 @@ describe("src/discovery/file-discovery.ts", () => {
 		);
 		const res = await discoverFiles(rootDir);
 		expect(res.exportedFiles).toBeDefined();
-		expect(res.exportedFiles!.size).toBeGreaterThan(0);
+		expect(res.exportedFiles?.size).toBeGreaterThan(0);
 	});
 });

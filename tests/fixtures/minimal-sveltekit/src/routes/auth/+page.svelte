@@ -1,10 +1,8 @@
 <script lang="ts">
-	let email = $state('');
-	let password = $state('');
+let _email = $state("");
+let _password = $state("");
 
-	function handleSubmit() {
-		console.log('Login attempt');
-	}
+function _handleSubmit() {}
 </script>
 
 <form onsubmit={handleSubmit}>
