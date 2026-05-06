@@ -1,0 +1,59 @@
+root: true
+
+exclude:
+  - node_modules/**
+  - .git/**
+  - dist/**
+  - build/**
+  - coverage/**
+  - docs/**
+
+rules:
+  max-depth:
+    max: 5
+    exemptions:
+      - ".git/**"
+      - "node_modules/**"
+
+  max-files-in-dir:
+    max: 30
+    exemptions:
+      - ".git/**"
+      - "node_modules/**"
+
+  max-subdirs:
+    max: 15
+    exemptions:
+      - ".git/**"
+
+  naming-convention:
+    style: "camelCase"
+    apply-to:
+      - "**/*.ts"
+    exemptions:
+      - "**/node_modules/**"
+      - ".git/**"
+      - "README.md"
+      - "LICENSE"
+
+  file-existence:
+    "README.md":
+      rule: "exists:1"
+      exemptions:
+        - "src/**"
+        - "tests/**"
+        - "node_modules/**"
+    "package.json":
+      rule: "exists:1"
+      exemptions:
+        - "src/**"
+        - "tests/**"
+
+  disallowed-patterns:
+    - "*.tmp"
+    - "*.bak"
+    - ".DS_Store"
+    - "*.swp"
+
+  test-adjacency:
+    enabled: false
