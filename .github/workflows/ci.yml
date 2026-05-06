@@ -10,7 +10,7 @@ on:
 jobs:
   lint:
     name: Lint & Format
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -23,7 +23,7 @@ jobs:
 
   typecheck:
     name: Type Check
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -36,7 +36,7 @@ jobs:
 
   test:
     name: Test (Node ${{ matrix.node-version }})
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     strategy:
       matrix:
         node-version: [20, 22]
@@ -58,7 +58,7 @@ jobs:
 
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [typecheck, test]
     steps:
       - uses: actions/checkout@v4
@@ -78,7 +78,7 @@ jobs:
 
   integration:
     name: Integration Tests
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [build]
     if: github.ref == 'refs/heads/main'
     steps:
@@ -93,7 +93,7 @@ jobs:
 
   publish:
     name: Publish to npm
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: [lint, typecheck, test, build]
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
