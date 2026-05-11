@@ -292,6 +292,24 @@ describe("renderClassDiagram", () => {
 		expect(result).toContain("@startuml My App");
 	});
 
+	it("renders prop_flow edge with arrow and label", () => {
+		const edges = createEdgeSet([
+			{ source: "/a.ts", target: "/b.ts", type: "prop_flow", label: "foo: string !" },
+		]);
+		const result = renderClassDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("-->");
+		expect(result).toContain("foo: string !");
+	});
+
+	it("renders event edge with arrow and label", () => {
+		const edges = createEdgeSet([
+			{ source: "/a.ts", target: "/b.ts", type: "event", label: "submit" },
+		]);
+		const result = renderClassDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("..>");
+		expect(result).toContain("submit");
+	});
+
 	it("renders aggregation edge", () => {
 		const edges = createEdgeSet([{ source: "/a.ts", target: "/b.ts", type: "aggregation" }]);
 		const result = renderClassDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { buildEdges } from "../../src/dependency/edge-builder.js";
+import { buildEdges, detectCircularDependencies } from "../../src/dependency/edge-builder.js";
 import type { ResolvedImport } from "../../src/dependency/import-scanner.js";
 import type { EventSymbol, SymbolTable } from "../../src/types/ast.js";
+import type { PropFlowInfo } from "../../src/dependency/prop-flow-tracker.js";
 
 function makeSymbolTable(overrides: Partial<SymbolTable> = {}): SymbolTable {
 	return {
@@ -362,6 +363,26 @@ describe("buildEdges", () => {
 		expect(result).toHaveLength(1);
 		expect(result[0]?.type).toBe("dependency");
 		expect(result[0]?.label).toBeUndefined();
+	});
+
+	it("creates prop_flow edge with required prop", () => {
+		const propFlows: PropFlowInfo[] = [
+			{ sourceFile: "/src/lib/Parent.svelte", targetFile: "/src/lib/Child.svelte", propName: "label", propType: "string", isRequired: true },
+		];
+		const result = buildEdges([], makeSymbolTable(), [], propFlows);
+		const flowEdges = result.filter((e) => e.type === "prop_flow");
+		expect(flowEdges).toHaveLength(1);
+		expect(flowEdges[0]?.label).toBe("label: string !");
+	});
+
+	it("creates prop_flow edge with optional prop", () => {
+		const propFlows: PropFlowInfo[] = [
+			{ sourceFile: "/src/lib/Parent.svelte", targetFile: "/src/lib/Child.svelte", propName: "size", propType: "number", isRequired: false },
+		];
+		const result = buildEdges([], makeSymbolTable(), [], propFlows);
+		const flowEdges = result.filter((e) => e.type === "prop_flow");
+		expect(flowEdges).toHaveLength(1);
+		expect(flowEdges[0]?.label).toBe("size: number ?");
 	});
 
 	describe("event edges", () => {
