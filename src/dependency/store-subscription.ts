@@ -1,6 +1,6 @@
 import { SyntaxKind } from "ts-morph";
-import type { StoreSymbol } from "../types/ast.js";
 import type { ParsingProject } from "../parsing/ts-morph-project.js";
+import type { StoreSymbol } from "../types/ast.js";
 import type { StateDependency } from "./reactive-tracker.js";
 
 /**
