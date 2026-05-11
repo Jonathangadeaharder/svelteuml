@@ -1,4 +1,5 @@
 import type { EventSymbol, SymbolTable } from "../types/ast.js";
+import type { SlotFillRecord } from "../extraction/slot-extractor.js";
 import type { CircularDependencyResult, Edge } from "../types/edge.js";
 import type { ResolvedImport } from "./import-scanner.js";
 import type { PropFlowInfo } from "./prop-flow-tracker.js";
@@ -9,6 +10,7 @@ export function buildEdges(
 	symbols: SymbolTable,
 	stateDeps: StateDependency[] = [],
 	propFlows: PropFlowInfo[] = [],
+	slotFills: SlotFillRecord[] = [],
 ): Edge[] {
 	const edges: Edge[] = [];
 	const seen = new Set<string>();
@@ -126,6 +128,14 @@ export function buildEdges(
 				label: evt.eventName,
 			});
 		}
+	}
+
+	for (const fill of slotFills) {
+		addEdge({
+			source: fill.sourceFile,
+			target: fill.targetFile,
+			type: "slot",
+			label: `slot:${fill.slotName}`,
 	}
 
 	return edges;
