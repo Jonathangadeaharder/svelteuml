@@ -1,6 +1,6 @@
 import type { SymbolTable } from "../types/ast.js";
 import type { DiagramOptions } from "../types/diagram.js";
-import type { EdgeSet, EdgeType } from "../types/edge.js";
+import type { EdgeSet } from "../types/edge.js";
 import { normalizeFilePath } from "../utils/path.js";
 import { routeStereotype } from "./route-utils.js";
 
@@ -29,30 +29,25 @@ export function renderPackageDiagram(
 		lines.push("");
 	}
 
-	const renderedEdges = new Set<string>();
-	const sortedEdges = [...edgeSet.edges].sort((a, b) => {
-		const bySource = a.source.localeCompare(b.source);
-		if (bySource !== 0) return bySource;
-		const byTarget = a.target.localeCompare(b.target);
-		if (byTarget !== 0) return byTarget;
-		return a.type.localeCompare(b.type);
-	});
-	for (const edge of sortedEdges) {
+	const edgeWeights = new Map<string, { source: string; target: string; weight: number }>();
+	for (const edge of edgeSet.edges) {
 		const sourcePkg = extractPackage(normalizeFilePath(edge.source, options.targetDir));
 		const targetPkg = extractPackage(normalizeFilePath(edge.target, options.targetDir));
-		if (sourcePkg && targetPkg && sourcePkg !== targetPkg) {
-			const key = `${sourcePkg}|${targetPkg}|${edge.type}`;
-			if (!renderedEdges.has(key)) {
-				renderedEdges.add(key);
-				const arrow = mapEdgeArrow(edge.type);
-				const [fromPkg, toPkg] =
-					edge.type === "extends" ? [targetPkg, sourcePkg] : [sourcePkg, targetPkg];
-				lines.push(`${sanitizeId(fromPkg)} ${arrow} ${sanitizeId(toPkg)}`);
-			}
+		if (!(sourcePkg && targetPkg) || sourcePkg === targetPkg) continue;
+		const key = `${sourcePkg}|${targetPkg}`;
+		const existing = edgeWeights.get(key);
+		if (existing) {
+			existing.weight++;
+		} else {
+			edgeWeights.set(key, { source: sourcePkg, target: targetPkg, weight: 1 });
 		}
 	}
 
-	if (renderedEdges.size > 0) lines.push("");
+	for (const { source, target, weight } of edgeWeights.values()) {
+		lines.push(`${sanitizeId(source)} ..> ${sanitizeId(target)} : ${weight}`);
+	}
+
+	if (edgeWeights.size > 0) lines.push("");
 	lines.push("@enduml");
 	return lines.join("\n");
 }
@@ -145,26 +140,3 @@ function sanitizeId(path: string): string {
 	return path.replace(/[^a-zA-Z0-9_]/g, "_").replace(/_+/g, "_");
 }
 
-function mapEdgeArrow(type: EdgeType): string {
-	switch (type) {
-		case "extends":
-			return "<|--";
-		case "implements":
-			return "..|>";
-		case "composition":
-			return "*--";
-		case "aggregation":
-			return "o--";
-		case "dependency":
-			return "..>";
-		case "association":
-			return "-->";
-		case "state_dependency":
-			return "..>";
-		case "prop_flow":
-			return "-->";
-		case "event":
-		case "slot":
-			return "..>";
-	}
-}

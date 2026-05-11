@@ -58,12 +58,13 @@ describe("renderPackageDiagram", () => {
 		expect(result).toContain("VideoPlayer");
 	});
 
-	it("renders dependency between packages", () => {
+	it("renders dependency between packages with weight", () => {
 		const edges = createEdgeSet([
 			{ source: "/src/routes/+page.ts", target: "/src/lib/utils.ts", type: "dependency" },
 		]);
 		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
 		expect(result).toContain("..>");
+		expect(result).toContain(": 1");
 	});
 
 	it("includes title when provided", () => {
@@ -170,23 +171,25 @@ describe("renderPackageDiagram", () => {
 		expect(result).not.toContain("..>");
 	});
 
-	it("renders extends arrow between packages", () => {
+	it("renders extends arrow between packages with weight", () => {
 		const edges = createEdgeSet([
 			{ source: "/src/lib/a.ts", target: "/src/core/b.ts", type: "extends" },
 		]);
 		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
-		expect(result).toContain("<|--");
+		expect(result).toContain("..>");
+		expect(result).toContain(": 1");
 	});
 
-	it("renders composition arrow between packages", () => {
+	it("renders composition arrow between packages with weight", () => {
 		const edges = createEdgeSet([
 			{ source: "/src/routes/+page.ts", target: "/src/lib/store.ts", type: "composition" },
 		]);
 		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
-		expect(result).toContain("*--");
+		expect(result).toContain("..>");
+		expect(result).toContain(": 1");
 	});
 
-	it("deduplicates edges between same package pair", () => {
+	it("deduplicates edges between same package pair with weight count", () => {
 		const edges = createEdgeSet([
 			{ source: "/src/routes/a.ts", target: "/src/lib/b.ts", type: "dependency" },
 			{ source: "/src/routes/c.ts", target: "/src/lib/d.ts", type: "dependency" },
@@ -194,6 +197,32 @@ describe("renderPackageDiagram", () => {
 		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
 		const matchCount = (result.match(/\.\.>/g) ?? []).length;
 		expect(matchCount).toBe(1);
+		expect(result).toContain(": 2");
+	});
+
+	it("aggregates mixed edge types between same packages with total weight", () => {
+		const edges = createEdgeSet([
+			{ source: "/src/routes/a.ts", target: "/src/lib/b.ts", type: "dependency" },
+			{ source: "/src/routes/c.ts", target: "/src/lib/d.ts", type: "dependency" },
+			{ source: "/src/routes/e.ts", target: "/src/lib/f.ts", type: "association" },
+		]);
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		const arrowCount = (result.match(/\.\.>/g) ?? []).length;
+		expect(arrowCount).toBe(1);
+		expect(result).toContain(": 3");
+	});
+
+	it("renders separate arrows for different package pairs with correct weights", () => {
+		const edges = createEdgeSet([
+			{ source: "/src/routes/a.ts", target: "/src/lib/b.ts", type: "dependency" },
+			{ source: "/src/routes/c.ts", target: "/src/lib/d.ts", type: "dependency" },
+			{ source: "/src/routes/e.ts", target: "/src/core/f.ts", type: "dependency" },
+		]);
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		const arrowCount = (result.match(/\.\.>/g) ?? []).length;
+		expect(arrowCount).toBe(2);
+		expect(result).toContain(": 2");
+		expect(result).toContain(": 1");
 	});
 
 	it("skips edges where source or target has no package", () => {
@@ -202,41 +231,31 @@ describe("renderPackageDiagram", () => {
 		expect(result).not.toContain("..>");
 	});
 
-	it("renders state_dependency arrow between packages", () => {
+	it("renders state_dependency arrow between packages with weight", () => {
 		const edges = createEdgeSet([
 			{ source: "/src/routes/+page.ts", target: "/src/lib/store.ts", type: "state_dependency" },
 		]);
 		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
 		expect(result).toContain("..>");
+		expect(result).toContain(": 1");
 	});
 
-	it("renders slot arrow between packages", () => {
-		const edges = createEdgeSet([
-			{
-				source: "/src/routes/+page.svelte",
-				target: "/src/lib/Card.svelte",
-				type: "slot",
-				label: "slot:default",
-			},
-		]);
-		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
-		expect(result).toContain("..>");
-	});
-
-	it("renders aggregation arrow between packages", () => {
+	it("renders aggregation arrow between packages with weight", () => {
 		const edges = createEdgeSet([
 			{ source: "/src/routes/+page.ts", target: "/src/lib/utils.ts", type: "aggregation" },
 		]);
 		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
-		expect(result).toContain("o--");
+		expect(result).toContain("..>");
+		expect(result).toContain(": 1");
 	});
 
-	it("renders association arrow between packages", () => {
+	it("renders association arrow between packages with weight", () => {
 		const edges = createEdgeSet([
 			{ source: "/src/routes/+page.ts", target: "/src/lib/utils.ts", type: "association" },
 		]);
 		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
-		expect(result).toContain("-->");
+		expect(result).toContain("..>");
+		expect(result).toContain(": 1");
 	});
 
 	it("removes empty packages when hideEmptyPackages is true", () => {
@@ -360,28 +379,31 @@ describe("renderPackageDiagram", () => {
 		expect(result).toContain("interface IRepo");
 	});
 
-	it("renders implements arrow between packages", () => {
+	it("renders implements arrow between packages with weight", () => {
 		const edges = createEdgeSet([
 			{ source: "/src/lib/repo.ts", target: "/src/core/types.ts", type: "implements" },
 		]);
 		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
-		expect(result).toContain("..|>");
+		expect(result).toContain("..>");
+		expect(result).toContain(": 1");
 	});
 
-	it("renders aggregation arrow between packages", () => {
+	it("renders aggregation arrow between packages with weight", () => {
 		const edges = createEdgeSet([
 			{ source: "/src/routes/a.ts", target: "/src/lib/b.ts", type: "aggregation" },
 		]);
 		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
-		expect(result).toContain("o--");
+		expect(result).toContain("..>");
+		expect(result).toContain(": 1");
 	});
 
-	it("renders association arrow between packages", () => {
+	it("renders association arrow between packages with weight", () => {
 		const edges = createEdgeSet([
 			{ source: "/src/routes/a.ts", target: "/src/lib/b.ts", type: "association" },
 		]);
 		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
-		expect(result).toContain("-->");
+		expect(result).toContain("..>");
+		expect(result).toContain(": 1");
 	});
 
 	it("groups nested files under top-level src/ dir", () => {
