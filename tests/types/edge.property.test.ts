@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import fc from "fast-check";
+import { describe, expect, it } from "vitest";
 import type { Edge } from "../../src/types/edge.js";
 import { createEdgeSet } from "../../src/types/edge.js";
 
