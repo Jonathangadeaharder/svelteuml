@@ -38,6 +38,7 @@ vi.mock("../../src/parsing/ts-morph-project.js", () => ({
 		getProject: vi.fn().mockReturnValue({
 			getSourceFile: vi.fn().mockReturnValue(undefined),
 		}),
+		getAllSourceFiles: vi.fn().mockReturnValue(new Map()),
 	}),
 }));
 
@@ -58,6 +59,8 @@ vi.mock("../../src/extraction/symbol-extractor.js", () => ({
 vi.mock("../../src/dependency/index.js", () => ({
 	scanImports: vi.fn().mockReturnValue([]),
 	buildEdges: vi.fn().mockReturnValue([]),
+	detectCircularDependencies: vi.fn().mockReturnValue({ cycles: [] }),
+	trackPropFlows: vi.fn().mockReturnValue([]),
 	trackStoreSubscriptions: vi.fn().mockReturnValue([]),
 }));
 
