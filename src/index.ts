@@ -6,7 +6,7 @@ export {
 	validateConfig,
 } from "./config/index.js";
 export type { ResolvedImport } from "./dependency/index.js";
-export { buildEdges, scanImports } from "./dependency/index.js";
+export { buildEdges, scanImports, trackStoreSubscriptions } from "./dependency/index.js";
 export {
 	type DiscoveryOptions,
 	discoverFiles,

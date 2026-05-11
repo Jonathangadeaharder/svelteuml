@@ -1,7 +1,7 @@
 import { existsSync, writeFileSync } from "node:fs";
 import type { SvelteUMLConfigInput } from "../config/schema.js";
 import { mergeConfigs, validateConfig } from "../config/schema.js";
-import { buildEdges, scanImports } from "../dependency/index.js";
+import { buildEdges, scanImports, trackStoreSubscriptions } from "../dependency/index.js";
 import { trackReactiveDependencies } from "../dependency/reactive-tracker.js";
 import { discoverFiles } from "../discovery/file-discovery.js";
 import { loadSvelteConfig } from "../discovery/svelte-config.js";
@@ -46,6 +46,7 @@ export function filterEdges(
 	return edges.filter((edge) => {
 		if (options.hideTypeDeps && edge.label === "type") return false;
 		if (options.hideStateDeps && edge.label === "store") return false;
+		if (options.hideStateDeps && edge.label?.includes("<<store-subscription>>")) return false;
 		return true;
 	});
 }
@@ -169,7 +170,9 @@ export async function runPipeline(
 		});
 		const reactiveSymbols = symbols.stores.filter((s) => s.runeKind);
 		const stateDeps = trackReactiveDependencies(parsingProject.getProject(), reactiveSymbols);
-		let edges = buildEdges(imports, symbols, stateDeps);
+		const storeSubs = trackStoreSubscriptions(parsingProject, symbols.stores);
+		const allStateDeps = [...stateDeps, ...storeSubs];
+		let edges = buildEdges(imports, symbols, allStateDeps);
 
 		edges = filterEdges(edges, {
 			hideTypeDeps: cliOpts.hideTypeDeps,

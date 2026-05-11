@@ -241,6 +241,7 @@ class "+page" as _page <<page>> {
   path: /auth
 }
 
+_page ..> setUser : $userStore <<store-subscription>>
 @enduml"
 `;
 
@@ -331,5 +332,7 @@ class "+page" as _page <<page>> {
 
 createAuthActions ..> src_lib_stores_user_svelte_ts : userStore
 useCounters ..> useCounters : counter
+_page ..> createAuthActions : $userName <<store-subscription>>
+_page ..> createAuthActions : $isLoggedIn <<store-subscription>>
 @enduml"
 `;

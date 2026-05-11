@@ -6,7 +6,7 @@ export interface StateDependency {
 	sourceFile: string;
 	targetFile: string;
 	symbolName: string;
-	dependencyKind: "state" | "derived";
+	dependencyKind: "state" | "derived" | "store-subscription";
 }
 
 export function trackReactiveDependencies(
