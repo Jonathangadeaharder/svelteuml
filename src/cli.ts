@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { CommanderError } from "commander";
 import { parseArgs } from "./cli/args.js";
 import { loadConfigFile, searchConfigFile } from "./cli/config-loader.js";
 import { runPipeline } from "./cli/runner.js";
@@ -27,6 +28,9 @@ async function main(): Promise<void> {
 }
 
 main().catch((err: unknown) => {
+	if (err instanceof CommanderError && err.exitCode === 0) {
+		return;
+	}
 	// biome-ignore lint/suspicious/noConsole: CLI must surface unhandled errors
 	console.error(err instanceof Error ? err.message : String(err));
 	process.exitCode = 2;

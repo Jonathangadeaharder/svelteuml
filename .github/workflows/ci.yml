@@ -78,6 +78,23 @@ jobs:
           test -f dist/cli.js
           test -f dist/cli.d.ts
 
+  smoke:
+    name: CLI Smoke Test
+    runs-on: self-hosted
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Smoke test --help
+        run: |
+          node dist/cli.js --help
+          node dist/cli.js --version
+
   integration:
     name: Integration Tests
     runs-on: self-hosted
