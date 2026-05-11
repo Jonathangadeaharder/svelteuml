@@ -42,12 +42,15 @@ export function buildEdges(
 	for (const imp of imports) {
 		const isStoreImport = storeFiles.has(imp.targetFile);
 		const isComponentImport = componentFiles.has(imp.targetFile);
+		const isSourceComponent = componentFiles.has(imp.sourceFile);
 		const routeSource =
 			imp.sourceFile.includes("/routes/") || imp.sourceFile.includes("\\routes\\");
 
 		let edgeType: Edge["type"];
 		if (isStoreImport) {
 			edgeType = "composition";
+		} else if (isComponentImport && isSourceComponent) {
+			edgeType = "component_usage";
 		} else if (isComponentImport && routeSource) {
 			edgeType = "association";
 		} else {

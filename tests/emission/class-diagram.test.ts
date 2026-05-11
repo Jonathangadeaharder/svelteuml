@@ -482,6 +482,12 @@ describe("renderClassDiagram", () => {
 		expect(result).toContain("slot:default");
 	});
 
+	it("renders component_usage edge", () => {
+		const edges = createEdgeSet([{ source: "/Parent.svelte", target: "/Child.svelte", type: "component_usage" }]);
+		const result = renderClassDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("-->");
+	});
+
 	it("renders exported class stereotype", () => {
 		const symbols = makeEmptySymbolTable({
 			classes: [

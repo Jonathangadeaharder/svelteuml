@@ -140,3 +140,23 @@ function sanitizeId(path: string): string {
 	return path.replace(/[^a-zA-Z0-9_]/g, "_").replace(/_+/g, "_");
 }
 
+function mapEdgeArrow(type: EdgeType): string {
+	switch (type) {
+		case "extends":
+			return "<|--";
+		case "implements":
+			return "..|>";
+		case "composition":
+			return "*--";
+		case "aggregation":
+			return "o--";
+		case "dependency":
+			return "..>";
+		case "association":
+			return "-->";
+		case "state_dependency":
+			return "..>";
+		case "component_usage":
+			return "-->";
+	}
+}
