@@ -136,6 +136,7 @@ export function buildEdges(
 			target: fill.targetFile,
 			type: "slot",
 			label: `slot:${fill.slotName}`,
+		});
 	}
 
 	return edges;

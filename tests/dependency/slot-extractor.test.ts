@@ -5,13 +5,28 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
-function makeImports(overrides?: Partial<ResolvedImport>): ResolvedImport {
+function createScenario(
+	parentContent: string,
+	childName: string,
+	childContent: string,
+	importedName?: string,
+): { parentPath: string; childPath: string; imports: ResolvedImport[] } {
+	const dir = mkdtempSync(join(tmpdir(), "slot-test-"));
+	const parentPath = join(dir, "Parent.svelte");
+	const childPath = join(dir, childName);
+	writeFileSync(parentPath, parentContent, "utf-8");
+	writeFileSync(childPath, childContent, "utf-8");
 	return {
-		sourceFile: "/src/routes/+page.svelte",
-		targetFile: "/src/lib/Button.svelte",
-		importedNames: ["Button"],
-		isTypeOnly: false,
-		...overrides,
+		parentPath,
+		childPath,
+		imports: [
+			{
+				sourceFile: parentPath,
+				targetFile: childPath,
+				importedNames: [importedName ?? childName.replace(/\.svelte$/, "")],
+				isTypeOnly: false,
+			},
+		],
 	};
 }
 
@@ -22,12 +37,7 @@ describe("extractSlotFills", () => {
 	});
 
 	it("detects default slot usage from component with children", () => {
-		const dir = mkdtempSync(join(tmpdir(), "slot-test-"));
-		const parentPath = join(dir, "Parent.svelte");
-		const childPath = join(dir, "Child.svelte");
-
-		writeFileSync(
-			parentPath,
+		const { parentPath, childPath, imports } = createScenario(
 			`<script>
   import Child from "./Child.svelte";
 </script>
@@ -36,19 +46,9 @@ describe("extractSlotFills", () => {
   <p>Slot content</p>
 </Child>
 `,
-			"utf-8",
+			"Child.svelte",
+			`<slot />`,
 		);
-
-		writeFileSync(childPath, `<slot />`, "utf-8");
-
-		const imports: ResolvedImport[] = [
-			{
-				sourceFile: parentPath,
-				targetFile: childPath,
-				importedNames: ["Child"],
-				isTypeOnly: false,
-			},
-		];
 
 		const result = extractSlotFills([parentPath, childPath], imports);
 		expect(result).toHaveLength(1);
@@ -58,12 +58,7 @@ describe("extractSlotFills", () => {
 	});
 
 	it("detects named slot usage via slot attribute", () => {
-		const dir = mkdtempSync(join(tmpdir(), "slot-test-"));
-		const parentPath = join(dir, "Parent.svelte");
-		const childPath = join(dir, "Card.svelte");
-
-		writeFileSync(
-			parentPath,
+		const { parentPath, childPath, imports } = createScenario(
 			`<script>
   import Card from "./Card.svelte";
 </script>
@@ -73,19 +68,9 @@ describe("extractSlotFills", () => {
   <p>Body</p>
 </Card>
 `,
-			"utf-8",
+			"Card.svelte",
+			`<slot name="header" /><slot />`,
 		);
-
-		writeFileSync(childPath, `<slot name="header" /><slot />`, "utf-8");
-
-		const imports: ResolvedImport[] = [
-			{
-				sourceFile: parentPath,
-				targetFile: childPath,
-				importedNames: ["Card"],
-				isTypeOnly: false,
-			},
-		];
 
 		const result = extractSlotFills([parentPath, childPath], imports);
 		expect(result.length).toBeGreaterThanOrEqual(2);
@@ -102,43 +87,23 @@ describe("extractSlotFills", () => {
 	});
 
 	it("ignores self-closing component usage", () => {
-		const dir = mkdtempSync(join(tmpdir(), "slot-test-"));
-		const parentPath = join(dir, "Parent.svelte");
-		const childPath = join(dir, "Button.svelte");
-
-		writeFileSync(
-			parentPath,
+		const { parentPath, childPath, imports } = createScenario(
 			`<script>
   import Button from "./Button.svelte";
 </script>
 
 <Button label="Click me" />
 `,
-			"utf-8",
+			"Button.svelte",
+			`<button><slot /></button>`,
 		);
-
-		writeFileSync(childPath, `<button><slot /></button>`, "utf-8");
-
-		const imports: ResolvedImport[] = [
-			{
-				sourceFile: parentPath,
-				targetFile: childPath,
-				importedNames: ["Button"],
-				isTypeOnly: false,
-			},
-		];
 
 		const result = extractSlotFills([parentPath, childPath], imports);
 		expect(result).toHaveLength(0);
 	});
 
 	it("ignores component with only whitespace children", () => {
-		const dir = mkdtempSync(join(tmpdir(), "slot-test-"));
-		const parentPath = join(dir, "Parent.svelte");
-		const childPath = join(dir, "Wrapper.svelte");
-
-		writeFileSync(
-			parentPath,
+		const { parentPath, childPath, imports } = createScenario(
 			`<script>
   import Wrapper from "./Wrapper.svelte";
 </script>
@@ -147,39 +112,23 @@ describe("extractSlotFills", () => {
 
 </Wrapper>
 `,
-			"utf-8",
+			"Wrapper.svelte",
+			`<slot />`,
 		);
-
-		writeFileSync(childPath, `<slot />`, "utf-8");
-
-		const imports: ResolvedImport[] = [
-			{
-				sourceFile: parentPath,
-				targetFile: childPath,
-				importedNames: ["Wrapper"],
-				isTypeOnly: false,
-			},
-		];
 
 		const result = extractSlotFills([parentPath, childPath], imports);
 		expect(result).toHaveLength(0);
 	});
 
 	it("skips fills when import is not found for component", () => {
-		const dir = mkdtempSync(join(tmpdir(), "slot-test-"));
-		const parentPath = join(dir, "Parent.svelte");
-		const childPath = join(dir, "Missing.svelte");
-
-		writeFileSync(
-			parentPath,
+		const { parentPath, childPath } = createScenario(
 			`<Missing>
   <p>Content</p>
 </Missing>
 `,
-			"utf-8",
+			"Missing.svelte",
+			`<slot />`,
 		);
-
-		writeFileSync(childPath, `<slot />`, "utf-8");
 
 		const result = extractSlotFills([parentPath, childPath], [
 			{

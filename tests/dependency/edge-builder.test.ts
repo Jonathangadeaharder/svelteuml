@@ -547,6 +547,4 @@ describe("buildEdges", () => {
 			expect(result).toHaveLength(0);
 		});
 	});
-		});
-	});
 });
