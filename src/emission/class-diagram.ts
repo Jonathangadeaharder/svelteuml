@@ -23,37 +23,49 @@ export function renderClassDiagram(
 
 	const nameMap = buildNameMap(symbols, options.targetDir);
 
-	for (const cls of symbols.classes) {
+	const sortedClasses = [...symbols.classes].sort((a, b) => a.name.localeCompare(b.name));
+	for (const cls of sortedClasses) {
 		renderClass(lines, cls, options);
 	}
 
 	if (options.showStores) {
-		for (const store of symbols.stores) {
+		const sortedStores = [...symbols.stores].sort((a, b) => a.name.localeCompare(b.name));
+		for (const store of sortedStores) {
 			renderStore(lines, store);
 		}
 	}
 
 	if (options.showProps) {
 		const propMap = groupPropsByComponent(symbols.props);
-		for (const comp of symbols.components) {
+		const sortedComponents = [...symbols.components].sort((a, b) => a.name.localeCompare(b.name));
+		for (const comp of sortedComponents) {
 			const key = `${comp.filePath}::${comp.name}`;
 			const compProps = propMap.get(key) ?? [];
 			renderComponent(lines, comp.name, compProps, options);
 		}
 	}
 
-	for (const fn of symbols.functions) {
+	const sortedFunctions = [...symbols.functions].sort((a, b) => a.name.localeCompare(b.name));
+	for (const fn of sortedFunctions) {
 		const fnStereotype = fn.isExported ? " <<Exported>>" : "";
 		lines.push(`class "${fn.name}" <<function>>${fnStereotype} {`);
 		lines.push("}");
 		lines.push("");
 	}
 
-	for (const route of symbols.routes ?? []) {
+	const sortedRoutes = [...(symbols.routes ?? [])].sort((a, b) => a.name.localeCompare(b.name));
+	for (const route of sortedRoutes) {
 		renderRoute(lines, route);
 	}
 
-	for (const edge of edgeSet.edges) {
+	const sortedEdges = [...edgeSet.edges].sort((a, b) => {
+		const bySource = a.source.localeCompare(b.source);
+		if (bySource !== 0) return bySource;
+		const byTarget = a.target.localeCompare(b.target);
+		if (byTarget !== 0) return byTarget;
+		return a.type.localeCompare(b.type);
+	});
+	for (const edge of sortedEdges) {
 		renderEdge(lines, edge, nameMap, options.targetDir);
 	}
 

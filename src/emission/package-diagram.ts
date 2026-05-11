@@ -16,9 +16,13 @@ export function renderPackageDiagram(
 
 	const packages = buildPackages(symbols, options);
 
-	for (const [pkg, entries] of packages) {
+	const sortedPackageKeys = [...packages.keys()].sort((a, b) => a.localeCompare(b));
+	const sortedPackages = sortedPackageKeys.map(
+		(pkg) => [pkg, [...(packages.get(pkg) ?? [])].sort((a, b) => a.localeCompare(b))] as const,
+	);
+	for (const [pkg, sortedEntries] of sortedPackages) {
 		lines.push(`package "${pkg}" as ${sanitizeId(pkg)} {`);
-		for (const entry of entries) {
+		for (const entry of sortedEntries) {
 			lines.push(`  ${entry}`);
 		}
 		lines.push("}");
@@ -26,7 +30,14 @@ export function renderPackageDiagram(
 	}
 
 	const renderedEdges = new Set<string>();
-	for (const edge of edgeSet.edges) {
+	const sortedEdges = [...edgeSet.edges].sort((a, b) => {
+		const bySource = a.source.localeCompare(b.source);
+		if (bySource !== 0) return bySource;
+		const byTarget = a.target.localeCompare(b.target);
+		if (byTarget !== 0) return byTarget;
+		return a.type.localeCompare(b.type);
+	});
+	for (const edge of sortedEdges) {
 		const sourcePkg = extractPackage(normalizeFilePath(edge.source, options.targetDir));
 		const targetPkg = extractPackage(normalizeFilePath(edge.target, options.targetDir));
 		if (sourcePkg && targetPkg && sourcePkg !== targetPkg) {
@@ -61,7 +72,8 @@ function buildPackages(symbols: SymbolTable, options: DiagramOptions): Map<strin
 		entries.push(line);
 	};
 
-	for (const cls of symbols.classes) {
+	const sortedClasses = [...symbols.classes].sort((a, b) => a.name.localeCompare(b.name));
+	for (const cls of sortedClasses) {
 		const exported = cls.isExported ? " <<Exported>>" : "";
 		addEntry(
 			cls.filePath,
@@ -70,7 +82,8 @@ function buildPackages(symbols: SymbolTable, options: DiagramOptions): Map<strin
 	}
 
 	if (options.showStores) {
-		for (const store of symbols.stores) {
+		const sortedStores = [...symbols.stores].sort((a, b) => a.name.localeCompare(b.name));
+		for (const store of sortedStores) {
 			const stereotype =
 				store.runeKind === "state" ? "state" : store.runeKind === "derived" ? "derived" : "store";
 			const exported = store.isExported ? " <<Exported>>" : "";
@@ -87,7 +100,8 @@ function buildPackages(symbols: SymbolTable, options: DiagramOptions): Map<strin
 				addEntry(prop.filePath, `class "${prop.componentName}" <<component>>`);
 			}
 		}
-		for (const comp of symbols.components) {
+		const sortedComponents = [...symbols.components].sort((a, b) => a.name.localeCompare(b.name));
+		for (const comp of sortedComponents) {
 			const key = `${comp.filePath}::${comp.name}`;
 			if (!seen.has(key)) {
 				seen.add(key);
@@ -96,12 +110,14 @@ function buildPackages(symbols: SymbolTable, options: DiagramOptions): Map<strin
 		}
 	}
 
-	for (const fn of symbols.functions) {
+	const sortedFunctions = [...symbols.functions].sort((a, b) => a.name.localeCompare(b.name));
+	for (const fn of sortedFunctions) {
 		const exported = fn.isExported ? " <<Exported>>" : "";
 		addEntry(fn.filePath, `class "${fn.name}" <<function>>${exported}`);
 	}
 
-	for (const route of symbols.routes ?? []) {
+	const sortedRoutes = [...(symbols.routes ?? [])].sort((a, b) => a.name.localeCompare(b.name));
+	for (const route of sortedRoutes) {
 		const stereotype = routeStereotype(route);
 		addEntry(route.filePath, `class "${route.name}" <<${stereotype}>>`);
 	}
