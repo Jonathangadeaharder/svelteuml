@@ -1,0 +1,23 @@
+///<reference types="svelte" />
+;
+import { userStore } from "$lib/stores/user.svelte";
+import { count } from "$lib/stores/counter.svelte";
+function $$render() {
+/*Ωignore_startΩ*/;let $userStore = __sveltets_2_store_get(userStore);;let $count = __sveltets_2_store_get(count);/*Ωignore_endΩ*/
+
+
+
+let currentUser = $derived($userStore?.name ?? "Guest");
+;
+async () => {
+
+ { svelteHTML.createElement("h1", {}); currentUser; }
+ { svelteHTML.createElement("p", {});  $count; }
+if($userStore){
+	 { svelteHTML.createElement("button", { "onclick":() => ($userStore = null),});  }
+}
+};
+return { props: {} as Record<string, never>, exports: {}, bindings: __sveltets_$$bindings(''), slots: {}, events: {} }}
+const Stores__SvelteComponent_ = __sveltets_2_fn_component($$render());
+/*Ωignore_startΩ*/type Stores__SvelteComponent_ = ReturnType<typeof Stores__SvelteComponent_>;
+/*Ωignore_endΩ*/export default Stores__SvelteComponent_;
