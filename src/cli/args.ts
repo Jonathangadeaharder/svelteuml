@@ -11,6 +11,8 @@ export interface CliOptions {
 	exclude: string[];
 	hideTypeDeps: boolean;
 	hideStateDeps: boolean;
+	detectCircular: boolean;
+	failOnCircular: boolean;
 	quiet: boolean;
 	verbose: boolean;
 	watch: boolean;
@@ -95,6 +97,8 @@ export function parseArgs(argv: string[]): CliOptions {
 		.option("--disable-colors", "disable stereotype color theming", false)
 		.option("-q, --quiet", "suppress all output", false)
 		.option("--verbose", "show verbose output", false)
+		.option("--detect-circular", "detect and report circular dependencies", false)
+		.option("--fail-on-circular", "exit with error code on circular dependencies", false)
 		.option("--watch", "watch for file changes", false)
 		.exitOverride();
 
@@ -112,6 +116,8 @@ export function parseArgs(argv: string[]): CliOptions {
 		exclude: (opts.exclude as string[] | undefined) ?? [],
 		hideTypeDeps: opts.hideTypeDeps as boolean,
 		hideStateDeps: opts.hideStateDeps as boolean,
+		detectCircular: opts.detectCircular as boolean,
+		failOnCircular: opts.failOnCircular as boolean,
 		diagram: opts.diagram as DiagramKind,
 		focus: opts.focus as string | undefined,
 		layoutDirection: opts.layoutDirection as LayoutDirection,

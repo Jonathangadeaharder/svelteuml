@@ -1,7 +1,12 @@
 import { existsSync, writeFileSync } from "node:fs";
 import type { SvelteUMLConfigInput } from "../config/schema.js";
 import { mergeConfigs, validateConfig } from "../config/schema.js";
-import { buildEdges, scanImports, trackStoreSubscriptions } from "../dependency/index.js";
+import {
+	buildEdges,
+	detectCircularDependencies,
+	scanImports,
+	trackStoreSubscriptions,
+} from "../dependency/index.js";
 import { trackReactiveDependencies } from "../dependency/reactive-tracker.js";
 import { discoverFiles } from "../discovery/file-discovery.js";
 import { loadSvelteConfig } from "../discovery/svelte-config.js";
@@ -178,6 +183,25 @@ export async function runPipeline(
 			hideTypeDeps: cliOpts.hideTypeDeps,
 			hideStateDeps: cliOpts.hideStateDeps,
 		});
+
+		const circularResult = edges.length > 0 ? detectCircularDependencies(edges) : { cycles: [] };
+
+		if (cliOpts.detectCircular && circularResult.cycles.length > 0) {
+			for (const cycle of circularResult.cycles) {
+				r.warn(`Circular dependency: ${cycle.files.join(" -> ")}`);
+			}
+			r.warn(
+				`Found ${circularResult.cycles.length} circular dependenc${circularResult.cycles.length === 1 ? "y" : "ies"}`,
+			);
+			if (cliOpts.failOnCircular) {
+				return {
+					success: false,
+					error: `Circular dependencies detected (${circularResult.cycles.length})`,
+					fileCount: allFiles.length,
+					edgeCount: edges.length,
+				};
+			}
+		}
 
 		const edgeSet = createEdgeSet(edges);
 		r.succeed(`Resolved ${edges.length} dependencies`);

@@ -20,6 +20,13 @@ export interface EdgeSet {
 	byTarget: Map<string, ReadonlyArray<Edge>>;
 }
 
+export interface CircularDependencyResult {
+	cycles: Array<{
+		edges: Edge[];
+		files: string[];
+	}>;
+}
+
 export function createEdgeSet(edges: ReadonlyArray<Edge>): EdgeSet {
 	const bySource = new Map<string, Edge[]>();
 	const byTarget = new Map<string, Edge[]>();

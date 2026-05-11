@@ -6,7 +6,12 @@ export {
 	validateConfig,
 } from "./config/index.js";
 export type { ResolvedImport } from "./dependency/index.js";
-export { buildEdges, scanImports, trackStoreSubscriptions } from "./dependency/index.js";
+export {
+	buildEdges,
+	detectCircularDependencies,
+	scanImports,
+	trackStoreSubscriptions,
+} from "./dependency/index.js";
 export {
 	type DiscoveryOptions,
 	discoverFiles,
@@ -72,7 +77,7 @@ export type {
 } from "./types/config.js";
 export type { DiagramKind, DiagramOptions } from "./types/diagram.js";
 export { DEFAULT_DIAGRAM_OPTIONS } from "./types/diagram.js";
-export type { Edge, EdgeSet, EdgeType } from "./types/edge.js";
+export type { CircularDependencyResult, Edge, EdgeSet, EdgeType } from "./types/edge.js";
 export { createEdgeSet } from "./types/edge.js";
 export type {
 	EmissionResult,
