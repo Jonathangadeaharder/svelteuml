@@ -1,7 +1,12 @@
 import { existsSync, writeFileSync } from "node:fs";
 import type { SvelteUMLConfigInput } from "../config/schema.js";
 import { mergeConfigs, validateConfig } from "../config/schema.js";
-import { buildEdges, detectCircularDependencies, scanImports, trackStoreSubscriptions } from "../dependency/index.js";
+import {
+	buildEdges,
+	detectCircularDependencies,
+	scanImports,
+	trackStoreSubscriptions,
+} from "../dependency/index.js";
 import { trackReactiveDependencies } from "../dependency/reactive-tracker.js";
 import { discoverFiles } from "../discovery/file-discovery.js";
 import { loadSvelteConfig } from "../discovery/svelte-config.js";
