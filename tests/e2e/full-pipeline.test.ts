@@ -98,4 +98,17 @@ describe("E2E: full pipeline", () => {
 		expect(result.success).toBe(false);
 		expect(result.error).toBeDefined();
 	});
+
+	it("max-depth limits diagram scope", async () => {
+		const result = await runPipeline(makeCliOptions({ maxDepth: 1, outputPath: join(testOutputDir, "max-depth.puml") }), {});
+		expect(result.success).toBe(true);
+		expect(existsSync(join(testOutputDir, "max-depth.puml"))).toBe(true);
+	});
+
+	it("exclude-patterns filters output diagram", async () => {
+		const result = await runPipeline(makeCliOptions({ excludePatterns: ["**/test/**"], outputPath: join(testOutputDir, "exclude-patterns.puml") }), {});
+		expect(result.success).toBe(true);
+		const content = readFileSync(join(testOutputDir, "exclude-patterns.puml"), "utf-8");
+		expect(content).toContain("@startuml");
+	});
 });

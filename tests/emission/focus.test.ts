@@ -560,6 +560,31 @@ describe("resolveGlobalScope", () => {
 		expect(scope.has("B")).toBe(true);
 		expect(scope.has("C")).toBe(false);
 	});
+
+	it("includes component names derived from props with multiple props per component", () => {
+		const symbols = makeSymbols({
+			props: [
+				{ kind: "prop", name: "name", filePath: "/src/Comp.svelte", componentName: "Comp", type: "string", isRequired: true },
+				{ kind: "prop", name: "count", filePath: "/src/Comp.svelte", componentName: "Comp", type: "number", isRequired: false },
+			],
+		});
+		const edgeSet = makeEdgeSet([]);
+		const scope = resolveGlobalScope(symbols, edgeSet, 0);
+		expect(scope.has("Comp")).toBe(true);
+		expect(scope.size).toBe(1);
+	});
+
+	it("handles disconnected symbols with depth limit", () => {
+		const symbols = makeSymbols({
+			classes: [
+				{ kind: "class", name: "A", filePath: "/src/A.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+				{ kind: "class", name: "B", filePath: "/src/B.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+			],
+		});
+		const edgeSet = makeEdgeSet([]);
+		const scope = resolveGlobalScope(symbols, edgeSet, 1);
+		expect(scope.size).toBe(2);
+	});
 });
 
 describe("filterByExcludePatterns", () => {
