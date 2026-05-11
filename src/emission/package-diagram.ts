@@ -156,6 +156,5 @@ function mapEdgeArrow(type: EdgeType): string {
 			return "-->";
 		case "event":
 			return "..>";
-			return "..>";
 	}
 }
