@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { buildEdges } from "../../src/dependency/edge-builder.js";
+import { buildEdges, detectCircularDependencies } from "../../src/dependency/edge-builder.js";
 import type { ResolvedImport } from "../../src/dependency/import-scanner.js";
-import type { SymbolTable } from "../../src/types/ast.js";
+import type { EventSymbol, SymbolTable } from "../../src/types/ast.js";
+import type { PropFlowInfo } from "../../src/dependency/prop-flow-tracker.js";
 
 function makeSymbolTable(overrides: Partial<SymbolTable> = {}): SymbolTable {
 	return {
@@ -9,6 +10,7 @@ function makeSymbolTable(overrides: Partial<SymbolTable> = {}): SymbolTable {
 		functions: [],
 		stores: [],
 		props: [],
+		events: [],
 		exports: [],
 		routes: [],
 		components: [],
@@ -359,6 +361,151 @@ describe("buildEdges", () => {
 		const symbols = makeSymbolTable();
 		const result = buildEdges(imports, symbols);
 		expect(result).toHaveLength(1);
+		expect(result[0]?.type).toBe("dependency");
 		expect(result[0]?.label).toBeUndefined();
+	});
+
+	it("creates prop_flow edge with required prop", () => {
+		const propFlows: PropFlowInfo[] = [
+			{ sourceFile: "/src/lib/Parent.svelte", targetFile: "/src/lib/Child.svelte", propName: "label", propType: "string", isRequired: true },
+		];
+		const result = buildEdges([], makeSymbolTable(), [], propFlows);
+		const flowEdges = result.filter((e) => e.type === "prop_flow");
+		expect(flowEdges).toHaveLength(1);
+		expect(flowEdges[0]?.label).toBe("label: string !");
+	});
+
+	it("creates prop_flow edge with optional prop", () => {
+		const propFlows: PropFlowInfo[] = [
+			{ sourceFile: "/src/lib/Parent.svelte", targetFile: "/src/lib/Child.svelte", propName: "size", propType: "number", isRequired: false },
+		];
+		const result = buildEdges([], makeSymbolTable(), [], propFlows);
+		const flowEdges = result.filter((e) => e.type === "prop_flow");
+		expect(flowEdges).toHaveLength(1);
+		expect(flowEdges[0]?.label).toBe("size: number ?");
+	});
+
+	describe("event edges", () => {
+		function makeEvent(overrides: Partial<EventSymbol> = {}): EventSymbol {
+			return {
+				kind: "event",
+				name: "submit",
+				filePath: "/src/lib/Button.svelte",
+				componentName: "Button",
+				eventName: "submit",
+				type: "FormData",
+				...overrides,
+			};
+		}
+
+		it("creates event edge when parent imports child with events", () => {
+			const imports: ResolvedImport[] = [
+				{
+					sourceFile: "/src/routes/+page.svelte",
+					targetFile: "/src/lib/Button.svelte",
+					importedNames: ["Button"],
+					isTypeOnly: false,
+				},
+			];
+			const symbols = makeSymbolTable({
+				events: [makeEvent()],
+				props: [
+					{
+						kind: "prop",
+						name: "label",
+						filePath: "/src/lib/Button.svelte",
+						componentName: "Button",
+						type: "string",
+						isRequired: true,
+					},
+				],
+			});
+			const result = buildEdges(imports, symbols);
+			const eventEdges = result.filter((e) => e.type === "event");
+			expect(eventEdges).toHaveLength(1);
+			expect(eventEdges[0]?.source).toBe("/src/lib/Button.svelte");
+			expect(eventEdges[0]?.target).toBe("/src/routes/+page.svelte");
+			expect(eventEdges[0]?.label).toBe("submit");
+		});
+
+		it("creates multiple event edges for multiple events on same component", () => {
+			const imports: ResolvedImport[] = [
+				{
+					sourceFile: "/src/routes/+page.svelte",
+					targetFile: "/src/lib/Form.svelte",
+					importedNames: ["Form"],
+					isTypeOnly: false,
+				},
+			];
+			const symbols = makeSymbolTable({
+				events: [
+					makeEvent({ eventName: "submit", type: "FormData", filePath: "/src/lib/Form.svelte" }),
+					makeEvent({ eventName: "cancel", type: "void", name: "cancel", filePath: "/src/lib/Form.svelte" }),
+				],
+				props: [
+					{
+						kind: "prop",
+						name: "label",
+						filePath: "/src/lib/Form.svelte",
+						componentName: "Form",
+						type: "string",
+						isRequired: true,
+					},
+				],
+			});
+			const result = buildEdges(imports, symbols);
+			const eventEdges = result.filter((e) => e.type === "event");
+			expect(eventEdges).toHaveLength(2);
+			const labels = eventEdges.map((e) => e.label);
+			expect(labels).toContain("submit");
+			expect(labels).toContain("cancel");
+		});
+
+		it("does not create event edge when imported file has no events", () => {
+			const imports: ResolvedImport[] = [
+				{
+					sourceFile: "/src/routes/+page.svelte",
+					targetFile: "/src/lib/utils.ts",
+					importedNames: ["formatDate"],
+					isTypeOnly: false,
+				},
+			];
+			const symbols = makeSymbolTable({
+				functions: [
+					{
+						kind: "function",
+						name: "formatDate",
+						filePath: "/src/lib/utils.ts",
+						isExported: true,
+						isAsync: false,
+						parameters: [],
+						returnType: "string",
+						typeParams: [],
+					},
+				],
+			});
+			const result = buildEdges(imports, symbols);
+			const eventEdges = result.filter((e) => e.type === "event");
+			expect(eventEdges).toHaveLength(0);
+		});
+
+		it("does not create event edge for non-component imports with events", () => {
+			const imports: ResolvedImport[] = [
+				{
+					sourceFile: "/src/routes/+page.svelte",
+					targetFile: "/src/lib/stores.ts",
+					importedNames: ["userStore"],
+					isTypeOnly: false,
+				},
+			];
+			const symbols = makeSymbolTable({
+				events: [
+					makeEvent({ filePath: "/src/lib/stores.ts", eventName: "change" }),
+				],
+			});
+			const result = buildEdges(imports, symbols);
+			const eventEdges = result.filter((e) => e.type === "event");
+			expect(eventEdges).toHaveLength(0);
+		});
 	});
 });

@@ -5,6 +5,7 @@ import type { PipelineErrorHandler } from "../pipeline/error-handler.js";
 import type {
 	ClassSymbol,
 	ComponentSymbol,
+	EventSymbol,
 	ExportSymbol,
 	FunctionSymbol,
 	PropSymbol,
@@ -12,7 +13,11 @@ import type {
 	StoreSymbol,
 	SymbolTable,
 } from "../types/ast.js";
-import { componentNameFromPath, extractComponentProps } from "./component-extractor.js";
+import {
+	componentNameFromPath,
+	extractComponentEvents,
+	extractComponentProps,
+} from "./component-extractor.js";
 import { extractLibClasses, extractLibFunctions } from "./lib-extractor.js";
 import {
 	classifyRouteFile,
@@ -44,6 +49,7 @@ export class SymbolExtractor {
 		const functions: FunctionSymbol[] = [];
 		const stores: StoreSymbol[] = [];
 		const props: PropSymbol[] = [];
+		const events: EventSymbol[] = [];
 		const exports: ExportSymbol[] = [];
 		const routes: RouteSymbol[] = [];
 		const components: ComponentSymbol[] = [];
@@ -57,6 +63,7 @@ export class SymbolExtractor {
 				functions.push(...extracted.functions);
 				stores.push(...extracted.stores);
 				props.push(...extracted.props);
+				events.push(...extracted.events);
 				routes.push(...extracted.routes);
 				components.push(...extracted.components);
 			} catch (err: unknown) {
@@ -76,6 +83,7 @@ export class SymbolExtractor {
 			functions: sortBy(functions, (f) => `${f.filePath}::${f.name}`),
 			stores: sortBy(stores, (s) => `${s.filePath}::${s.name}`),
 			props: sortBy(props, (p) => `${p.filePath}::${p.componentName}::${p.name}`),
+			events: sortBy(events, (e) => `${e.filePath}::${e.componentName}::${e.eventName}`),
 			exports,
 			routes: deduplicateRoutes(routes),
 			components: sortBy(components, (c) => `${c.filePath}::${c.name}`),
@@ -90,6 +98,7 @@ export class SymbolExtractor {
 		functions: FunctionSymbol[];
 		stores: StoreSymbol[];
 		props: PropSymbol[];
+		events: EventSymbol[];
 		routes: RouteSymbol[];
 		components: ComponentSymbol[];
 	} {
@@ -97,6 +106,7 @@ export class SymbolExtractor {
 		const functions: FunctionSymbol[] = [];
 		const stores: StoreSymbol[] = [];
 		const props: PropSymbol[] = [];
+		const events: EventSymbol[] = [];
 		const routes: RouteSymbol[] = [];
 		const components: ComponentSymbol[] = [];
 
@@ -113,6 +123,9 @@ export class SymbolExtractor {
 				scriptContext,
 			);
 			props.push(...componentProps);
+
+			const componentEvents = extractComponentEvents(sourceFile, componentName, originalSveltePath);
+			events.push(...componentEvents);
 
 			components.push({
 				kind: "component",
@@ -135,7 +148,7 @@ export class SymbolExtractor {
 				});
 			}
 
-			return { classes, functions, stores, props, routes, components };
+			return { classes, functions, stores, props, events, routes, components };
 		}
 
 		const routeClass = classifyRouteFile(originalPath);
@@ -165,7 +178,7 @@ export class SymbolExtractor {
 					}
 				}
 			}
-			return { classes, functions, stores, props, routes, components };
+			return { classes, functions, stores, props, events, routes, components };
 		}
 
 		const storeSymbols = extractStoreSymbols(sourceFile, originalPath);
@@ -182,7 +195,7 @@ export class SymbolExtractor {
 			for (const store of stores) store.isExported = true;
 		}
 
-		return { classes, functions, stores, props, routes, components };
+		return { classes, functions, stores, props, events, routes, components };
 	}
 }
 

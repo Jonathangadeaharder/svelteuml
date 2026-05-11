@@ -11,6 +11,7 @@ const edgeTypes = [
 	"dependency",
 	"association",
 	"state_dependency",
+	"event",
 ] as const;
 
 function arbEdgeType() {

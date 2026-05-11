@@ -212,6 +212,8 @@ function mapEdgeArrow(type: EdgeType): string {
 			return "..>";
 		case "prop_flow":
 			return "-->";
+		case "event":
+			return "..>";
 	}
 }
 

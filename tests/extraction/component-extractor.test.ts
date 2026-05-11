@@ -1,7 +1,9 @@
 import { Project } from "ts-morph";
+import { SyntaxKind } from "ts-morph";
 import { describe, expect, it } from "vitest";
 import {
 	componentNameFromPath,
+	extractComponentEvents,
 	extractComponentProps,
 } from "../../src/extraction/component-extractor.js";
 
@@ -170,5 +172,83 @@ describe("extractComponentProps (Svelte 5 $props rune)", () => {
 		const kindProp = props.find((p) => p.name === "kind");
 		expect(kindProp?.isRequired).toBe(false);
 		expect(kindProp?.defaultValue).toBe("'primary'");
+	});
+});
+
+describe("extractComponentEvents", () => {
+	function makeSourceFile(code: string, filePath = "/src/lib/Button.svelte.tsx") {
+		const project = new Project({ useInMemoryFileSystem: true });
+		return project.createSourceFile(filePath, code);
+	}
+
+	it("extracts events from createEventDispatcher with type parameter", () => {
+		const sf = makeSourceFile(`
+			import { createEventDispatcher } from 'svelte';
+			const dispatch = createEventDispatcher<{ submit: FormData; cancel: void }>();
+		`);
+		const events = extractComponentEvents(sf, "Button", "/src/lib/Button.svelte");
+		expect(events).toHaveLength(2);
+		const names = events.map((e) => e.eventName);
+		expect(names).toContain("submit");
+		expect(names).toContain("cancel");
+		const submit = events.find((e) => e.eventName === "submit");
+		expect(submit?.type).toBe("FormData");
+	});
+
+	it("returns empty array when no createEventDispatcher", () => {
+		const sf = makeSourceFile(`
+			export let label: string;
+		`);
+		const events = extractComponentEvents(sf, "Button", "/src/lib/Button.svelte");
+		expect(events).toHaveLength(0);
+	});
+
+	it("extracts callback props (on-prefixed) from $props() as events", () => {
+		const sf = makeSourceFile(`
+			let { onclick, onsubmit, label }: {
+				onclick: () => void; onsubmit: (data: FormData) => void; label: string;
+			} = $props();
+		`);
+		const events = extractComponentEvents(sf, "Form", "/src/lib/Form.svelte");
+		expect(events.length).toBeGreaterThanOrEqual(2);
+		const names = events.map((e) => e.eventName);
+		expect(names).toContain("onclick");
+		expect(names).toContain("onsubmit");
+	});
+
+	it("ignores non-on-prefixed props from event extraction", () => {
+		const sf = makeSourceFile(`
+			let { label, value, onclick }: {
+				label: string; value: number; onclick: () => void;
+			} = $props();
+		`);
+		const events = extractComponentEvents(sf, "Input", "/src/lib/Input.svelte");
+		const eventNames = events.map((e) => e.eventName);
+		expect(eventNames).not.toContain("label");
+		expect(eventNames).not.toContain("value");
+		expect(eventNames).toContain("onclick");
+	});
+
+	it("deduplicates events found by both strategies", () => {
+		const sf = makeSourceFile(`
+			import { createEventDispatcher } from 'svelte';
+			const dispatch = createEventDispatcher<{ click: MouseEvent }>();
+			let { click, onclick }: { click: () => void; onclick: () => void } = $props();
+		`);
+		const events = extractComponentEvents(sf, "Btn", "/src/lib/Btn.svelte");
+		const clicks = events.filter((e) => e.eventName === "click");
+		expect(clicks).toHaveLength(1);
+	});
+
+	it("skips files in node_modules", () => {
+		const sf = makeSourceFile(
+			`
+			import { createEventDispatcher } from 'svelte';
+			const dispatch = createEventDispatcher<{ submit: FormData }>();
+		`,
+			"/project/node_modules/ui/Button.svelte.tsx",
+		);
+		const events = extractComponentEvents(sf, "Button", "/project/node_modules/ui/Button.svelte");
+		expect(events).toHaveLength(0);
 	});
 });

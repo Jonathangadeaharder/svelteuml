@@ -89,6 +89,7 @@ export function filterSymbolsByScope(symbols: SymbolTable, scope: Set<string>): 
 		exports: symbols.exports.filter((e) => scope.has(e.name)),
 		routes: (symbols.routes ?? []).filter((r) => scope.has(r.name)),
 		components: (symbols.components ?? []).filter((c) => scope.has(c.name)),
+		events: (symbols.events ?? []).filter((e) => scope.has(e.componentName)),
 	};
 }
 

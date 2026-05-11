@@ -6,7 +6,8 @@ export type EdgeType =
 	| "dependency"
 	| "association"
 	| "state_dependency"
-	| "prop_flow";
+	| "prop_flow"
+	| "event";
 
 export interface Edge {
 	readonly source: string;
