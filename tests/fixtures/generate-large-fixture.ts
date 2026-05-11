@@ -2,7 +2,6 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const FIXTURE_DIR = resolve(import.meta.dirname, "generated-large-5k");
-const SRC_DIR = resolve(FIXTURE_DIR, "src");
 
 interface FileSpec {
 	path: string;
@@ -408,7 +407,7 @@ export const load: PageLoad = async () => {
 
 	// Build all directories and write files
 	for (const file of files) {
-		const fullPath = resolve(SRC_DIR, file.path);
+		const fullPath = resolve(FIXTURE_DIR, file.path);
 		mkdirSync(new URL(`.`, `file://${fullPath}`).pathname, { recursive: true });
 		writeFileSync(fullPath, file.content, "utf-8");
 	}
