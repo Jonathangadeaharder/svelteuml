@@ -203,12 +203,52 @@ package "$lib" {
 | `pnpm run lint` | Lint with Biome |
 | `pnpm run format` | Format with Biome |
 
+### Property-Based Testing (PBT)
+
+This project uses [fast-check](https://github.com/dubzzz/fast-check) for property-based testing alongside unit tests.
+
+#### Conventions
+
+| Convention | Standard |
+|---|---|
+| Generator naming | Prefix with `arb` (e.g. `arbEdge`, `arbEdgeType`) |
+| File naming | `*.property.test.ts` |
+| Local runs | 100 cases (`VITEST_PBT_NUM_RUNS=100`) |
+| CI runs | 1000 cases (`VITEST_PBT_NUM_RUNS=1000`) |
+
+The number of PBT runs is configured via the `VITEST_PBT_NUM_RUNS` environment variable, defaulting to 100 locally and 1000 in CI.
+
+#### Adding a PBT test
+
+```ts
+import fc from "fast-check";
+import { describe, expect, it } from "vitest";
+
+function arbMyType(): fc.Arbitrary<MyType> {
+  return fc.record({
+    name: fc.string(),
+    value: fc.integer(),
+  });
+}
+
+const numRuns = Number(process.env.VITEST_PBT_NUM_RUNS) || 100;
+
+it("property holds for all inputs", () => {
+  fc.assert(
+    fc.property(arbMyType(), (val) => {
+      expect(val.name.length).toBeGreaterThan(0);
+    }),
+    { numRuns },
+  );
+});
+```
+
 ### Contributing
 
 1. Clone the repository
 2. Install dependencies: `pnpm install`
 3. Create a feature branch: `git checkout -b feature/my-feature`
-4. Make changes and add tests
+4. Make changes and add tests (see PBT conventions above)
 5. Run checks: `pnpm test && pnpm run typecheck && pnpm run lint`
 6. Submit a pull request
 
