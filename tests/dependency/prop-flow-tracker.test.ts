@@ -352,6 +352,83 @@ function $$render() {
 		expect(result.filter((f) => f.sourceFile === "/src/routes/page2.svelte")).toHaveLength(1);
 	});
 
+	it("skips new call with unbalanced outer braces", () => {
+		const tsxContents = new Map([
+			[
+				"/src/routes/+page.svelte",
+				"function $$render() {\n  const $$_btn0 = __sveltets_2_ensureComponent(Button);\n  new $$_btn0({ { { never-closed\n}\n",
+			],
+		]);
+		const imports: ResolvedImport[] = [
+			{
+				sourceFile: "/src/routes/+page.svelte",
+				targetFile: "/src/lib/Button.svelte",
+				importedNames: ["Button"],
+				isTypeOnly: false,
+			},
+		];
+
+		const result = trackPropFlows(tsxContents, imports, makeSymbolTable());
+		expect(result).toHaveLength(0);
+	});
+
+	it("skips new call with no props key", () => {
+		const tsxContents = new Map([
+			[
+				"/src/routes/+page.svelte",
+				`
+function $$render() {
+  { const $$_btn0 = __sveltets_2_ensureComponent(Button); new $$_btn0({ target: __sveltets_2_any(), other: {    "label":"A",}});}
+}
+				`,
+			],
+		]);
+		const imports: ResolvedImport[] = [
+			{
+				sourceFile: "/src/routes/+page.svelte",
+				targetFile: "/src/lib/Button.svelte",
+				importedNames: ["Button"],
+				isTypeOnly: false,
+			},
+		];
+
+		const result = trackPropFlows(tsxContents, imports, makeSymbolTable());
+		expect(result).toHaveLength(0);
+	});
+
+	it("skips new call with unbalanced props braces", () => {
+		const tsxContents = new Map([
+			[
+				"/src/routes/+page.svelte",
+				"function $$render() {\n  const $$_btn0 = __sveltets_2_ensureComponent(Button);\n  new $$_btn0({ target: __sveltets_2_any(), props: { { unbalanced  , other: 1 })\n}\n",
+			],
+		]);
+		const imports: ResolvedImport[] = [
+			{
+				sourceFile: "/src/routes/+page.svelte",
+				targetFile: "/src/lib/Button.svelte",
+				importedNames: ["Button"],
+				isTypeOnly: false,
+			},
+		];
+
+		const result = trackPropFlows(tsxContents, imports, makeSymbolTable());
+		expect(result).toHaveLength(0);
+	});
+
+	it("skips duplicate import names gracefully", () => {
+		const imports: ResolvedImport[] = [
+			{
+				sourceFile: "/src/routes/+page.svelte",
+				targetFile: "/src/lib/Button.svelte",
+				importedNames: ["Button", "Button"],
+				isTypeOnly: false,
+			},
+		];
+		const result = trackPropFlows(new Map(), imports, makeSymbolTable());
+		expect(result).toHaveLength(0);
+	});
+
 	it("handles nested object props like style={{ color: 'red' }}", () => {
 		const tsxContents = new Map([
 			[
