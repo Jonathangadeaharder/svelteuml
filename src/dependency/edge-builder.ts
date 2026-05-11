@@ -1,5 +1,5 @@
-import type { EventSymbol, SymbolTable } from "../types/ast.js";
 import type { SlotFillRecord } from "../extraction/slot-extractor.js";
+import type { EventSymbol, SymbolTable } from "../types/ast.js";
 import type { CircularDependencyResult, Edge } from "../types/edge.js";
 import type { ResolvedImport } from "./import-scanner.js";
 import type { PropFlowInfo } from "./prop-flow-tracker.js";
