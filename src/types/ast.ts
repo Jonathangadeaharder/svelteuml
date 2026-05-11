@@ -58,6 +58,16 @@ export interface StoreSymbol {
 	isExported?: boolean;
 }
 
+/** Event dispatched by a Svelte component. */
+export interface EventSymbol {
+	kind: "event";
+	name: string;
+	filePath: string;
+	componentName: string;
+	eventName: string;
+	type: string;
+}
+
 /** Svelte component prop. */
 export interface PropSymbol {
 	kind: "prop";
@@ -119,7 +129,8 @@ export type SymbolInfo =
 	| PropSymbol
 	| ExportSymbol
 	| RouteSymbol
-	| ComponentSymbol;
+	| ComponentSymbol
+	| EventSymbol;
 
 /** Complete symbol table for a project. */
 export interface SymbolTable {
@@ -127,6 +138,7 @@ export interface SymbolTable {
 	functions: FunctionSymbol[];
 	stores: StoreSymbol[];
 	props: PropSymbol[];
+	events: EventSymbol[];
 	exports: ExportSymbol[];
 	routes: RouteSymbol[];
 	components: ComponentSymbol[];

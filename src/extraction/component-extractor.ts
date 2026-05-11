@@ -3,7 +3,7 @@ import type { SourceFile } from "ts-morph";
 import { SyntaxKind } from "ts-morph";
 import type { ScriptContextMap } from "../parsing/script-context.js";
 import { getContextForLine } from "../parsing/script-context.js";
-import type { PropSymbol } from "../types/ast.js";
+import type { EventSymbol, PropSymbol } from "../types/ast.js";
 import { shouldSkipFile } from "./skip-rules.js";
 
 /**
@@ -161,6 +161,100 @@ export function extractComponentProps(
 	}
 
 	return deduped;
+}
+
+/**
+ * Extract events from a svelte2tsx-converted SourceFile.
+ *
+ * Supports:
+ *  1. Svelte 4 — `createEventDispatcher<{ eventName: Type }>()`
+ *  2. Svelte 5 — callback props (on-prefixed function props in $props())
+ */
+export function extractComponentEvents(
+	sourceFile: SourceFile,
+	componentName: string,
+	originalFilePath: string,
+): EventSymbol[] {
+	if (shouldSkipFile(originalFilePath)) {
+		return [];
+	}
+
+	const events: EventSymbol[] = [];
+	const seen = new Set<string>();
+
+	// --- Strategy 1: createEventDispatcher ---
+	const dispatcherCalls = sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression);
+	for (const call of dispatcherCalls) {
+		if (call.getExpressionIfKind(SyntaxKind.Identifier)?.getText() !== "createEventDispatcher") {
+			continue;
+		}
+		const typeArgs = call.getTypeArguments();
+		if (typeArgs.length === 0) continue;
+		const typeArgText = typeArgs[0]?.getText() ?? "";
+		if (!typeArgText) continue;
+
+		// Type arg is like `{ submit: FormData; cancel: void }`
+		const typeMembers = typeArgText.matchAll(/\b(\w+)\s*:\s*([^;},]+)/g);
+		for (const match of typeMembers) {
+			const eventName = match[1];
+			const eventType = match[2]?.trim() ?? "unknown";
+			if (eventName && !seen.has(eventName)) {
+				seen.add(eventName);
+				events.push({
+					kind: "event",
+					name: eventName,
+					filePath: originalFilePath,
+					componentName,
+					eventName,
+					type: eventType,
+				});
+			}
+		}
+	}
+
+	// --- Strategy 2: callback props from $props() (on-prefixed function props) ---
+	const propsDecls = sourceFile.getDescendantsOfKind(SyntaxKind.VariableDeclaration);
+	for (const varDecl of propsDecls) {
+		const initializer = varDecl.getInitializer();
+		if (
+			!initializer ||
+			initializer.getKind() !== SyntaxKind.CallExpression ||
+			!initializer.getText().startsWith("$props")
+		) {
+			continue;
+		}
+
+		const nameNode = varDecl.getNameNode();
+		if (nameNode.getKind() !== SyntaxKind.ObjectBindingPattern) continue;
+
+		const typeNode = varDecl.getTypeNode();
+		const typeText = typeNode?.getText() ?? "";
+
+		for (const element of nameNode.asKindOrThrow(SyntaxKind.ObjectBindingPattern).getElements()) {
+			const propName = element.getPropertyNameNode()?.getText() ?? element.getName();
+			if (element.getDotDotDotToken()) continue;
+
+			// Only consider props starting with "on" as event callbacks
+			if (!propName.startsWith("on")) continue;
+
+			if (seen.has(propName)) continue;
+			seen.add(propName);
+
+			// Extract callback signature from type annotation
+			const propType = extractPropTypeFromObjectType(typeText, propName);
+
+			events.push({
+				kind: "event",
+				name: propName,
+				filePath: originalFilePath,
+				componentName,
+				eventName: propName,
+				type: propType,
+			});
+		}
+	}
+
+	return events;
 }
 
 // ---------------------------------------------------------------------------

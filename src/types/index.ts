@@ -1,5 +1,6 @@
 export type {
 	ClassSymbol,
+	EventSymbol,
 	ExportSymbol,
 	FunctionSymbol,
 	MemberSymbol,

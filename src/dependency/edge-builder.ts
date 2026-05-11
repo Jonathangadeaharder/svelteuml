@@ -1,4 +1,4 @@
-import type { SymbolTable } from "../types/ast.js";
+import type { EventSymbol, SymbolTable } from "../types/ast.js";
 import type { CircularDependencyResult, Edge } from "../types/edge.js";
 import type { ResolvedImport } from "./import-scanner.js";
 import type { PropFlowInfo } from "./prop-flow-tracker.js";
@@ -110,6 +110,24 @@ export function buildEdges(
 		});
 	}
 
+	const eventsByFile = groupEventsByFile(symbols.events);
+	for (const imp of imports) {
+		const childEvents = eventsByFile.get(imp.targetFile);
+		if (!childEvents || childEvents.length === 0) continue;
+
+		const isComponentImport = componentFiles.has(imp.targetFile);
+		if (!isComponentImport) continue;
+
+		for (const evt of childEvents) {
+			addEdge({
+				source: imp.targetFile,
+				target: imp.sourceFile,
+				type: "event",
+				label: evt.eventName,
+			});
+		}
+	}
+
 	return edges;
 }
 
@@ -206,6 +224,19 @@ function normalizeCycle(files: string[]): string[] {
 function arraysEqual(a: string[], b: string[]): boolean {
 	if (a.length !== b.length) return false;
 	return a.every((v, i) => v === b[i]);
+}
+
+function groupEventsByFile(events: EventSymbol[]): Map<string, EventSymbol[]> {
+	const map = new Map<string, EventSymbol[]>();
+	for (const evt of events) {
+		let list = map.get(evt.filePath);
+		if (!list) {
+			list = [];
+			map.set(evt.filePath, list);
+		}
+		list.push(evt);
+	}
+	return map;
 }
 
 const MINIFIED_RE = /^[a-z](?:[A-Z0-9])?$/;

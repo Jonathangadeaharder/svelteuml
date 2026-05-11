@@ -59,6 +59,7 @@ export {
 } from "./parsing/index.js";
 export type {
 	ClassSymbol,
+	EventSymbol,
 	ExportSymbol,
 	FunctionSymbol,
 	MemberSymbol,

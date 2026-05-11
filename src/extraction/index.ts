@@ -1,4 +1,8 @@
-export { componentNameFromPath, extractComponentProps } from "./component-extractor.js";
+export {
+	componentNameFromPath,
+	extractComponentEvents,
+	extractComponentProps,
+} from "./component-extractor.js";
 export { extractLibClasses, extractLibFunctions } from "./lib-extractor.js";
 export {
 	classifyRouteFile,
