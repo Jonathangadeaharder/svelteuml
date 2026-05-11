@@ -85,5 +85,10 @@
 	"packageManager": "pnpm@10.33.2",
 	"publishConfig": {
 		"access": "public"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"esbuild"
+		]
 	}
 }
