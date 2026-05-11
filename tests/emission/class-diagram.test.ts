@@ -468,6 +468,20 @@ describe("renderClassDiagram", () => {
 		expect(result).toContain("..>");
 	});
 
+	it("renders slot edge", () => {
+		const edges = createEdgeSet([
+			{
+				source: "/src/routes/+page.svelte",
+				target: "/src/lib/Card.svelte",
+				type: "slot",
+				label: "slot:default",
+			},
+		]);
+		const result = renderClassDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("..>");
+		expect(result).toContain("slot:default");
+	});
+
 	it("renders exported class stereotype", () => {
 		const symbols = makeEmptySymbolTable({
 			classes: [

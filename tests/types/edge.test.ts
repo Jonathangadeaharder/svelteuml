@@ -12,8 +12,9 @@ describe("src/types/edge.ts", () => {
 				"aggregation",
 				"dependency",
 				"association",
+				"slot",
 			];
-			expect(types).toHaveLength(6);
+			expect(types).toHaveLength(7);
 		});
 	});
 

@@ -5,7 +5,7 @@ export {
 	safeValidateConfig,
 	validateConfig,
 } from "./config/index.js";
-export type { PropFlowInfo, ResolvedImport } from "./dependency/index.js";
+export type { PropFlowInfo, ResolvedImport, SlotFillRecord } from "./dependency/index.js";
 export {
 	buildEdges,
 	detectCircularDependencies,
@@ -29,6 +29,7 @@ export {
 	extractRouteExports,
 	extractRouteFileSymbol,
 	extractServerExports,
+	extractSlotFills,
 	extractStoreSymbols,
 	HTTP_VERBS,
 	isRouteFile,

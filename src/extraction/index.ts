@@ -20,5 +20,6 @@ export {
 	type ServerExportSymbol,
 } from "./server-extractor.js";
 export { isVirtualSpecifier, shouldSkipFile } from "./skip-rules.js";
+export { extractSlotFills, type SlotFillRecord } from "./slot-extractor.js";
 export { extractStoreSymbols } from "./store-extractor.js";
 export { SymbolExtractor } from "./symbol-extractor.js";

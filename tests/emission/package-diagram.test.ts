@@ -210,6 +210,19 @@ describe("renderPackageDiagram", () => {
 		expect(result).toContain("..>");
 	});
 
+	it("renders slot arrow between packages", () => {
+		const edges = createEdgeSet([
+			{
+				source: "/src/routes/+page.svelte",
+				target: "/src/lib/Card.svelte",
+				type: "slot",
+				label: "slot:default",
+			},
+		]);
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("..>");
+	});
+
 	it("renders aggregation arrow between packages", () => {
 		const edges = createEdgeSet([
 			{ source: "/src/routes/+page.ts", target: "/src/lib/utils.ts", type: "aggregation" },

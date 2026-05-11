@@ -3,6 +3,7 @@ import { buildEdges, detectCircularDependencies } from "../../src/dependency/edg
 import type { ResolvedImport } from "../../src/dependency/import-scanner.js";
 import type { EventSymbol, SymbolTable } from "../../src/types/ast.js";
 import type { PropFlowInfo } from "../../src/dependency/prop-flow-tracker.js";
+import type { SlotFillRecord } from "../../src/extraction/slot-extractor.js";
 
 function makeSymbolTable(overrides: Partial<SymbolTable> = {}): SymbolTable {
 	return {
@@ -506,6 +507,44 @@ describe("buildEdges", () => {
 			const result = buildEdges(imports, symbols);
 			const eventEdges = result.filter((e) => e.type === "event");
 			expect(eventEdges).toHaveLength(0);
+		});
+	});
+
+	describe("slot edges", () => {
+		it.each([
+			{ slotFills: [{ sourceFile: "/src/routes/+page.svelte", targetFile: "/src/lib/Card.svelte", slotName: "default" }], expectLen: 1, type: "slot", src: "/src/routes/+page.svelte", tgt: "/src/lib/Card.svelte", label: "slot:default" },
+			{ slotFills: [{ sourceFile: "/src/routes/+page.svelte", targetFile: "/src/lib/Layout.svelte", slotName: "header" }], expectLen: 1, label: "slot:header" },
+		])("creates slot edge: $label", ({ slotFills, expectLen, type, src, tgt, label }) => {
+			const result = buildEdges([], makeSymbolTable(), [], [], slotFills);
+			expect(result).toHaveLength(expectLen);
+			if (type) expect(result[0]?.type).toBe(type);
+			if (src) expect(result[0]?.source).toBe(src);
+			if (tgt) expect(result[0]?.target).toBe(tgt);
+			expect(result[0]?.label).toBe(label);
+		});
+
+		it("creates multiple slot edges for multiple fills", () => {
+			const slotFills: SlotFillRecord[] = [
+				{ sourceFile: "/src/routes/+page.svelte", targetFile: "/src/lib/Card.svelte", slotName: "default" },
+				{ sourceFile: "/src/routes/+page.svelte", targetFile: "/src/lib/Button.svelte", slotName: "default" },
+			];
+			const result = buildEdges([], makeSymbolTable(), [], [], slotFills);
+			expect(result).toHaveLength(2);
+			expect(result.every((e) => e.type === "slot")).toBe(true);
+		});
+
+		it("deduplicates identical slot edges", () => {
+			const slotFills: SlotFillRecord[] = [
+				{ sourceFile: "/src/routes/+page.svelte", targetFile: "/src/lib/Card.svelte", slotName: "default" },
+				{ sourceFile: "/src/routes/+page.svelte", targetFile: "/src/lib/Card.svelte", slotName: "default" },
+			];
+			const result = buildEdges([], makeSymbolTable(), [], [], slotFills);
+			expect(result).toHaveLength(1);
+		});
+
+		it("returns empty edges when no slot fills provided", () => {
+			const result = buildEdges([], makeSymbolTable(), []);
+			expect(result).toHaveLength(0);
 		});
 	});
 });
