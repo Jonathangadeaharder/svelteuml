@@ -92,6 +92,11 @@ function makeCliOpts(overrides: Partial<CliOptions> = {}): CliOptions {
 		hideStateDeps: false,
 		quiet: true,
 		verbose: false,
+		watch: false,
+		diagram: "class",
+		focus: undefined,
+		layoutDirection: "top-to-bottom",
+		noColor: false,
 		...overrides,
 	};
 }

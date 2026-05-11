@@ -16,10 +16,16 @@ function makeCliOpts(overrides?: Partial<CliOptions>): CliOptions {
 		excludeExternals: false,
 		maxDepth: 0,
 		exclude: [],
+		excludePatterns: [],
 		hideTypeDeps: false,
 		hideStateDeps: false,
 		quiet: true,
 		verbose: false,
+		watch: true,
+		diagram: "class",
+		focus: undefined,
+		layoutDirection: "top-to-bottom",
+		noColor: false,
 		...overrides,
 	};
 }

@@ -254,7 +254,11 @@ export async function runPipeline(
 		}
 
 		if (cliOpts.excludePatterns.length > 0) {
-			const filtered = filterByExcludePatterns(emissionSymbols, emissionEdges, cliOpts.excludePatterns);
+			const filtered = filterByExcludePatterns(
+				emissionSymbols,
+				emissionEdges,
+				cliOpts.excludePatterns,
+			);
 			emissionSymbols = filtered.symbols;
 			emissionEdges = filtered.edges;
 		}
