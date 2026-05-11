@@ -24,5 +24,8 @@ export default defineConfig({
 				},
 			},
 		},
+		env: {
+			VITEST_PBT_NUM_RUNS: "100",
+		},
 	},
 });
