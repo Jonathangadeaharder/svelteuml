@@ -1,12 +1,14 @@
 import type { SymbolTable } from "../types/ast.js";
 import type { CircularDependencyResult, Edge } from "../types/edge.js";
 import type { ResolvedImport } from "./import-scanner.js";
+import type { PropFlowInfo } from "./prop-flow-tracker.js";
 import type { StateDependency } from "./reactive-tracker.js";
 
 export function buildEdges(
 	imports: ResolvedImport[],
 	symbols: SymbolTable,
 	stateDeps: StateDependency[] = [],
+	propFlows: PropFlowInfo[] = [],
 ): Edge[] {
 	const edges: Edge[] = [];
 	const seen = new Set<string>();
@@ -95,6 +97,16 @@ export function buildEdges(
 			target: dep.targetFile,
 			type: "state_dependency",
 			label: `${dep.symbolName} <<${dep.dependencyKind}>>`,
+		});
+	}
+
+	for (const flow of propFlows) {
+		const suffix = flow.isRequired ? "!" : "?";
+		addEdge({
+			source: flow.sourceFile,
+			target: flow.targetFile,
+			type: "prop_flow",
+			label: `${flow.propName}: ${flow.propType} ${suffix}`,
 		});
 	}
 

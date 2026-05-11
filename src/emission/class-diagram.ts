@@ -210,6 +210,8 @@ function mapEdgeArrow(type: EdgeType): string {
 			return "-->";
 		case "state_dependency":
 			return "..>";
+		case "prop_flow":
+			return "-->";
 	}
 }
 

@@ -5,11 +5,12 @@ export {
 	safeValidateConfig,
 	validateConfig,
 } from "./config/index.js";
-export type { ResolvedImport } from "./dependency/index.js";
+export type { PropFlowInfo, ResolvedImport } from "./dependency/index.js";
 export {
 	buildEdges,
 	detectCircularDependencies,
 	scanImports,
+	trackPropFlows,
 	trackStoreSubscriptions,
 } from "./dependency/index.js";
 export {

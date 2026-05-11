@@ -5,6 +5,7 @@ import {
 	buildEdges,
 	detectCircularDependencies,
 	scanImports,
+	trackPropFlows,
 	trackStoreSubscriptions,
 } from "../dependency/index.js";
 import { trackReactiveDependencies } from "../dependency/reactive-tracker.js";
@@ -177,7 +178,17 @@ export async function runPipeline(
 		const stateDeps = trackReactiveDependencies(parsingProject.getProject(), reactiveSymbols);
 		const storeSubs = trackStoreSubscriptions(parsingProject, symbols.stores);
 		const allStateDeps = [...stateDeps, ...storeSubs];
-		let edges = buildEdges(imports, symbols, allStateDeps);
+
+		const tsxContents = new Map<string, string>();
+		for (const [originalPath, sf] of parsingProject.getAllSourceFiles()) {
+			if (originalPath.endsWith(".svelte.tsx") && !originalPath.includes("node_modules")) {
+				const originalSveltePath = originalPath.replace(/\.tsx$/, "");
+				tsxContents.set(originalSveltePath, sf.getText());
+			}
+		}
+		const propFlows = trackPropFlows(tsxContents, imports, symbols);
+
+		let edges = buildEdges(imports, symbols, allStateDeps, propFlows);
 
 		edges = filterEdges(edges, {
 			hideTypeDeps: cliOpts.hideTypeDeps,
