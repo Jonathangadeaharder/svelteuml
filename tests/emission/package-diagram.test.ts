@@ -383,4 +383,114 @@ describe("renderPackageDiagram", () => {
 		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
 		expect(result).toContain("-->");
 	});
+
+	it("groups nested files under top-level src/ dir", () => {
+		const symbols = makeEmptySymbolTable({
+			classes: [
+				{
+					kind: "class",
+					name: "AudioPlayer",
+					filePath: "/src/lib/audio.ts",
+					extends: undefined,
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+				},
+				{
+					kind: "class",
+					name: "VideoPlayer",
+					filePath: "/src/lib/media/video.ts",
+					extends: undefined,
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+				},
+			],
+		});
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain('package "lib"');
+		expect(result).toContain("AudioPlayer");
+		expect(result).toContain("VideoPlayer");
+	});
+
+	it("groups each top-level src/ dir as separate package", () => {
+		const symbols = makeEmptySymbolTable({
+			classes: [
+				{
+					kind: "class",
+					name: "Helper",
+					filePath: "/src/lib/utils.ts",
+					extends: undefined,
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+				},
+				{
+					kind: "class",
+					name: "PageHandler",
+					filePath: "/src/routes/+page.ts",
+					extends: undefined,
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+				},
+			],
+		});
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain('package "lib"');
+		expect(result).toContain('package "routes"');
+	});
+
+	it("skips files directly in src/ with no subdirectory", () => {
+		const symbols = makeEmptySymbolTable({
+			classes: [
+				{
+					kind: "class",
+					name: "TopLevel",
+					filePath: "/src/top.ts",
+					extends: undefined,
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+				},
+			],
+		});
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).not.toContain("TopLevel");
+		expect(result).toContain("@startuml");
+		expect(result).toContain("@enduml");
+	});
+
+	it("falls back to immediate parent dir for files outside src/", () => {
+		const symbols = makeEmptySymbolTable({
+			classes: [
+				{
+					kind: "class",
+					name: "ExternalUtil",
+					filePath: "/external/utils.ts",
+					extends: undefined,
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+				},
+			],
+		});
+		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain('package "external"');
+		expect(result).toContain("ExternalUtil");
+	});
+
+	it("uses top-level package name in edges", () => {
+		const edges = createEdgeSet([
+			{ source: "/src/lib/sub/a.ts", target: "/src/routes/deep/api.ts", type: "dependency" },
+		]);
+		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain("..>");
+	});
 });

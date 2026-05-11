@@ -265,7 +265,7 @@ describe("route stereotype rendering in package diagram", () => {
 			],
 		});
 		const result = renderPackageDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
-		expect(result).toContain("/src/routes/users/[id]");
+		expect(result).toContain('package "routes"');
 		expect(result).toContain("<<page>>");
 	});
 
