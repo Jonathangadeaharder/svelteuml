@@ -58,6 +58,7 @@ vi.mock("../../src/extraction/symbol-extractor.js", () => ({
 vi.mock("../../src/dependency/index.js", () => ({
 	scanImports: vi.fn().mockReturnValue([]),
 	buildEdges: vi.fn().mockReturnValue([]),
+	trackStoreSubscriptions: vi.fn().mockReturnValue([]),
 }));
 
 vi.mock("../../src/dependency/reactive-tracker.js", () => ({
