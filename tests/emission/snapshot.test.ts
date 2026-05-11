@@ -112,6 +112,91 @@ describe("PlantUML snapshot: class diagram", () => {
 		expect(result.content).toMatchSnapshot();
 		expect(result.content).not.toContain("Logger");
 	});
+
+	it("produces identical output on repeated calls (determinism)", () => {
+		const symbols = makeSymbols({
+			classes: [makeClass("Zebra"), makeClass("Apple"), makeClass("Banana")],
+			stores: [
+				{
+					kind: "store",
+					name: "delta",
+					filePath: "/src/stores/delta.ts",
+					storeType: "writable",
+					valueType: "number",
+				},
+				{
+					kind: "store",
+					name: "alpha",
+					filePath: "/src/stores/alpha.ts",
+					storeType: "readable",
+					valueType: "string",
+				},
+			],
+			functions: [
+				{
+					kind: "function",
+					name: "zeta",
+					filePath: "/src/zeta.ts",
+					isExported: true,
+					isAsync: false,
+					parameters: [],
+					returnType: "void",
+					typeParams: [],
+				},
+				{
+					kind: "function",
+					name: "beta",
+					filePath: "/src/beta.ts",
+					isExported: false,
+					isAsync: false,
+					parameters: [],
+					returnType: "void",
+					typeParams: [],
+				},
+			],
+		});
+		const edges: Edge[] = [
+			{ source: "Zebra", target: "Apple", type: "dependency" },
+			{ source: "Apple", target: "Banana", type: "composition" },
+			{ source: "Apple", target: "Banana", type: "dependency" },
+			{ source: "Banana", target: "Zebra", type: "dependency" },
+		];
+		const edgeSet = createEdgeSet(edges);
+
+		const opts = { ...DEFAULT_DIAGRAM_OPTIONS, kind: "class" as const, stereotypeColors: {} };
+		const first = emitPlantUML(symbols, edgeSet, opts).content;
+		const second = emitPlantUML(symbols, edgeSet, opts).content;
+		expect(first).toBe(second);
+
+		const lines = first.split("\n");
+		const bareClassLines = lines.filter(
+			(l) => /^(?:class|interface) "\w+"/.test(l) && !l.includes("<<"),
+		);
+		const bareClassNames = bareClassLines.map((l) => l.match(/^class "(\w+)"/)?.[1] ?? "");
+		expect(bareClassNames).toEqual([...bareClassNames].sort((a, b) => a.localeCompare(b)));
+
+		const edgeLines = lines.filter((l) =>
+			/^[A-Za-z_]\S* (\.\.\||\.\.>|\*--|o--|-->|<\|--)/.test(l),
+		);
+		const edgeTypeMap: Record<string, string> = {
+			"<|--": "extends",
+			"..|>": "implements",
+			"*--": "composition",
+			"o--": "aggregation",
+			"..>": "dependency",
+			"-->": "association",
+		};
+		const edgeSorted = [...edgeLines].sort((a, b) => {
+			const [, srcA, symA, tgtA] = a.match(/^(\S+) (\S+) (\S+)/) ?? [];
+			const [, srcB, symB, tgtB] = b.match(/^(\S+) (\S+) (\S+)/) ?? [];
+			const bySrc = srcA.localeCompare(srcB);
+			if (bySrc !== 0) return bySrc;
+			const byTgt = tgtA.localeCompare(tgtB);
+			if (byTgt !== 0) return byTgt;
+			return (edgeTypeMap[symA] ?? symA).localeCompare(edgeTypeMap[symB] ?? symB);
+		});
+		expect(edgeLines).toEqual(edgeSorted);
+	});
 });
 
 describe("PlantUML snapshot: package diagram", () => {

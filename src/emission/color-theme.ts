@@ -39,7 +39,7 @@ function sanitizeColor(c: string): string {
 }
 
 export function renderColorTheme(colors: StereotypeColors): string {
-	const entries = Object.entries(colors);
+	const entries = Object.entries(colors).sort(([a], [b]) => a.localeCompare(b));
 	if (entries.length === 0) return "";
 
 	const lines: string[] = [];
@@ -54,7 +54,7 @@ export function renderColorTheme(colors: StereotypeColors): string {
 }
 
 export function renderColorLegend(colors: StereotypeColors): string {
-	const entries = Object.entries(colors);
+	const entries = Object.entries(colors).sort(([a], [b]) => a.localeCompare(b));
 	if (entries.length === 0) return "";
 
 	const lines: string[] = ["legend right"];
