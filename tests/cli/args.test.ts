@@ -79,6 +79,16 @@ describe("parseArgs", () => {
 		expect(result.exclude).toEqual([]);
 	});
 
+	it("parses --exclude-patterns", () => {
+		const result = parseArgs(["./src", "--exclude-patterns", "**/*.test.ts", "**/*.spec.ts"]);
+		expect(result.excludePatterns).toEqual(["**/*.test.ts", "**/*.spec.ts"]);
+	});
+
+	it("defaults excludePatterns to empty array", () => {
+		const result = parseArgs(["./src"]);
+		expect(result.excludePatterns).toEqual([]);
+	});
+
 	it("parses --hide-type-deps", () => {
 		const result = parseArgs(["generate", "./src", "--hide-type-deps"]);
 		expect(result.hideTypeDeps).toBe(true);

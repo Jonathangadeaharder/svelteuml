@@ -1,5 +1,5 @@
 import type { SymbolTable } from "../types/ast.js";
-import type { Edge, EdgeSet } from "../types/edge.js";
+import { createEdgeSet, type Edge, type EdgeSet } from "../types/edge.js";
 
 export interface FocusOptions {
 	focusNode: string;
@@ -95,4 +95,96 @@ export function filterSymbolsByScope(symbols: SymbolTable, scope: Set<string>): 
 
 export function filterEdgesByScope(edges: ReadonlyArray<Edge>, scope: Set<string>): Edge[] {
 	return edges.filter((e) => scope.has(e.source) && scope.has(e.target));
+}
+
+export function resolveGlobalScope(
+	symbols: SymbolTable,
+	edgeSet: EdgeSet,
+	maxDepth: number,
+): Set<string> {
+	const allNames = collectAllNames(symbols);
+	if (maxDepth <= 0) return allNames;
+
+	const roots = findRootSymbols(symbols, edgeSet);
+	const maxHops = maxDepth;
+	const visited = new Set<string>();
+	const queue: Array<{ name: string; hop: number }> = [...roots.map((n) => ({ name: n, hop: 0 }))];
+	let head = 0;
+
+	while (head < queue.length) {
+		const current = queue[head];
+		head++;
+		if (!current) continue;
+		if (visited.has(current.name)) continue;
+		visited.add(current.name);
+		if (current.hop >= maxHops) continue;
+
+		const outgoing = edgeSet.bySource.get(current.name) ?? [];
+		const incoming = edgeSet.byTarget.get(current.name) ?? [];
+		const neighbours = [...outgoing.map((e) => e.target), ...incoming.map((e) => e.source)];
+		for (const neighbour of neighbours) {
+			if (!visited.has(neighbour) && allNames.has(neighbour)) {
+				queue.push({ name: neighbour, hop: current.hop + 1 });
+			}
+		}
+	}
+
+	return visited;
+}
+
+function findRootSymbols(symbols: SymbolTable, edgeSet: EdgeSet): string[] {
+	const allNames = collectAllNames(symbols);
+	const hasIncoming = new Set<string>();
+	for (const edge of edgeSet.edges) {
+		if (allNames.has(edge.target)) {
+			hasIncoming.add(edge.target);
+		}
+	}
+	return [...allNames].filter((name) => !hasIncoming.has(name));
+}
+
+export function filterByExcludePatterns(
+	symbols: SymbolTable,
+	edgeSet: EdgeSet,
+	patterns: string[],
+): { symbols: SymbolTable; edges: EdgeSet } {
+	if (patterns.length === 0) return { symbols, edges: edgeSet };
+
+	const shouldExclude = (filePath: string): boolean => {
+		return patterns.some((p) => {
+			const glob = new RegExp(
+				`^${p.replace(/\*\*/g, ".*").replace(/\*/g, "[^/]*").replace(/\?/g, ".")}$`,
+			);
+			return glob.test(filePath);
+		});
+	};
+
+	const excludedNames = new Set<string>();
+
+	const checkSymbol = (filePath: string, name: string) => {
+		if (shouldExclude(filePath)) excludedNames.add(name);
+	};
+
+	for (const cls of symbols.classes) checkSymbol(cls.filePath, cls.name);
+	for (const fn of symbols.functions) checkSymbol(fn.filePath, fn.name);
+	for (const store of symbols.stores) checkSymbol(store.filePath, store.name);
+	for (const comp of symbols.components) checkSymbol(comp.filePath, comp.name);
+	for (const route of symbols.routes ?? []) checkSymbol(route.filePath, route.name);
+
+	const filteredSymbols: SymbolTable = {
+		classes: symbols.classes.filter((c) => !excludedNames.has(c.name)),
+		functions: symbols.functions.filter((f) => !excludedNames.has(f.name)),
+		stores: symbols.stores.filter((s) => !excludedNames.has(s.name)),
+		props: symbols.props.filter((p) => !excludedNames.has(p.componentName)),
+		exports: symbols.exports.filter((e) => !excludedNames.has(e.name)),
+		routes: (symbols.routes ?? []).filter((r) => !excludedNames.has(r.name)),
+		components: (symbols.components ?? []).filter((c) => !excludedNames.has(c.name)),
+	};
+
+	const remainingNames = new Set(collectAllNames(filteredSymbols));
+	const filteredEdges = edgeSet.edges.filter(
+		(e) => remainingNames.has(e.source) && remainingNames.has(e.target),
+	);
+
+	return { symbols: filteredSymbols, edges: createEdgeSet(filteredEdges) };
 }
