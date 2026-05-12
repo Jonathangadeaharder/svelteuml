@@ -15,8 +15,8 @@ export function parseAliasGroups(args?: string[]): AliasGroup[] {
 			);
 		}
 		return {
-			pattern: arg.slice(0, colonIdx),
-			name: arg.slice(colonIdx + 1),
+			pattern: arg.slice(0, colonIdx).trim(),
+			name: arg.slice(colonIdx + 1).trim(),
 		};
 	});
 }
@@ -53,25 +53,30 @@ export function assignGroups(symbols: SymbolTable, groups: AliasGroup[]): Symbol
 
 	const grouped = new Map<string, string>();
 
-	const allKinds: Array<{ kind: string; name: string; filePath: string }> = [
-		...symbols.classes,
-		...symbols.functions,
-		...symbols.stores,
-		...symbols.props,
-		...symbols.events,
-		...symbols.exports,
-		...symbols.routes,
-		...symbols.components,
-	];
+	const compiledGroups = groups.map((g) => ({ ...g, regex: globToRegex(g.pattern) }));
 
-	for (const sym of allKinds) {
-		for (const g of groups) {
-			if (matchGlob(sym.filePath, g.pattern)) {
-				grouped.set(symbolKey(sym.kind, sym.name, sym.filePath), g.name);
-				break;
+	const processKind = <T extends { kind: string; name: string; filePath: string }>(
+		kind: string,
+		list: T[],
+	) => {
+		for (const sym of list) {
+			for (const g of compiledGroups) {
+				if (g.regex.test(sym.filePath)) {
+					grouped.set(symbolKey(kind, sym.name, sym.filePath), g.name);
+					break;
+				}
 			}
 		}
-	}
+	};
+
+	processKind("class", symbols.classes);
+	processKind("function", symbols.functions);
+	processKind("store", symbols.stores);
+	processKind("prop", symbols.props);
+	processKind("event", symbols.events);
+	processKind("export", symbols.exports);
+	processKind("route", symbols.routes ?? []);
+	processKind("component", symbols.components ?? []);
 
 	const assignGroup = <T extends { kind: string; name: string; filePath: string; group?: string }>(
 		list: T[],
@@ -91,11 +96,6 @@ export function assignGroups(symbols: SymbolTable, groups: AliasGroup[]): Symbol
 		routes: assignGroup(symbols.routes),
 		components: assignGroup(symbols.components),
 	};
-}
-
-function matchGlob(filePath: string, pattern: string): boolean {
-	const regex = globToRegex(pattern);
-	return regex.test(filePath);
 }
 
 function globToRegex(pattern: string): RegExp {

@@ -46,6 +46,15 @@ function collectGroups(symbols: SymbolTable): Map<string, SymbolTable> {
 	for (const comp of symbols.components ?? []) {
 		if (comp.group) ensureGroup(comp.group).components.push(comp);
 	}
+	for (const prop of symbols.props) {
+		if (prop.group) ensureGroup(prop.group).props.push(prop);
+	}
+	for (const evt of symbols.events) {
+		if (evt.group) ensureGroup(evt.group).events.push(evt);
+	}
+	for (const exp of symbols.exports) {
+		if (exp.group) ensureGroup(exp.group).exports.push(exp);
+	}
 
 	return groups;
 }
@@ -119,14 +128,8 @@ export function renderClassDiagram(
 
 	const nameMap = buildNameMap(symbols, options.targetDir);
 
-	const hasGroups = [
-		...symbols.classes,
-		...symbols.stores,
-		...symbols.functions,
-		...(symbols.routes ?? []),
-		...(symbols.components ?? []),
-	].some(hasGroup);
-	if (hasGroups) {
+	const groups = collectGroups(symbols);
+	if (groups.size > 0) {
 		renderGroupedSymbols(lines, symbols, options);
 	}
 
