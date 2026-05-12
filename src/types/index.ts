@@ -18,7 +18,7 @@ export type {
 	SvelteUMLConfig,
 	TsConfigResult,
 } from "./config.js";
-export type { DiagramKind, DiagramOptions } from "./diagram.js";
+export type { DiagramKind, DiagramOptions, GroupConfig } from "./diagram.js";
 export { DEFAULT_DIAGRAM_OPTIONS } from "./diagram.js";
 export type { Edge, EdgeSet, EdgeType } from "./edge.js";
 export { createEdgeSet } from "./edge.js";

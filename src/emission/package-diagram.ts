@@ -2,6 +2,7 @@ import type { SymbolTable } from "../types/ast.js";
 import type { DiagramOptions } from "../types/diagram.js";
 import type { EdgeSet, EdgeType } from "../types/edge.js";
 import { normalizeFilePath } from "../utils/path.js";
+import { getGroupForFile } from "./groups.js";
 import { routeStereotype } from "./route-utils.js";
 
 export function renderPackageDiagram(
@@ -30,9 +31,12 @@ export function renderPackageDiagram(
 	}
 
 	const edgeWeights = new Map<string, { source: string; target: string; weight: number }>();
+	const groups = options.groups ?? [];
 	for (const edge of edgeSet.edges) {
-		const sourcePkg = extractPackage(normalizeFilePath(edge.source, options.targetDir));
-		const targetPkg = extractPackage(normalizeFilePath(edge.target, options.targetDir));
+		const normalizedSource = normalizeFilePath(edge.source, options.targetDir);
+		const normalizedTarget = normalizeFilePath(edge.target, options.targetDir);
+		const sourcePkg = getGroupForFile(normalizedSource, groups) ?? extractPackage(normalizedSource);
+		const targetPkg = getGroupForFile(normalizedTarget, groups) ?? extractPackage(normalizedTarget);
 		if (!(sourcePkg && targetPkg) || sourcePkg === targetPkg) continue;
 		const key = `${sourcePkg}|${targetPkg}`;
 		const existing = edgeWeights.get(key);
@@ -54,10 +58,11 @@ export function renderPackageDiagram(
 
 function buildPackages(symbols: SymbolTable, options: DiagramOptions): Map<string, string[]> {
 	const packages = new Map<string, string[]>();
+	const groups = options.groups ?? [];
 
 	const addEntry = (filePath: string, line: string) => {
 		const normalized = normalizeFilePath(filePath, options.targetDir);
-		const pkg = extractPackage(normalized);
+		const pkg = getGroupForFile(normalized, groups) ?? extractPackage(normalized);
 		if (!pkg) return;
 		let entries = packages.get(pkg);
 		if (!entries) {
@@ -138,25 +143,4 @@ function extractPackage(filePath: string): string | undefined {
 
 function sanitizeId(path: string): string {
 	return path.replace(/[^a-zA-Z0-9_]/g, "_").replace(/_+/g, "_");
-}
-
-function _mapEdgeArrow(type: EdgeType): string {
-	switch (type) {
-		case "extends":
-			return "<|--";
-		case "implements":
-			return "..|>";
-		case "composition":
-			return "*--";
-		case "aggregation":
-			return "o--";
-		case "dependency":
-			return "..>";
-		case "association":
-			return "-->";
-		case "state_dependency":
-			return "..>";
-		case "component_usage":
-			return "-->";
-	}
 }

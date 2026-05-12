@@ -234,6 +234,7 @@ export async function runPipeline(
 			layoutDirection: cliOpts.layoutDirection,
 			stereotypeColors: cliOpts.noColor ? {} : DEFAULT_STEREOTYPE_COLORS,
 			targetDir: config.targetDir,
+			...(config.groups.length > 0 ? { groups: config.groups } : {}),
 		};
 
 		let emissionSymbols = symbols;

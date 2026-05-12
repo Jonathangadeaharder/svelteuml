@@ -1,5 +1,7 @@
 /** Core types for SvelteUML pipeline configuration and discovery results. */
 
+import type { GroupConfig } from "./diagram.js";
+
 /** Maps alias specifiers (e.g. "$lib") to their resolved absolute paths. */
 export type AliasMap = Record<string, string>;
 
@@ -50,6 +52,8 @@ export interface SvelteUMLConfig {
 	maxDepth: number;
 	/** Whether to truncate at node_modules boundaries. */
 	excludeExternals: boolean;
+	/** Group definitions for organizing symbols by file path pattern. */
+	groups: GroupConfig[];
 }
 
 /** Supported output formats for diagram generation. */

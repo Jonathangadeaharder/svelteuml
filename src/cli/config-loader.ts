@@ -1,7 +1,13 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-const CONFIG_FILENAMES = ["svelteuml.config.ts", ".svelteumlrc.json", ".svelteumlrc"];
+const CONFIG_FILENAMES = [
+	"svelteuml.config.ts",
+	"svelteuml.config.js",
+	"svelteuml.config.mjs",
+	".svelteumlrc.json",
+	".svelteumlrc",
+];
 
 const KNOWN_FIELDS = new Set([
 	"targetDir",
@@ -11,6 +17,7 @@ const KNOWN_FIELDS = new Set([
 	"include",
 	"maxDepth",
 	"excludeExternals",
+	"groups",
 ]);
 
 export async function searchConfigFile(searchDir: string): Promise<{ path: string } | undefined> {
@@ -51,7 +58,7 @@ async function loadTypeScriptConfig(configPath: string): Promise<Record<string, 
 
 export async function loadConfigFile(configPath: string): Promise<Record<string, unknown>> {
 	try {
-		if (configPath.endsWith(".ts")) {
+		if (configPath.endsWith(".ts") || configPath.endsWith(".js") || configPath.endsWith(".mjs")) {
 			return await loadTypeScriptConfig(configPath);
 		}
 		return loadJSONConfig(configPath);
