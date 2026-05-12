@@ -3,6 +3,7 @@ import type { OutputFormat } from "../types/config.js";
 import type { DiagramKind, LayoutDirection } from "../types/diagram.js";
 
 export interface CliOptions {
+	subcommand: "generate" | "watch";
 	targetDir: string;
 	outputPath: string | undefined;
 	format: OutputFormat;
@@ -15,7 +16,6 @@ export interface CliOptions {
 	failOnCircular: boolean;
 	quiet: boolean;
 	verbose: boolean;
-	watch: boolean;
 	diagram: DiagramKind;
 	focus: string | undefined;
 	layoutDirection: LayoutDirection;
@@ -64,11 +64,8 @@ function parseMaxDepth(value: string): number {
 	return n;
 }
 
-export function parseArgs(argv: string[]): CliOptions {
-	const program = new Command()
-		.name("svelteuml")
-		.version("0.1.0")
-		.argument("<target-directory>", "path to the SvelteKit project root")
+function addSharedOptions(cmd: Command): Command {
+	return cmd
 		.option("-o, --output <path>", "output file path")
 		.option(
 			"-f, --format <type>",
@@ -96,18 +93,19 @@ export function parseArgs(argv: string[]): CliOptions {
 		)
 		.option("--disable-colors", "disable stereotype color theming", false)
 		.option("-q, --quiet", "suppress all output", false)
+<<<<<<< HEAD
 		.option("--verbose", "show verbose output", false)
 		.option("--detect-circular", "detect and report circular dependencies", false)
-		.option("--fail-on-circular", "exit with error code on circular dependencies", false)
-		.option("--watch", "watch for file changes", false)
-		.exitOverride();
+		.option("--fail-on-circular", "exit with error code on circular dependencies", false);
+}
 
-	program.parse(stripNodeArgv(argv), { from: "user" });
-
-	const opts = program.opts();
-	const targetDir = program.processedArgs[0] as string;
-
+function toCliOptions(
+	subcommand: "generate" | "watch",
+	targetDir: string,
+	opts: Record<string, unknown>,
+): CliOptions {
 	return {
+		subcommand,
 		targetDir,
 		outputPath: opts.output as string | undefined,
 		format: opts.format as OutputFormat,
@@ -124,8 +122,39 @@ export function parseArgs(argv: string[]): CliOptions {
 		noColor: opts.disableColors as boolean,
 		quiet: opts.quiet as boolean,
 		verbose: opts.verbose as boolean,
-		watch: opts.watch as boolean,
 	};
+}
+
+export function parseArgs(argv: string[]): CliOptions {
+	let result: CliOptions | undefined;
+
+	const program = new Command().name("svelteuml").version("0.1.0").exitOverride();
+
+	const generateCmd = program
+		.command("generate")
+		.description("Generate a PlantUML diagram from a SvelteKit project");
+	generateCmd.argument("<target-directory>", "path to the SvelteKit project root");
+	addSharedOptions(generateCmd);
+	generateCmd.action((targetDir: string, opts: Record<string, unknown>) => {
+		result = toCliOptions("generate", targetDir, opts);
+	});
+
+	const watchCmd = program
+		.command("watch")
+		.description("Watch files and regenerate diagram on change");
+	watchCmd.argument("<target-directory>", "path to the SvelteKit project root");
+	addSharedOptions(watchCmd);
+	watchCmd.action((targetDir: string, opts: Record<string, unknown>) => {
+		result = toCliOptions("watch", targetDir, opts);
+	});
+
+	program.parse(stripNodeArgv(argv), { from: "user" });
+
+	if (!result) {
+		throw new Error("Expected a subcommand: generate or watch");
+	}
+
+	return result;
 }
 
 function stripNodeArgv(argv: string[]): string[] {

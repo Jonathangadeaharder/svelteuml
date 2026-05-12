@@ -21,7 +21,7 @@ async function main(): Promise<void> {
 		return;
 	}
 
-	if (cliOpts.watch) {
+	if (cliOpts.subcommand === "watch") {
 		const { startWatcher } = await import("./cli/watch.js");
 		await startWatcher(cliOpts, fileConfig);
 	}

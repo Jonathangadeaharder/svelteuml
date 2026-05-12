@@ -80,6 +80,7 @@ const mockedWriteFileSync = vi.mocked(writeFileSync);
 
 function makeCliOpts(overrides: Partial<CliOptions> = {}): CliOptions {
 	return {
+		subcommand: "generate",
 		targetDir: "/tmp/project",
 		outputPath: undefined,
 		format: "text",
@@ -90,7 +91,6 @@ function makeCliOpts(overrides: Partial<CliOptions> = {}): CliOptions {
 		hideStateDeps: false,
 		quiet: true,
 		verbose: false,
-		watch: false,
 		...overrides,
 	};
 }

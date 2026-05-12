@@ -9,6 +9,7 @@ let tempDir: string;
 
 function makeCliOpts(overrides?: Partial<CliOptions>): CliOptions {
 	return {
+		subcommand: "watch",
 		targetDir: tempDir,
 		outputPath: undefined,
 		format: "text",
@@ -19,7 +20,6 @@ function makeCliOpts(overrides?: Partial<CliOptions>): CliOptions {
 		hideStateDeps: false,
 		quiet: true,
 		verbose: false,
-		watch: true,
 		...overrides,
 	};
 }
