@@ -22,6 +22,7 @@ import {
 	resolveGlobalScope,
 } from "../emission/focus.js";
 import { emitPlantUML } from "../emission/plantuml-emitter.js";
+import { renderPlantUml } from "../emission/renderer.js";
 import { SymbolExtractor } from "../extraction/symbol-extractor.js";
 import { convertFiles } from "../parsing/svelte-to-tsx.js";
 import { buildParsingProject } from "../parsing/ts-morph-project.js";
@@ -287,6 +288,31 @@ export async function runPipeline(
 			process.stdout.write(emission.content);
 			return {
 				success: true,
+				fileCount: allFiles.length,
+				edgeCount: edges.length,
+			};
+		}
+
+		if (cliOpts.format === "svg" || cliOpts.format === "png") {
+			r.startPhase("rendering", 0);
+			const renderResult = await renderPlantUml(emission.content, cliOpts.format);
+			if (renderResult.success && renderResult.data) {
+				writeFileSync(config.outputPath, renderResult.data, "utf-8");
+				r.succeed(`Rendered ${cliOpts.format.toUpperCase()} to ${config.outputPath}`);
+				return {
+					success: true,
+					outputPath: config.outputPath,
+					fileCount: allFiles.length,
+					edgeCount: edges.length,
+				};
+			}
+
+			r.warn(renderResult.error ?? "Render failed, falling back to PlantUML text output");
+			const fallbackPath = config.outputPath.replace(/\.(svg|png)$/, ".puml");
+			writeFileSync(fallbackPath, emission.content, "utf-8");
+			return {
+				success: true,
+				outputPath: fallbackPath,
 				fileCount: allFiles.length,
 				edgeCount: edges.length,
 			};
