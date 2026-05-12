@@ -1,6 +1,6 @@
 import type { SymbolTable } from "../types/ast.js";
 import type { DiagramOptions } from "../types/diagram.js";
-import type { EdgeSet } from "../types/edge.js";
+import type { EdgeSet, EdgeType } from "../types/edge.js";
 import { normalizeFilePath } from "../utils/path.js";
 import { routeStereotype } from "./route-utils.js";
 
@@ -140,7 +140,7 @@ function sanitizeId(path: string): string {
 	return path.replace(/[^a-zA-Z0-9_]/g, "_").replace(/_+/g, "_");
 }
 
-function mapEdgeArrow(type: EdgeType): string {
+function _mapEdgeArrow(type: EdgeType): string {
 	switch (type) {
 		case "extends":
 			return "<|--";

@@ -13,6 +13,7 @@ import { trackReactiveDependencies } from "../dependency/reactive-tracker.js";
 import { discoverFiles } from "../discovery/file-discovery.js";
 import { loadSvelteConfig } from "../discovery/svelte-config.js";
 import { loadTsConfig } from "../discovery/tsconfig.js";
+import { assignGroups, parseAliasGroups, validateGroups } from "../emission/alias.js";
 import {
 	filterByExcludePatterns,
 	filterEdgesByScope,
@@ -237,6 +238,18 @@ export async function runPipeline(
 
 		let emissionSymbols = symbols;
 		let emissionEdges = edgeSet;
+
+		if (cliOpts.aliasGroups.length > 0) {
+			const groups = parseAliasGroups(cliOpts.aliasGroups);
+			const validationErrors = validateGroups(groups);
+			if (validationErrors.length > 0) {
+				return {
+					success: false,
+					error: `Alias group validation errors:\n${validationErrors.join("\n")}`,
+				};
+			}
+			emissionSymbols = assignGroups(emissionSymbols, groups);
+		}
 
 		if (cliOpts.focus) {
 			const scope = resolveFocusScope(symbols, edgeSet, {

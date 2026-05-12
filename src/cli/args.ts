@@ -24,6 +24,7 @@ export interface CliOptions {
 	focus: string | undefined;
 	layoutDirection: LayoutDirection;
 	noColor: boolean;
+	aliasGroups: string[];
 }
 
 const VALID_FORMATS: readonly OutputFormat[] = ["text", "svg", "png"];
@@ -98,6 +99,12 @@ function addSharedOptions(cmd: Command): Command {
 		)
 		.option("--class-diagram", "generate a class diagram (default)", false)
 		.option("--package-diagram", "generate a package diagram", false)
+		.option(
+			"--alias-group <value>",
+			"group symbols matching glob pattern into a named package (repeatable, format: PATTERN:NAME)",
+			(val: string, prev: string[]) => [...prev, val],
+			[] as string[],
+		)
 		.option("--disable-colors", "disable stereotype color theming", false)
 		.option("-q, --quiet", "suppress all output", false)
 		.option("--verbose", "show verbose output", false)
@@ -138,6 +145,7 @@ function toCliOptions(
 		focus: opts.focus as string | undefined,
 		layoutDirection: opts.layoutDirection as LayoutDirection,
 		noColor: opts.disableColors as boolean,
+		aliasGroups: (opts.aliasGroup as string[] | undefined) ?? [],
 		quiet: opts.quiet as boolean,
 		verbose: opts.verbose as boolean,
 	};

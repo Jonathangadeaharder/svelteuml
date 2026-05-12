@@ -73,6 +73,14 @@ vi.mock("../../src/emission/plantuml-emitter.js", () => ({
 	emitPlantUML: vi.fn().mockReturnValue({ content: "@startuml\n@enduml" }),
 }));
 
+vi.mock("../../src/emission/alias.js", () => ({
+	parseAliasGroups: vi.fn().mockReturnValue([]),
+	assignGroups: vi.fn().mockImplementation((s) => s),
+	validateGroups: vi.fn().mockReturnValue([]),
+}));
+
+import { parseAliasGroups, assignGroups, validateGroups } from "../../src/emission/alias.js";
+
 import { existsSync, writeFileSync } from "node:fs";
 
 const mockedExistsSync = vi.mocked(existsSync);
@@ -320,6 +328,36 @@ describe("src/cli/runner.ts", () => {
 			const result = await runPipeline(cliOpts, {});
 
 			expect(result.success).toBe(true);
+		});
+
+		it("calls assignGroups when aliasGroups is non-empty", async () => {
+			const cliOpts = makeCliOpts({ aliasGroups: ["src/**/*.ts:Library"] });
+
+			vi.mocked(parseAliasGroups).mockReturnValueOnce([{ pattern: "src/**/*.ts", name: "Library" }]);
+			vi.mocked(assignGroups).mockReturnValueOnce({
+				classes: [],
+				functions: [],
+				stores: [],
+				props: [],
+				exports: [],
+				routes: [],
+				components: [],
+			});
+
+			const result = await runPipeline(cliOpts, {});
+
+			expect(result.success).toBe(true);
+			expect(vi.mocked(parseAliasGroups)).toHaveBeenCalledWith(["src/**/*.ts:Library"]);
+			expect(vi.mocked(assignGroups)).toHaveBeenCalled();
+		});
+
+		it("does not call assignGroups when aliasGroups is empty", async () => {
+			const cliOpts = makeCliOpts({ aliasGroups: [] });
+
+			await runPipeline(cliOpts, {});
+
+			expect(vi.mocked(parseAliasGroups)).not.toHaveBeenCalled();
+			expect(vi.mocked(assignGroups)).not.toHaveBeenCalled();
 		});
 	});
 });

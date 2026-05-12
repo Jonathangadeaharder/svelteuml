@@ -302,6 +302,31 @@ describe("parseArgs", () => {
 		expect(result.noColor).toBe(false);
 	});
 
+	it("parses single --alias-group", () => {
+		const result = parseArgs(["generate", "./src", "--alias-group", "src/**/*.ts:Library"]);
+		expect(result.aliasGroups).toEqual(["src/**/*.ts:Library"]);
+	});
+
+	it("parses multiple --alias-group options", () => {
+		const result = parseArgs([
+			"generate",
+			"./src",
+			"--alias-group",
+			"src/**/*.ts:Library",
+			"--alias-group",
+			"src/**/*.svelte:Components",
+		]);
+		expect(result.aliasGroups).toEqual([
+			"src/**/*.ts:Library",
+			"src/**/*.svelte:Components",
+		]);
+	});
+
+	it("defaults aliasGroups to empty array", () => {
+		const result = parseArgs(["generate", "./src"]);
+		expect(result.aliasGroups).toEqual([]);
+	});
+
 	it("parses from real process.argv format (node + script prefix)", () => {
 		const argv = ["node", "/usr/bin/svelteuml", "generate", "./src", "--verbose"];
 		const result = parseArgs(argv);
