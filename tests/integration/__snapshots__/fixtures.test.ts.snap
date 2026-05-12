@@ -554,3 +554,125 @@ class "+page" as _page <<page>> {
 
 @enduml"
 `;
+
+exports[`Integration: synthetic fixture > matches snapshot 1`] = `
+"@startuml Diagram
+skinparam classAttributeIconSize 0
+
+top to bottom direction
+skinparam class<<component>> {
+  BackgroundColor #4A90D9
+}
+skinparam class<<derived>> {
+  BackgroundColor #9B59B6
+}
+skinparam class<<endpoint>> {
+  BackgroundColor #E74C3C
+}
+skinparam class<<error-page>> {
+  BackgroundColor #C0392B
+}
+skinparam class<<Exported>> {
+  BackgroundColor #95A5A6
+}
+skinparam class<<function>> {
+  BackgroundColor #3498DB
+}
+skinparam class<<layout>> {
+  BackgroundColor #2ECC71
+}
+skinparam class<<LayoutLoad>> {
+  BackgroundColor #1ABC9C
+}
+skinparam class<<page>> {
+  BackgroundColor #27AE60
+}
+skinparam class<<PageLoad>> {
+  BackgroundColor #16A085
+}
+skinparam class<<state>> {
+  BackgroundColor #E74C3C
+}
+skinparam class<<store>> {
+  BackgroundColor #E67E22
+}
+legend right
+  |= component |= #4A90D9 |
+  |= derived |= #9B59B6 |
+  |= endpoint |= #E74C3C |
+  |= error-page |= #C0392B |
+  |= Exported |= #95A5A6 |
+  |= function |= #3498DB |
+  |= layout |= #2ECC71 |
+  |= LayoutLoad |= #1ABC9C |
+  |= page |= #27AE60 |
+  |= PageLoad |= #16A085 |
+  |= state |= #E74C3C |
+  |= store |= #E67E22 |
+endlegend
+
+class "count" <<store>> {
+  storeType: writable
+  valueType: unknown
+}
+
+class "doubleCount" <<store>> {
+  storeType: derived
+  valueType: unknown
+}
+
+class "+layout" <<component>> {
+  + children: unknown
+}
+
+class "+page" <<component>> {
+}
+
+class "Button" <<component>> {
+  + disabled?: unknown
+  + label: unknown
+  + variant?: unknown
+}
+
+class "Card" <<component>> {
+  + children: unknown
+  + footer: unknown
+  + title: unknown
+}
+
+class "formatPrice" <<function>> <<Exported>> {
+}
+
+class "GET" <<function>> <<Exported>> {
+}
+
+class "greet" <<function>> <<Exported>> {
+}
+
+class "isPositive" <<function>> <<Exported>> {
+}
+
+class "POST" <<function>> <<Exported>> {
+}
+
+class "reset" <<function>> <<Exported>> {
+}
+
+class "+layout" as _layout <<layout>> {
+  path: /
+}
+
+class "+page" as _page <<page>> {
+  path: /
+}
+
+class "+server" as _server <<endpoint>> {
+  path: /api/data
+}
+
+Button ..> Card : click
+Card --> Button : Button
+_page ..> reset : $count <<store-subscription>>
+_page ..> reset : $doubleCount <<store-subscription>>
+@enduml"
+`;
