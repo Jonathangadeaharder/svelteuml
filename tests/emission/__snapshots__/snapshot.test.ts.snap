@@ -73,7 +73,7 @@ package "lib" as lib {
   class Layout
 }
 
-routes ..> lib
+routes ..> lib : 1
 
 @enduml"
 `;
