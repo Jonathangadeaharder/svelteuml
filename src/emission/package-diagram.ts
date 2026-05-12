@@ -1,6 +1,6 @@
 import type { SymbolTable } from "../types/ast.js";
 import type { DiagramOptions } from "../types/diagram.js";
-import type { EdgeSet, EdgeType } from "../types/edge.js";
+import type { EdgeSet } from "../types/edge.js";
 import { normalizeFilePath } from "../utils/path.js";
 import { getGroupForFile } from "./groups.js";
 import { routeStereotype } from "./route-utils.js";

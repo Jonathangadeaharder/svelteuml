@@ -9,6 +9,10 @@ import type { DiagramOptions } from "../types/diagram.js";
 import type { EdgeSet, EdgeType } from "../types/edge.js";
 import { normalizeFilePath } from "../utils/path.js";
 import { routeStereotype } from "./route-utils.js";
+import {
+	applyFocusFilter,
+	filterHiddenComponents,
+} from "./tag-processor.js";
 
 function collectGroups(symbols: SymbolTable): Map<string, SymbolTable> {
 	const groups = new Map<string, SymbolTable>();
@@ -126,7 +130,21 @@ export function renderClassDiagram(
 	lines.push("skinparam classAttributeIconSize 0");
 	lines.push("");
 
-	const nameMap = buildNameMap(symbols, options.targetDir);
+	const filteredComponents = filterHiddenComponents(symbols.components ?? []);
+
+	const focusedComponents = applyFocusFilter(filteredComponents);
+
+	const withFocus = {
+		...symbols,
+		components: focusedComponents,
+	};
+
+	const filteredComponentSet = new Set(filteredComponents);
+	const hiddenNames = new Set(
+		symbols.components.filter((c) => !filteredComponentSet.has(c)).map((c) => c.name),
+	);
+
+	const nameMap = buildNameMap(withFocus, options.targetDir);
 
 	const groups = collectGroups(symbols);
 	if (groups.size > 0) {
@@ -153,6 +171,7 @@ export function renderClassDiagram(
 		return a.type.localeCompare(b.type);
 	});
 	for (const edge of sortedEdges) {
+		if (hiddenNames.has(edge.source) || hiddenNames.has(edge.target)) continue;
 		renderEdge(lines, edge, nameMap, options.targetDir);
 	}
 
@@ -227,8 +246,10 @@ function renderComponent(
 	name: string,
 	props: PropSymbol[],
 	options: DiagramOptions,
+	color?: string,
 ): void {
-	lines.push(`class "${name}" <<component>> {`);
+	const colorSuffix = color ? ` ${color.startsWith("#") ? "" : "#"}${color}` : "";
+	lines.push(`class "${name}" <<component>>${colorSuffix} {`);
 	if (options.showMembers) {
 		for (const prop of props) {
 			const suffix = prop.isRequired ? "" : "?";
