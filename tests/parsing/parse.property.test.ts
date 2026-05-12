@@ -69,14 +69,15 @@ function arbHtmlContent(): fc.Arbitrary<string> {
 }
 
 function arbScriptBody(): fc.Arbitrary<string> {
-	return fc.oneof(
-		fc.constant("let x = 0;"),
-		fc.constant("let count = 0;"),
-		fc.constant("let name = 'test';"),
-		fc.constant("let items = [1, 2, 3];"),
-		fc.constant("function greet() { return 'hello'; }"),
-		fc.constant("import { onMount } from 'svelte'; let x = 0;"),
-		fc.constant("let { prop1, prop2 } = $props();"),
+	return fc.constantFrom(
+		"",
+		"let x = 0;",
+		"let count = 0;",
+		"let name = 'test';",
+		"let items = [1, 2, 3];",
+		"function greet() { return 'hello'; }",
+		"import { onMount } from 'svelte'; let x = 0;",
+		"let { prop1, prop2 } = $props();",
 	);
 }
 
@@ -176,9 +177,9 @@ describe("parsing property-based tests", () => {
 				const ast = parse(source);
 				const nodeCount =
 					ast.html.children.length +
-					(ast.instance !== undefined ? 1 : 0) +
-					(ast.module !== undefined ? 1 : 0) +
-					(ast.css !== undefined ? 1 : 0);
+					(ast.instance != null ? 1 : 0) +
+					(ast.module != null ? 1 : 0) +
+					(ast.css != null ? 1 : 0);
 				if (source.length === 0) {
 					expect(nodeCount).toBe(0);
 				} else {
