@@ -93,8 +93,14 @@ jobs:
       - run: pnpm run build
       - name: Smoke test --help
         run: |
-          node dist/cli.js --help
-          node dist/cli.js --version
+          help_output=$(node dist/cli.js --help)
+          echo "$help_output" | grep -q "Usage:" || { echo "FAIL: --help missing 'Usage:'"; exit 1; }
+          echo "$help_output" | grep -q "generate" || { echo "FAIL: --help missing 'generate' subcommand"; exit 1; }
+          echo "$help_output" | grep -q "watch" || { echo "FAIL: --help missing 'watch' subcommand"; exit 1; }
+      - name: Smoke test --version
+        run: |
+          version_output=$(node dist/cli.js --version)
+          [ "$version_output" = "0.1.0" ] || { echo "FAIL: --version expected 0.1.0, got $version_output"; exit 1; }
 
   integration:
     name: Integration Tests
