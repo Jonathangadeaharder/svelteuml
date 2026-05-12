@@ -10,6 +10,66 @@ function goldenPath(fixtureName: string): string {
 	return path.join(GOLDEN_DIR, `${fixtureName}.svelte.tsx.txt`);
 }
 
+interface FixturePatterns {
+	required: string[];
+	forbidden?: string[];
+}
+
+const PATTERNS: Record<string, FixturePatterns> = {
+	"Basic.svelte": {
+		required: [
+			'///<reference types="svelte" />',
+			"$$ComponentProps",
+			"$props",
+			"__sveltets_2_fn_component",
+			"Basic__SvelteComponent_",
+		],
+		forbidden: ["__sveltets_2_isomorphic_component", "__sveltets_2_store_get"],
+	},
+	"Complex.svelte": {
+		required: [
+			'import type { Snippet } from "svelte"',
+			"$state<string | null>(null)",
+			"__sveltets_2_ensureSnippet",
+			"__sveltets_2_ensureArray",
+			"__sveltets_2_fn_component",
+			"Complex__SvelteComponent_",
+		],
+		forbidden: ["__sveltets_2_isomorphic_component", "__sveltets_2_store_get"],
+	},
+	"StateRunes.svelte": {
+		required: [
+			"$state(0)",
+			"$derived(count * 2)",
+			"__sveltets_2_fn_component",
+			"StateRunes__SvelteComponent_",
+			"Record<string, never>",
+		],
+		forbidden: ["__sveltets_2_isomorphic_component", "__sveltets_2_store_get", "export let"],
+	},
+	"Legacy.svelte": {
+		required: [
+			"__sveltets_2_any",
+			"__sveltets_2_isomorphic_component",
+			"__sveltets_2_with_any_event",
+			"__sveltets_2_partial",
+			'"on:click"',
+			"Legacy__SvelteComponent_",
+		],
+		forbidden: ["__sveltets_2_fn_component", "$state", "$derived"],
+	},
+	"Stores.svelte": {
+		required: [
+			"__sveltets_2_store_get",
+			"$userStore",
+			"$count",
+			"__sveltets_2_fn_component",
+			"Stores__SvelteComponent_",
+		],
+		forbidden: ["__sveltets_2_isomorphic_component", "export let"],
+	},
+};
+
 describe("golden TSX output", () => {
 	const fixtureFiles = fs
 		.readdirSync(FIXTURES_DIR)
@@ -48,6 +108,27 @@ describe("golden TSX output", () => {
 			expect(diffPath).toBe(
 				`MISMATCH — actual output written to ${diffPath}. Run with UPDATE_SNAPSHOTS=1 to accept.`,
 			);
+		}
+	});
+
+	describe("pattern assertions", () => {
+		for (const [fixtureFile, patterns] of Object.entries(PATTERNS)) {
+			it(`contains expected TSX patterns for ${fixtureFile}`, async () => {
+				const filePath = path.join(FIXTURES_DIR, fixtureFile);
+				const result = await convertSvelteToTsx(filePath);
+
+				expect(result.success).toBe(true);
+
+				for (const pattern of patterns.required) {
+					expect(result.tsxCode).toContain(pattern);
+				}
+
+				if (patterns.forbidden) {
+					for (const pattern of patterns.forbidden) {
+						expect(result.tsxCode).not.toContain(pattern);
+					}
+				}
+			});
 		}
 	});
 });
