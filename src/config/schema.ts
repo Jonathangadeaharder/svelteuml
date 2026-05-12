@@ -3,6 +3,11 @@ import { resolve } from "node:path";
 import { z } from "zod";
 import type { SvelteUMLConfig } from "../types/index.js";
 
+const GroupConfigSchema = z.object({
+	pattern: z.string().min(1),
+	name: z.string().min(1),
+});
+
 const SvelteUMLConfigSchema = z.object({
 	targetDir: z
 		.string()
@@ -19,6 +24,7 @@ const SvelteUMLConfigSchema = z.object({
 	include: z.array(z.string()).default([]),
 	maxDepth: z.number().int().min(0).default(0),
 	excludeExternals: z.boolean().default(false),
+	groups: z.array(GroupConfigSchema).default([]),
 });
 
 export type SvelteUMLConfigInput = z.input<typeof SvelteUMLConfigSchema>;
@@ -52,6 +58,7 @@ export function getDefaultConfig(targetDir: string): SvelteUMLConfigInput {
 		include: [],
 		maxDepth: 0,
 		excludeExternals: false,
+		groups: [],
 	};
 }
 
@@ -70,5 +77,6 @@ export function mergeConfigs(
 		include: [...(fileConfig.include ?? []), ...(cliArgs.include ?? [])],
 		maxDepth: cliArgs.maxDepth ?? fileConfig.maxDepth ?? 0,
 		excludeExternals: cliArgs.excludeExternals ?? fileConfig.excludeExternals ?? false,
+		groups: fileConfig.groups ?? [],
 	};
 }

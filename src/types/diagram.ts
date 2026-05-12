@@ -1,3 +1,8 @@
+export interface GroupConfig {
+	pattern: string;
+	name: string;
+}
+
 export type DiagramKind = "class" | "package";
 
 export type LayoutDirection = "top-to-bottom" | "left-to-right" | "bottom-to-top" | "right-to-left";
@@ -19,6 +24,8 @@ export interface DiagramOptions {
 	stereotypeColors?: StereotypeColors;
 	/** Project root directory — used to normalize absolute paths to relative for portable output. */
 	targetDir?: string;
+	/** Group definitions for organizing symbols by file path pattern. */
+	groups?: GroupConfig[];
 }
 
 export const DEFAULT_STEREOTYPE_COLORS: StereotypeColors = {
