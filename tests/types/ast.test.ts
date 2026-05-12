@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type {
 	ClassSymbol,
+	ComponentSymbol,
 	ExportSymbol,
 	FunctionSymbol,
 	MemberSymbol,
 	ParameterSymbol,
 	PropSymbol,
+	RouteSymbol,
 	StoreSymbol,
 	SymbolTable,
 	Visibility,
@@ -26,6 +28,21 @@ describe("src/types/ast.ts", () => {
 			expect(cls.kind).toBe("class");
 			expect(cls.extends).toBeUndefined();
 			expect(cls.implements).toHaveLength(0);
+			expect(cls.group).toBeUndefined();
+		});
+
+		it("accepts optional group field", () => {
+			const cls: ClassSymbol = {
+				kind: "class",
+				name: "GroupedClass",
+				filePath: "/src/GroupedClass.ts",
+				implements: [],
+				members: [],
+				isGeneric: false,
+				typeParams: [],
+				group: "services",
+			};
+			expect(cls.group).toBe("services");
 		});
 
 		it("creates a full class symbol with inheritance and generics", () => {
@@ -110,6 +127,20 @@ describe("src/types/ast.ts", () => {
 	});
 
 	describe("FunctionSymbol", () => {
+		it("accepts optional group field on function symbol", () => {
+			const fn: FunctionSymbol = {
+				kind: "function",
+				name: "fetchData",
+				filePath: "/src/api.ts",
+				isExported: true,
+				isAsync: true,
+				parameters: [],
+				typeParams: [],
+				group: "api",
+			};
+			expect(fn.group).toBe("api");
+		});
+
 		it("creates an exported async function", () => {
 			const fn: FunctionSymbol = {
 				kind: "function",
@@ -141,6 +172,20 @@ describe("src/types/ast.ts", () => {
 		});
 	});
 
+	describe("group field on StoreSymbol", () => {
+		it("accepts optional group", () => {
+			const store: StoreSymbol = {
+				kind: "store",
+				name: "count",
+				filePath: "/src/stores.ts",
+				storeType: "writable",
+				valueType: "number",
+				group: "state",
+			};
+			expect(store.group).toBe("state");
+		});
+	});
+
 	describe("StoreSymbol", () => {
 		it("creates a writable store", () => {
 			const store: StoreSymbol = {
@@ -162,6 +207,21 @@ describe("src/types/ast.ts", () => {
 				valueType: "number",
 			};
 			expect(store.storeType).toBe("derived");
+		});
+	});
+
+	describe("group field on PropSymbol", () => {
+		it("accepts optional group", () => {
+			const prop: PropSymbol = {
+				kind: "prop",
+				name: "title",
+				filePath: "/src/Heading.svelte",
+				componentName: "Heading",
+				type: "string",
+				isRequired: true,
+				group: "ui",
+			};
+			expect(prop.group).toBe("ui");
 		});
 	});
 
@@ -191,6 +251,19 @@ describe("src/types/ast.ts", () => {
 			};
 			expect(prop.isRequired).toBe(false);
 			expect(prop.defaultValue).toBe("16");
+		});
+	});
+
+	describe("group field on ExportSymbol", () => {
+		it("accepts optional group", () => {
+			const exp: ExportSymbol = {
+				kind: "export",
+				name: "VERSION",
+				filePath: "/src/version.ts",
+				exportType: "value",
+				group: "config",
+			};
+			expect(exp.group).toBe("config");
 		});
 	});
 
@@ -258,6 +331,33 @@ describe("src/types/ast.ts", () => {
 			};
 			expect(table.classes).toHaveLength(1);
 			expect(table.stores).toHaveLength(1);
+		});
+	});
+
+	describe("RouteSymbol", () => {
+		it("accepts optional group", () => {
+			const route: RouteSymbol = {
+				kind: "route",
+				name: "/",
+				filePath: "/src/routes/+page.svelte",
+				routeKind: "page",
+				isServer: false,
+				routeSegment: { raw: "/", params: [], groups: [] },
+				group: "pages",
+			};
+			expect(route.group).toBe("pages");
+		});
+	});
+
+	describe("ComponentSymbol", () => {
+		it("accepts optional group", () => {
+			const comp: ComponentSymbol = {
+				kind: "component",
+				name: "Button",
+				filePath: "/src/lib/Button.svelte",
+				group: "ui",
+			};
+			expect(comp.group).toBe("ui");
 		});
 	});
 

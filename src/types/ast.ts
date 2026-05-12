@@ -12,6 +12,7 @@ export interface ClassSymbol {
 	isGeneric: boolean;
 	typeParams: string[];
 	isExported?: boolean;
+	group?: string;
 }
 
 /** Represents a class member (property or method). */
@@ -45,6 +46,7 @@ export interface FunctionSymbol {
 	parameters: ParameterSymbol[];
 	returnType?: string | undefined;
 	typeParams: string[];
+	group?: string;
 }
 
 /** Svelte store (writable, readable, derived). */
@@ -56,6 +58,7 @@ export interface StoreSymbol {
 	valueType: string;
 	runeKind?: "state" | "derived";
 	isExported?: boolean;
+	group?: string;
 }
 
 /** Event dispatched by a Svelte component. */
@@ -78,6 +81,7 @@ export interface PropSymbol {
 	isRequired: boolean;
 	defaultValue?: string | undefined;
 	accessibility?: "public" | "internal";
+	group?: string;
 }
 
 /** Module-level export. */
@@ -87,6 +91,7 @@ export interface ExportSymbol {
 	filePath: string;
 	exportType: "value" | "function" | "class" | "type" | "default";
 	typeAnnotation?: string;
+	group?: string;
 }
 
 export type RouteParamKind = "dynamic" | "rest" | "optional";
@@ -112,6 +117,7 @@ export interface RouteSymbol {
 	routeKind: RouteFileKind;
 	isServer: boolean;
 	routeSegment: RouteSegment;
+	group?: string;
 }
 
 /** Svelte component discovered in the project. */
@@ -119,6 +125,7 @@ export interface ComponentSymbol {
 	kind: "component";
 	name: string;
 	filePath: string;
+	group?: string;
 }
 
 /** Union of all extractable symbols. */

@@ -10,6 +10,92 @@ import type { EdgeSet, EdgeType } from "../types/edge.js";
 import { normalizeFilePath } from "../utils/path.js";
 import { routeStereotype } from "./route-utils.js";
 
+function collectGroups(symbols: SymbolTable): Map<string, SymbolTable> {
+	const groups = new Map<string, SymbolTable>();
+
+	function ensureGroup(name: string): SymbolTable {
+		let g = groups.get(name);
+		if (!g) {
+			g = {
+				classes: [], functions: [], stores: [], props: [],
+				events: [], exports: [], routes: [], components: [],
+			};
+			groups.set(name, g);
+		}
+		return g;
+	}
+
+	for (const cls of symbols.classes) {
+		if (cls.group) ensureGroup(cls.group).classes.push(cls);
+	}
+	for (const store of symbols.stores) {
+		if (store.group) ensureGroup(store.group).stores.push(store);
+	}
+	for (const fn of symbols.functions) {
+		if (fn.group) ensureGroup(fn.group).functions.push(fn);
+	}
+	for (const route of symbols.routes ?? []) {
+		if (route.group) ensureGroup(route.group).routes.push(route);
+	}
+	for (const comp of symbols.components ?? []) {
+		if (comp.group) ensureGroup(comp.group).components.push(comp);
+	}
+
+	return groups;
+}
+
+function renderGroupedSymbols(lines: string[], symbols: SymbolTable, options: DiagramOptions): void {
+	const groups = collectGroups(symbols);
+	if (groups.size === 0) return;
+
+	for (const [groupName, groupSymbols] of groups) {
+		lines.push(`package "${groupName}" <<group>> {`);
+		renderSymbolsBlock(lines, groupSymbols, options);
+		lines.push("}");
+		lines.push("");
+	}
+}
+
+function renderSymbolsBlock(lines: string[], symbols: SymbolTable, options: DiagramOptions): void {
+	for (const cls of [...symbols.classes].sort((a, b) => a.name.localeCompare(b.name))) {
+		renderClass(lines, cls, options);
+	}
+
+	if (options.showStores) {
+		for (const store of [...symbols.stores].sort((a, b) => a.name.localeCompare(b.name))) {
+			renderStore(lines, store);
+		}
+	}
+
+	if (options.showProps) {
+		const propMap = groupPropsByComponent(symbols.props);
+		for (const comp of [...symbols.components].sort((a, b) => a.name.localeCompare(b.name))) {
+			const key = `${comp.filePath}::${comp.name}`;
+			const compProps = propMap.get(key) ?? [];
+			renderComponent(lines, comp.name, compProps, options);
+		}
+	}
+
+	for (const fn of [...symbols.functions].sort((a, b) => a.name.localeCompare(b.name))) {
+		const fnStereotype = fn.isExported ? " <<Exported>>" : "";
+		lines.push(`class "${fn.name}" <<function>>${fnStereotype} {`);
+		lines.push("}");
+		lines.push("");
+	}
+
+	for (const route of [...(symbols.routes ?? [])].sort((a, b) => a.name.localeCompare(b.name))) {
+		renderRoute(lines, route);
+	}
+}
+
+function hasGroup(sym: { group?: string }): boolean {
+	return sym.group !== undefined && sym.group !== "";
+}
+
+function isUngrouped<T extends { group?: string }>(sym: T): boolean {
+	return !hasGroup(sym);
+}
+
 export function renderClassDiagram(
 	symbols: SymbolTable,
 	edgeSet: EdgeSet,
@@ -23,40 +109,22 @@ export function renderClassDiagram(
 
 	const nameMap = buildNameMap(symbols, options.targetDir);
 
-	const sortedClasses = [...symbols.classes].sort((a, b) => a.name.localeCompare(b.name));
-	for (const cls of sortedClasses) {
-		renderClass(lines, cls, options);
+	const hasGroups = [...symbols.classes, ...symbols.stores, ...symbols.functions, ...(symbols.routes ?? []), ...(symbols.components ?? [])].some(hasGroup);
+	if (hasGroups) {
+		renderGroupedSymbols(lines, symbols, options);
 	}
 
-	if (options.showStores) {
-		const sortedStores = [...symbols.stores].sort((a, b) => a.name.localeCompare(b.name));
-		for (const store of sortedStores) {
-			renderStore(lines, store);
-		}
-	}
-
-	if (options.showProps) {
-		const propMap = groupPropsByComponent(symbols.props);
-		const sortedComponents = [...symbols.components].sort((a, b) => a.name.localeCompare(b.name));
-		for (const comp of sortedComponents) {
-			const key = `${comp.filePath}::${comp.name}`;
-			const compProps = propMap.get(key) ?? [];
-			renderComponent(lines, comp.name, compProps, options);
-		}
-	}
-
-	const sortedFunctions = [...symbols.functions].sort((a, b) => a.name.localeCompare(b.name));
-	for (const fn of sortedFunctions) {
-		const fnStereotype = fn.isExported ? " <<Exported>>" : "";
-		lines.push(`class "${fn.name}" <<function>>${fnStereotype} {`);
-		lines.push("}");
-		lines.push("");
-	}
-
-	const sortedRoutes = [...(symbols.routes ?? [])].sort((a, b) => a.name.localeCompare(b.name));
-	for (const route of sortedRoutes) {
-		renderRoute(lines, route);
-	}
+	const ungrouped: SymbolTable = {
+		classes: symbols.classes.filter(isUngrouped),
+		functions: symbols.functions.filter(isUngrouped),
+		stores: symbols.stores.filter(isUngrouped),
+		props: symbols.props,
+		events: symbols.events,
+		exports: symbols.exports,
+		routes: (symbols.routes ?? []).filter(isUngrouped),
+		components: (symbols.components ?? []).filter(isUngrouped),
+	};
+	renderSymbolsBlock(lines, ungrouped, options);
 
 	const sortedEdges = [...edgeSet.edges].sort((a, b) => {
 		const bySource = a.source.localeCompare(b.source);
