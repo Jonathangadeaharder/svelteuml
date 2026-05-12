@@ -62,6 +62,7 @@ vi.mock("../../src/dependency/index.js", () => ({
 	detectCircularDependencies: vi.fn().mockReturnValue({ cycles: [] }),
 	trackPropFlows: vi.fn().mockReturnValue([]),
 	trackStoreSubscriptions: vi.fn().mockReturnValue([]),
+	buildServerLoadEdges: vi.fn().mockReturnValue([]),
 }));
 
 vi.mock("../../src/dependency/reactive-tracker.js", () => ({

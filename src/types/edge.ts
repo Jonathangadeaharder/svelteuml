@@ -8,7 +8,8 @@ export type EdgeType =
 	| "state_dependency"
 	| "prop_flow"
 	| "event"
-	| "slot";
+	| "slot"
+	| "server_load";
 
 export interface Edge {
 	readonly source: string;

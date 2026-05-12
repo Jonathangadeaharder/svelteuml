@@ -3,6 +3,7 @@ import type { SvelteUMLConfigInput } from "../config/schema.js";
 import { mergeConfigs, validateConfig } from "../config/schema.js";
 import {
 	buildEdges,
+	buildServerLoadEdges,
 	detectCircularDependencies,
 	scanImports,
 	trackPropFlows,
@@ -189,6 +190,8 @@ export async function runPipeline(
 		const propFlows = trackPropFlows(tsxContents, imports, symbols);
 
 		let edges = buildEdges(imports, symbols, allStateDeps, propFlows);
+		const serverLoadEdges = buildServerLoadEdges(symbols, parsingProject);
+		edges.push(...serverLoadEdges);
 
 		edges = filterEdges(edges, {
 			hideTypeDeps: cliOpts.hideTypeDeps,

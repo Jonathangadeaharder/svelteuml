@@ -214,6 +214,7 @@ function mapEdgeArrow(type: EdgeType): string {
 			return "-->";
 		case "event":
 		case "slot":
+		case "server_load":
 			return "..>";
 	}
 }
