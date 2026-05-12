@@ -5,82 +5,217 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-green)](https://nodejs.org/)
 
-Architecture and Dependency Visualization for SvelteKit: TypeScript-Native PlantUML Generator.
-
-Generates PlantUML class and package diagrams from SvelteKit codebases using static analysis (svelte2tsx + ts-morph pipeline). No runtime required — analyzes your source code directly.
-
-## Installation
-
-```bash
-# npm
-npm install -g svelteuml
-
-# pnpm
-pnpm add -g svelteuml
-
-# Or use without installing
-npx svelteuml ./my-sveltekit-app
-```
+Static analysis tool that generates PlantUML architecture diagrams from SvelteKit codebases. Uses `svelte2tsx` + `ts-morph` to parse components, stores, routes, props, events, and server endpoints — producing class diagrams, package diagrams, or SVG/PNG output. No runtime required; analyzes source directly.
 
 ## Quick Start
 
 ```bash
-# Generate a PlantUML diagram from a SvelteKit project
-svelteuml ./my-sveltekit-app
+# Install globally
+pnpm add -g svelteuml
 
-# Specify output path
-svelteuml ./my-sveltekit-app -o architecture.puml
+# Or run without installing
+npx svelteuml generate ./my-sveltekit-app
+
+# Generate a class diagram (default)
+svelteuml generate ./my-sveltekit-app
+
+# Generate to a specific file
+svelteuml generate ./my-sveltekit-app -o docs/architecture.puml
 
 # Generate SVG (requires Java + PlantUML)
-svelteuml ./my-sveltekit-app -f svg -o diagram.svg
+svelteuml generate ./my-sveltekit-app -f svg -o diagram.svg
 ```
 
-## Usage
+## CLI Reference
 
-```bash
-svelteuml <target-directory> [options]
-```
+### Subcommands
 
-### Options
+| Subcommand | Description |
+|------------|-------------|
+| `generate` | Generate a PlantUML diagram from a SvelteKit project |
+| `watch` | Watch files and regenerate diagram on change |
+
+### Flags
 
 | Flag | Description | Default |
 |------|-------------|---------|
 | `-o, --output <path>` | Output file path | `diagram.puml` |
 | `-f, --format <type>` | Output format: `text`, `svg`, `png` | `text` |
+| `-d, --diagram <kind>` | Diagram kind: `class`, `package` | `class` |
+| `--class-diagram` | Generate a class diagram (default) | `false` |
+| `--package-diagram` | Generate a package diagram | `false` |
+| `-e, --exclude [glob...]` | Glob patterns to exclude from discovery | `[]` |
+| `--exclude-patterns [glob...]` | Glob patterns to exclude from output diagram | `[]` |
 | `--exclude-externals` | Exclude external dependencies (node_modules) | `false` |
 | `--max-depth <n>` | Max dependency traversal depth (0 = unlimited) | `0` |
-| `-e, --exclude [glob...]` | Glob patterns to exclude | `[]` |
 | `--hide-type-deps` | Hide TypeScript type dependencies | `false` |
 | `--hide-state-deps` | Hide Svelte store/state dependencies | `false` |
+| `--focus <name>` | Focus on a specific node and its neighbourhood | — |
+| `--layout-direction <dir>` | Layout direction for PlantUML | `top-to-bottom` |
+| `--detect-circular` | Detect and report circular dependencies | `false` |
+| `--fail-on-circular` | Exit with error code on circular deps | `false` |
+| `--disable-colors` | Disable stereotype color theming | `false` |
 | `-q, --quiet` | Suppress all output | `false` |
 | `--verbose` | Show verbose output | `false` |
-| `--watch` | Watch for file changes | `false` |
+
+### Layout Directions
+
+- `top-to-bottom` (default)
+- `left-to-right`
+- `bottom-to-top`
+- `right-to-left`
 
 ### Examples
 
 ```bash
-# Generate diagram excluding node_modules dependencies
-svelteuml ./my-app --exclude-externals
+# Generate with max depth 2
+svelteuml generate ./my-app --max-depth 2
 
-# Limit dependency depth to 2 levels
-svelteuml ./my-app --max-depth 2
+# Focus on a single component
+svelteuml generate ./my-app --focus Button
+
+# Package diagram
+svelteuml generate ./my-app --package-diagram -o packages.puml
+
+# Watch mode
+svelteuml generate ./my-app --watch
+
+# Detect circular dependencies
+svelteuml generate ./my-app --detect-circular
+
+# Fail build on circular deps
+svelteuml generate ./my-app --detect-circular --fail-on-circular
 
 # Exclude test files and generated code
-svelteuml ./my-app -e "**/*.test.ts" -e "**/__generated__/**"
+svelteuml generate ./my-app -e "**/*.test.ts" -e "**/__generated__/**"
 
-# Hide type-only imports for cleaner diagrams
-svelteuml ./my-app --hide-type-deps
+# Exclude patterns from the output diagram
+svelteuml generate ./my-app --exclude-patterns "**/node_modules/**"
 
-# Watch mode — regenerate on file changes
-svelteuml ./my-app --watch
+# Left-to-right layout with no colors
+svelteuml generate ./my-app --layout-direction left-to-right --disable-colors
 
-# Output to stdout (pipe to other tools)
-svelteuml ./my-app -f text | plantuml -pipe > diagram.svg
+# Pipe PlantUML text to external renderer
+svelteuml generate ./my-app -f text | plantuml -pipe > diagram.svg
 ```
 
-## Configuration
+## Features
 
-Create a `.svelteumlrc.json` in your project root to set default options:
+### Class Diagrams
+
+Default diagram type. Shows classes, interfaces, stores, routes, components, and functions as PlantUML classes with stereotypes and members.
+
+```bash
+svelteuml generate ./my-app
+```
+
+Classes rendered with visibility (`+`, `-`, `#`), properties, methods, and type parameters. Stores show `storeType` and `valueType`. Routes show path segments, params, and groups.
+
+### Package Diagrams
+
+Group symbols by their filesystem path into PlantUML `package` blocks. Shows high-level module structure without individual members.
+
+```bash
+svelteuml generate ./my-app --package-diagram
+```
+
+### Component Edges
+
+Detects Svelte component imports and draws `-->` arrows from parent to child component.
+
+### Store Subscription Edges
+
+Detects `$storeName` auto-subscription in `.svelte` files (the Svelte `$` prefix syntax). Draws `..>` edges from component to store file labeled with the store name.
+
+```bash
+svelteuml generate ./my-app --hide-state-deps  # hide store edges
+```
+
+### Server Load Edges
+
+Tracks data flow from `+page.server.ts` / `+layout.server.ts` to the corresponding `.svelte` page. Detects `$page.data` and `$page.url` usage to draw `..>` edges.
+
+### Slot Edges
+
+Tracks `<slot>` and `<slot name="...">` usage. Draws `..>` edges labeled `slot:<name>` from child component back to parent.
+
+### Prop Flow Edges
+
+Tracks prop passing from parent to child. Draws `-->` edges with prop type signatures.
+
+```plantuml
+Button --> ParentForm : onClick: (e: Event) => void
+```
+
+### Event Edges
+
+Tracks `createEventDispatcher` usage. Draws `..>` edges from child to parent labeled with event names.
+
+### Circular Dependency Detection
+
+Detect cycles in your dependency graph. Reports each cycle's file chain.
+
+```bash
+svelteuml generate ./my-app --detect-circular
+# Circular dependency: src/lib/stores/auth.ts -> src/lib/utils/api.ts -> src/lib/stores/auth.ts
+```
+
+With `--fail-on-circular`, exits with code 1 (useful for CI gates).
+
+### Alias Grouping
+
+Respects SvelteKit path aliases (`$lib`, `$components`, custom). Components under an alias are grouped into a PlantUML `package` with the alias name. Configurable via `aliasOverrides`.
+
+### Config File Support
+
+Supports three config file formats (searched in order):
+
+| File | Format |
+|------|--------|
+| `svelteuml.config.ts` | TypeScript module |
+| `.svelteumlrc.json` | JSON |
+| `.svelteumlrc` | JSON (no extension) |
+
+CLI flags override config file values.
+
+### Comments DSL (`@uml.*` tags)
+
+Annotate Svelte components with HTML comments to control diagram behavior:
+
+```svelte
+<!-- @uml.hide -->
+<Script>...</Script>
+```
+
+| Tag | Description |
+|-----|-------------|
+| `@uml.hide` | Exclude component from diagram output |
+| `@uml.group("name")` | Group component into named package |
+| `@uml.color("color")` | Custom stereotype color (CSS name or hex) |
+| `@uml.focus` | Mark component as a focus node |
+
+## Output Formats
+
+| Format | Extension | Requires | Description |
+|--------|-----------|----------|-------------|
+| `text` | `.puml` | Nothing | Raw PlantUML DSL text |
+| `svg` | `.svg` | Java + PlantUML CLI | Vector graphic |
+| `png` | `.png` | Java + PlantUML CLI | Raster graphic |
+
+```bash
+# SVG output
+svelteuml generate ./my-app -f svg -o diagram.svg
+
+# PNG output
+svelteuml generate ./my-app -f png -o diagram.png
+
+# Text to stdout (pipe to other tools)
+svelteuml generate ./my-app -f text > diagram.puml
+```
+
+## Configuration Reference
+
+Create `.svelteumlrc.json` in your project root:
 
 ```json
 {
@@ -91,67 +226,30 @@ Create a `.svelteumlrc.json` in your project root to set default options:
   "maxDepth": 3,
   "excludeExternals": true,
   "aliasOverrides": {
-    "$custom": "./src/custom"
+    "$components": "./src/components",
+    "$utils": "./src/lib/utils"
   }
 }
 ```
 
-### Config Schema
+### Schema
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `targetDir` | `string` | Path to SvelteKit project root |
-| `outputPath` | `string` | Output file path (default: `diagram.puml`) |
-| `exclude` | `string[]` | Glob patterns to exclude from discovery |
-| `include` | `string[]` | Additional glob patterns to include |
-| `maxDepth` | `number` | Max dependency traversal depth (0 = unlimited) |
-| `excludeExternals` | `boolean` | Truncate at node_modules boundaries |
-| `aliasOverrides` | `Record<string, string>` | Custom path alias overrides |
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `targetDir` | `string` | `process.cwd()` | Path to SvelteKit project root |
+| `outputPath` | `string` | `"diagram.puml"` | Output file path |
+| `exclude` | `string[]` | `[]` | Glob patterns to exclude from discovery |
+| `include` | `string[]` | `[]` | Additional glob patterns to include |
+| `maxDepth` | `number` | `0` | Max dependency traversal depth (0 = unlimited) |
+| `excludeExternals` | `boolean` | `false` | Truncate at node_modules boundaries |
+| `aliasOverrides` | `Record<string, string>` | `{}` | Custom path alias overrides |
 
-CLI flags override config file values.
-
-## Architecture
-
-SvelteUML uses a 5-phase pipeline:
-
-```text
-┌─────────────┐    ┌───────────┐    ┌─────────────┐    ┌────────────┐    ┌───────────┐
-│  Discovery  │───>│  Parsing  │───>│  Extraction │───>│ Resolution │───>│ Emission  │
-│             │    │           │    │             │    │            │    │           │
-│ Find files  │    │ svelte2tsx│    │  Symbols    │    │  Edges     │    │ PlantUML  │
-│ Load config │    │ ts-morph  │    │  Props      │    │  Imports   │    │  DSL      │
-│ Aliases     │    │ VFS       │    │  Routes     │    │  Reactive  │    │  SVG/PNG  │
-└─────────────┘    └───────────┘    └─────────────┘    └────────────┘    └───────────┘
-```
-
-1. **Discovery** — Recursively find `.svelte`, `.ts`, `.js` files. Load `svelte.config.js` and `.svelte-kit/tsconfig.json` for path aliases.
-2. **Parsing** — Transform `.svelte` SFCs to TSX via `svelte2tsx`. Build a `ts-morph` Project with virtual file system.
-3. **Extraction** — Extract components, props, stores, routes, server endpoints, lib functions/classes.
-4. **Resolution** — Scan imports, build dependency edges (composition, inheritance, type, store). Track reactive `$state`/`$derived` cross-file references.
-5. **Emission** — Generate PlantUML DSL with nested packages, stereotypes, and relationship arrows.
-
-## Supported Features
-
-| Feature | Support |
-|---------|---------|
-| Svelte 4 (`export let`) | ✅ |
-| Svelte 5 (`$props()` runes) | ✅ |
-| `$state`, `$derived`, `$effect` | ✅ |
-| `.svelte.ts` stores | ✅ |
-| `+page.svelte` / `+page.ts` | ✅ |
-| `+layout.svelte` / `+layout.ts` | ✅ |
-| `+server.ts` endpoints | ✅ |
-| `(group)` layouts | ✅ |
-| `[param]` dynamic routes | ✅ |
-| `[...slug]` catch-all routes | ✅ |
-| Path aliases (`$lib`, custom) | ✅ |
-| Type-only imports | ✅ (filterable) |
-| Store dependencies | ✅ (filterable) |
+CLI flags always override config file values.
 
 ## Example Output
 
 ```plantuml
-@startuml
+@startuml Diagram
 skinparam classAttributeIconSize 0
 
 package "routes" {
@@ -166,27 +264,47 @@ package "routes" {
   package "api/users" {
     class "+server" <<endpoint>> {
       +GET(): RequestHandler
-      +POST(): RequestHandler
+      POST(): RequestHandler
     }
   }
 }
 
 package "$lib" {
   class "stores/auth" <<store>> {
-    +user: Writable<User>
-    +login(): Promise<void>
+    storeType: writable
+    valueType: User
   }
   class "components/Button" <<component>> {
     +label: string
-    +onClick(): void
+    +disabled?: boolean
   }
 }
 
 "+page" --> "stores/auth" : store
 "+layout" --> "stores/auth" : store
-"+server" --> "stores/auth" : composition
+"+page" ..> "+layout" : session
 @enduml
 ```
+
+## Architecture
+
+SvelteUML uses a 5-phase pipeline:
+
+```
+┌─────────────┐    ┌───────────┐    ┌─────────────┐    ┌────────────┐    ┌───────────┐
+│  Discovery  │───>│  Parsing  │───>│  Extraction │───>│ Resolution │───>│ Emission  │
+│             │    │           │    │             │    │            │    │           │
+│ Find files  │    │ svelte2tsx│    │  Symbols    │    │  Edges     │    │ PlantUML  │
+│ Load config │    │ ts-morph  │    │  Props      │    │  Imports   │    │  DSL      │
+│ Aliases     │    │ VFS       │    │  Routes     │    │  Reactive  │    │  SVG/PNG  │
+└─────────────┘    └───────────┘    └─────────────┘    └────────────┘    └───────────┘
+```
+
+1. **Discovery** — Recursively find `.svelte`, `.ts`, `.js` files. Load `svelte.config.js` and `.svelte-kit/tsconfig.json` for path aliases.
+2. **Parsing** — Transform `.svelte` SFCs to TSX via `svelte2tsx`. Build a `ts-morph` Project with virtual file system.
+3. **Extraction** — Extract components, props, stores, routes, server endpoints, lib functions, classes, events.
+4. **Resolution** — Scan imports, build dependency edges (composition, inheritance, type, store, server-load, prop-flow, slot, event). Track reactive `$state`/`$derived` cross-file references.
+5. **Emission** — Generate PlantUML DSL with nested packages, stereotypes, relationship arrows. Optionally render to SVG/PNG.
 
 ## Development
 
@@ -194,7 +312,7 @@ package "$lib" {
 |---------|-------------|
 | `pnpm build` | Compile TypeScript to `dist/` |
 | `pnpm dev` | Watch mode compilation |
-| `pnpm test` | Run unit test suite |
+| `pnpm test` | Run unit tests |
 | `pnpm test:watch` | Run tests in watch mode |
 | `pnpm test:coverage` | Run tests with coverage |
 | `pnpm test:integration` | Run integration tests |
@@ -203,11 +321,9 @@ package "$lib" {
 | `pnpm run lint` | Lint with Biome |
 | `pnpm run format` | Format with Biome |
 
-### Property-Based Testing (PBT)
+### Property-Based Testing
 
-This project uses [fast-check](https://github.com/dubzzz/fast-check) for property-based testing alongside unit tests.
-
-#### Conventions
+Uses [fast-check](https://github.com/dubzzz/fast-check) alongside unit tests.
 
 | Convention | Standard |
 |---|---|
@@ -216,41 +332,13 @@ This project uses [fast-check](https://github.com/dubzzz/fast-check) for propert
 | Local runs | 100 cases (`VITEST_PBT_NUM_RUNS=100`) |
 | CI runs | 1000 cases (`VITEST_PBT_NUM_RUNS=1000`) |
 
-The number of PBT runs is configured via the `VITEST_PBT_NUM_RUNS` environment variable, defaulting to 100 locally and 1000 in CI.
-
-#### Adding a PBT test
-
-```ts
-import fc from "fast-check";
-import { describe, expect, it } from "vitest";
-
-function arbMyType(): fc.Arbitrary<MyType> {
-  return fc.record({
-    name: fc.string(),
-    value: fc.integer(),
-  });
-}
-
-const numRuns = Number(process.env.VITEST_PBT_NUM_RUNS) || 100;
-
-it("property holds for all inputs", () => {
-  fc.assert(
-    fc.property(arbMyType(), (val) => {
-      expect(val.name.length).toBeGreaterThan(0);
-    }),
-    { numRuns },
-  );
-});
-```
-
 ### Contributing
 
-1. Clone the repository
-2. Install dependencies: `pnpm install`
-3. Create a feature branch: `git checkout -b feature/my-feature`
-4. Make changes and add tests (see PBT conventions above)
-5. Run checks: `pnpm test && pnpm run typecheck && pnpm run lint`
-6. Submit a pull request
+1. Clone: `git clone https://github.com/user/svelteuml.git`
+2. Install: `pnpm install`
+3. Branch: `git checkout -b feature/my-feature`
+4. Check: `pnpm test && pnpm run typecheck && pnpm run lint`
+5. PR: Submit a pull request
 
 ## License
 
