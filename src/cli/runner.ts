@@ -243,7 +243,10 @@ export async function runPipeline(
 			const groups = parseAliasGroups(cliOpts.aliasGroups);
 			const validationErrors = validateGroups(groups);
 			if (validationErrors.length > 0) {
-				return { success: false, error: `Alias group validation errors:\n${validationErrors.join("\n")}` };
+				return {
+					success: false,
+					error: `Alias group validation errors:\n${validationErrors.join("\n")}`,
+				};
 			}
 			emissionSymbols = assignGroups(emissionSymbols, groups);
 		}

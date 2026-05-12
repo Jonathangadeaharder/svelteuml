@@ -17,8 +17,14 @@ function collectGroups(symbols: SymbolTable): Map<string, SymbolTable> {
 		let g = groups.get(name);
 		if (!g) {
 			g = {
-				classes: [], functions: [], stores: [], props: [],
-				events: [], exports: [], routes: [], components: [],
+				classes: [],
+				functions: [],
+				stores: [],
+				props: [],
+				events: [],
+				exports: [],
+				routes: [],
+				components: [],
 			};
 			groups.set(name, g);
 		}
@@ -44,7 +50,11 @@ function collectGroups(symbols: SymbolTable): Map<string, SymbolTable> {
 	return groups;
 }
 
-function renderGroupedSymbols(lines: string[], symbols: SymbolTable, options: DiagramOptions): void {
+function renderGroupedSymbols(
+	lines: string[],
+	symbols: SymbolTable,
+	options: DiagramOptions,
+): void {
 	const groups = collectGroups(symbols);
 	if (groups.size === 0) return;
 
@@ -109,7 +119,13 @@ export function renderClassDiagram(
 
 	const nameMap = buildNameMap(symbols, options.targetDir);
 
-	const hasGroups = [...symbols.classes, ...symbols.stores, ...symbols.functions, ...(symbols.routes ?? []), ...(symbols.components ?? [])].some(hasGroup);
+	const hasGroups = [
+		...symbols.classes,
+		...symbols.stores,
+		...symbols.functions,
+		...(symbols.routes ?? []),
+		...(symbols.components ?? []),
+	].some(hasGroup);
 	if (hasGroups) {
 		renderGroupedSymbols(lines, symbols, options);
 	}

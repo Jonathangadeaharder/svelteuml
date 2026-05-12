@@ -99,7 +99,12 @@ function addSharedOptions(cmd: Command): Command {
 		)
 		.option("--class-diagram", "generate a class diagram (default)", false)
 		.option("--package-diagram", "generate a package diagram", false)
-		.option("--alias-group <value>", "group symbols matching glob pattern into a named package (repeatable, format: PATTERN:NAME)", (val: string, prev: string[]) => [...prev, val], [] as string[])
+		.option(
+			"--alias-group <value>",
+			"group symbols matching glob pattern into a named package (repeatable, format: PATTERN:NAME)",
+			(val: string, prev: string[]) => [...prev, val],
+			[] as string[],
+		)
 		.option("--disable-colors", "disable stereotype color theming", false)
 		.option("-q, --quiet", "suppress all output", false)
 		.option("--verbose", "show verbose output", false)

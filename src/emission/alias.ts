@@ -27,16 +27,16 @@ export function validateGroups(groups: AliasGroup[]): string[] {
 
 	for (let i = 0; i < groups.length; i++) {
 		const g = groups[i];
-		if (!g || !g.pattern) {
+		if (!g?.pattern) {
 			errors.push(`Group at index ${i}: pattern is empty`);
 		}
-		if (!g || !g.name) {
+		if (!g?.name) {
 			errors.push(`Group at index ${i}: name is empty`);
 		}
-		if (g && g.name && seen.has(g.name)) {
+		if (g?.name && seen.has(g.name)) {
 			errors.push(`Duplicate group name: "${g.name}"`);
 		}
-		if (g && g.name) {
+		if (g?.name) {
 			seen.add(g.name);
 		}
 	}
@@ -112,8 +112,21 @@ function globToRegex(pattern: string): RegExp {
 			escaped += "[^/]*";
 		} else if (ch === "?") {
 			escaped += "[^/]";
-		} else if (ch === "." || ch === "(" || ch === ")" || ch === "[" || ch === "]" || ch === "+" || ch === "^" || ch === "$" || ch === "{" || ch === "}" || ch === "|" || ch === "\\") {
-			escaped += "\\" + ch;
+		} else if (
+			ch === "." ||
+			ch === "(" ||
+			ch === ")" ||
+			ch === "[" ||
+			ch === "]" ||
+			ch === "+" ||
+			ch === "^" ||
+			ch === "$" ||
+			ch === "{" ||
+			ch === "}" ||
+			ch === "|" ||
+			ch === "\\"
+		) {
+			escaped += `\\${ch}`;
 		} else {
 			escaped += ch;
 		}

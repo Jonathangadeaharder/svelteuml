@@ -25,10 +25,7 @@ interface ServerRouteMatch {
 	pageProps: string[];
 }
 
-export function buildServerLoadEdges(
-	symbols: SymbolTable,
-	parsingProject: ParsingProject,
-): Edge[] {
+export function buildServerLoadEdges(symbols: SymbolTable, parsingProject: ParsingProject): Edge[] {
 	const matches = findServerPageMatches(symbols, parsingProject);
 	const seen = new Set<string>();
 	const edges: Edge[] = [];
