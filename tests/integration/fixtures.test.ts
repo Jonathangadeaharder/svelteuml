@@ -11,6 +11,7 @@ function makeCliOptions(fixtureName: string, overrides: Partial<CliOptions> = {}
 	const fixtureDir = resolve(import.meta.dirname, `../fixtures/${fixtureName}`);
 	mkdirSync(testOutputDir, { recursive: true });
 	return {
+		subcommand: "generate",
 		targetDir: fixtureDir,
 		outputPath: join(testOutputDir, `${fixtureName}-output.puml`),
 		format: "text",
@@ -21,7 +22,6 @@ function makeCliOptions(fixtureName: string, overrides: Partial<CliOptions> = {}
 		hideStateDeps: false,
 		quiet: true,
 		verbose: false,
-		watch: false,
 		...overrides,
 	};
 }

@@ -12,6 +12,7 @@ const OUTPUT_PATH = join(testOutputDir, "test-output.puml");
 function makeCliOptions(overrides: Partial<CliOptions> = {}): CliOptions {
 	mkdirSync(testOutputDir, { recursive: true });
 	return {
+		subcommand: "generate",
 		targetDir: FIXTURE_DIR,
 		outputPath: OUTPUT_PATH,
 		format: "text",
@@ -22,7 +23,6 @@ function makeCliOptions(overrides: Partial<CliOptions> = {}): CliOptions {
 		hideStateDeps: false,
 		quiet: true,
 		verbose: false,
-		watch: false,
 		...overrides,
 	};
 }
