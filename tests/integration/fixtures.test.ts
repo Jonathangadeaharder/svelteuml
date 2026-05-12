@@ -169,11 +169,71 @@ describe("Integration: sveltekit-synthetic fixture", () => {
 	});
 });
 
+describe("Integration: synthetic fixture", () => {
+	it("produces valid PlantUML output", async () => {
+		const output = await getOutput("synthetic");
+		expect(output).toContain("@startuml");
+		expect(output).toContain("@enduml");
+	});
+
+	it("contains component definitions", async () => {
+		const output = await getOutput("synthetic");
+		expect(output).toContain("Button");
+		expect(output).toContain("Card");
+	});
+
+	it("contains store definitions", async () => {
+		const output = await getOutput("synthetic");
+		expect(output).toContain("count");
+		expect(output).toContain("doubleCount");
+		expect(output).toContain("<<store>>");
+	});
+
+	it("contains utility functions", async () => {
+		const output = await getOutput("synthetic");
+		expect(output).toContain("greet");
+		expect(output).toContain("formatPrice");
+		expect(output).toContain("<<function>>");
+	});
+
+	it("contains server endpoint exports", async () => {
+		const output = await getOutput("synthetic");
+		expect(output).toContain("GET");
+		expect(output).toContain("POST");
+	});
+
+	it("contains route patterns", async () => {
+		const output = await getOutput("synthetic");
+		expect(output).toContain("+page");
+		expect(output).toContain("+layout");
+		expect(output).toContain("+server");
+	});
+
+	it("contains stereotype tags", async () => {
+		const output = await getOutput("synthetic");
+		expect(output).toContain("<<component>>");
+		expect(output).toContain("<<store>>");
+		expect(output).toContain("<<function>>");
+		expect(output).toContain("<<endpoint>>");
+	});
+
+	it("detects prop definitions", async () => {
+		const output = await getOutput("synthetic");
+		expect(output).toContain("label");
+		expect(output).toContain("title");
+	});
+
+	it("matches snapshot", async () => {
+		const output = await getOutput("synthetic");
+		expect(output).toMatchSnapshot();
+	});
+});
+
 describe("Integration: cross-fixture validation", () => {
 	it("all fixtures produce valid PlantUML with @startuml/@enduml", {
 		timeout: 30_000,
 	}, async () => {
-		const fixtures = ["minimal-sveltekit", "group-layouts", "svelte-stores", "sveltekit-synthetic"];
+		const fixtures = ["minimal-sveltekit", "group-layouts", "svelte-stores", "sveltekit-synthetic", "synthetic"];
 		for (const fixture of fixtures) {
 			const output = await getOutput(fixture);
 			expect(output, `${fixture} should contain @startuml`).toContain("@startuml");
