@@ -117,6 +117,33 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run test:integration
 
+  snapshot-diff:
+    name: Snapshot Diff
+    runs-on: self-hosted
+    needs: [test]
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Generate & post snapshot diff
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          diff_body=$(./scripts/snapshot-diff.sh)
+          if [ -n "$diff_body" ]; then
+            echo "$diff_body" | gh pr comment "${{ github.event.pull_request.number }}" --body-file -
+          else
+            echo "No snapshot differences."
+          fi
+
   publish:
     name: Publish to npm
     runs-on: self-hosted
