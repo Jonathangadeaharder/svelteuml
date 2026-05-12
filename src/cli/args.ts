@@ -146,6 +146,7 @@ function toCliOptions(
 		layoutDirection: opts.layoutDirection as LayoutDirection,
 		noColor: opts.disableColors as boolean,
 		aliasGroups: (opts.aliasGroup as string[] | undefined) ?? [],
+		watch: true,
 		quiet: opts.quiet as boolean,
 		verbose: opts.verbose as boolean,
 	};

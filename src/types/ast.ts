@@ -69,6 +69,7 @@ export interface EventSymbol {
 	componentName: string;
 	eventName: string;
 	type: string;
+	group?: string;
 }
 
 /** Svelte component prop. */
@@ -126,6 +127,7 @@ export interface ComponentSymbol {
 	name: string;
 	filePath: string;
 	group?: string;
+	tags?: import("../extraction/comment-tags.js").UmlTag[];
 }
 
 /** Union of all extractable symbols. */
