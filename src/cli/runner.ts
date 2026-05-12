@@ -13,7 +13,13 @@ import { trackReactiveDependencies } from "../dependency/reactive-tracker.js";
 import { discoverFiles } from "../discovery/file-discovery.js";
 import { loadSvelteConfig } from "../discovery/svelte-config.js";
 import { loadTsConfig } from "../discovery/tsconfig.js";
-import { filterEdgesByScope, filterSymbolsByScope, resolveFocusScope } from "../emission/focus.js";
+import {
+	filterByExcludePatterns,
+	filterEdgesByScope,
+	filterSymbolsByScope,
+	resolveFocusScope,
+	resolveGlobalScope,
+} from "../emission/focus.js";
 import { emitPlantUML } from "../emission/plantuml-emitter.js";
 import { SymbolExtractor } from "../extraction/symbol-extractor.js";
 import { convertFiles } from "../parsing/svelte-to-tsx.js";
@@ -240,6 +246,21 @@ export async function runPipeline(
 			emissionSymbols = filterSymbolsByScope(symbols, scope);
 			const filteredEdges = filterEdgesByScope(edgeSet.edges, scope);
 			emissionEdges = createEdgeSet(filteredEdges);
+		} else if (cliOpts.maxDepth > 0) {
+			const scope = resolveGlobalScope(symbols, edgeSet, cliOpts.maxDepth);
+			emissionSymbols = filterSymbolsByScope(symbols, scope);
+			const filteredEdges = filterEdgesByScope(edgeSet.edges, scope);
+			emissionEdges = createEdgeSet(filteredEdges);
+		}
+
+		if (cliOpts.excludePatterns.length > 0) {
+			const filtered = filterByExcludePatterns(
+				emissionSymbols,
+				emissionEdges,
+				cliOpts.excludePatterns,
+			);
+			emissionSymbols = filtered.symbols;
+			emissionEdges = filtered.edges;
 		}
 
 		const emission = emitPlantUML(emissionSymbols, emissionEdges, diagramOpts);

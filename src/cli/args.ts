@@ -10,6 +10,7 @@ export interface CliOptions {
 	excludeExternals: boolean;
 	maxDepth: number;
 	exclude: string[];
+	excludePatterns: string[];
 	hideTypeDeps: boolean;
 	hideStateDeps: boolean;
 	detectCircular: boolean;
@@ -75,7 +76,8 @@ function addSharedOptions(cmd: Command): Command {
 		)
 		.option("--exclude-externals", "exclude external dependencies", false)
 		.option("--max-depth <n>", "max dependency traversal depth (0 = unlimited)", parseMaxDepth, 0)
-		.option("-e, --exclude [glob...]", "glob patterns to exclude", [])
+		.option("-e, --exclude [glob...]", "glob patterns to exclude from discovery", [])
+		.option("--exclude-patterns [glob...]", "glob patterns to exclude from output diagram", [])
 		.option("--hide-type-deps", "hide TypeScript type dependencies", false)
 		.option("--hide-state-deps", "hide Svelte store/state dependencies", false)
 		.option(
@@ -112,6 +114,7 @@ function toCliOptions(
 		excludeExternals: opts.excludeExternals as boolean,
 		maxDepth: opts.maxDepth as number,
 		exclude: (opts.exclude as string[] | undefined) ?? [],
+		excludePatterns: (opts.excludePatterns as string[] | undefined) ?? [],
 		hideTypeDeps: opts.hideTypeDeps as boolean,
 		hideStateDeps: opts.hideStateDeps as boolean,
 		detectCircular: opts.detectCircular as boolean,

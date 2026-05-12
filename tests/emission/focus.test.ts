@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+	filterByExcludePatterns,
 	filterEdgesByScope,
 	filterSymbolsByScope,
 	resolveFocusScope,
+	resolveGlobalScope,
 } from "../../src/emission/focus.js";
 import type { SymbolTable } from "../../src/types/ast.js";
 import type { Edge, EdgeSet } from "../../src/types/edge.js";
@@ -491,5 +493,137 @@ describe("resolveFocusScope fuzzy matching", () => {
 		const edgeSet = makeEdgeSet([]);
 		const scope = resolveFocusScope(symbols, edgeSet, { focusNode: "API_URL", depth: 1 });
 		expect(scope.has("API_URL")).toBe(true);
+	});
+});
+
+describe("resolveGlobalScope", () => {
+	it("returns all names when maxDepth is 0", () => {
+		const symbols = makeSymbols({
+			classes: [
+				{ kind: "class", name: "A", filePath: "/src/A.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+				{ kind: "class", name: "B", filePath: "/src/B.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+			],
+		});
+		const edgeSet = makeEdgeSet([{ source: "A", target: "B", type: "dependency" as const }]);
+		const scope = resolveGlobalScope(symbols, edgeSet, 0);
+		expect(scope.size).toBe(2);
+	});
+
+	it("from root, includes direct deps at depth 1", () => {
+		const symbols = makeSymbols({
+			classes: [
+				{ kind: "class", name: "Root", filePath: "/src/Root.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+				{ kind: "class", name: "Util", filePath: "/src/Util.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+				{ kind: "class", name: "Deep", filePath: "/src/Deep.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+			],
+		});
+		const edgeSet = makeEdgeSet([
+			{ source: "Root", target: "Util", type: "dependency" as const },
+			{ source: "Util", target: "Deep", type: "dependency" as const },
+		]);
+		const scope = resolveGlobalScope(symbols, edgeSet, 1);
+		expect(scope.has("Root")).toBe(true);
+		expect(scope.has("Util")).toBe(true);
+		expect(scope.has("Deep")).toBe(false);
+	});
+
+	it("single root at depth 2 includes both hops", () => {
+		const symbols = makeSymbols({
+			classes: [
+				{ kind: "class", name: "A", filePath: "/src/A.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+				{ kind: "class", name: "B", filePath: "/src/B.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+				{ kind: "class", name: "C", filePath: "/src/C.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+			],
+		});
+		const edgeSet = makeEdgeSet([
+			{ source: "A", target: "B", type: "dependency" as const },
+			{ source: "B", target: "C", type: "dependency" as const },
+		]);
+		const scope = resolveGlobalScope(symbols, edgeSet, 2);
+		expect(scope.size).toBe(3);
+	});
+
+	it("starts BFS from symbols with no incoming edges", () => {
+		const symbols = makeSymbols({
+			classes: [
+				{ kind: "class", name: "A", filePath: "/src/A.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+				{ kind: "class", name: "B", filePath: "/src/B.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+				{ kind: "class", name: "C", filePath: "/src/C.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+			],
+		});
+		const edgeSet = makeEdgeSet([
+			{ source: "A", target: "B", type: "dependency" as const },
+			{ source: "B", target: "C", type: "dependency" as const },
+		]);
+		const scope = resolveGlobalScope(symbols, edgeSet, 1);
+		expect(scope.has("A")).toBe(true);
+		expect(scope.has("B")).toBe(true);
+		expect(scope.has("C")).toBe(false);
+	});
+
+	it("includes component names derived from props with multiple props per component", () => {
+		const symbols = makeSymbols({
+			props: [
+				{ kind: "prop", name: "name", filePath: "/src/Comp.svelte", componentName: "Comp", type: "string", isRequired: true },
+				{ kind: "prop", name: "count", filePath: "/src/Comp.svelte", componentName: "Comp", type: "number", isRequired: false },
+			],
+		});
+		const edgeSet = makeEdgeSet([]);
+		const scope = resolveGlobalScope(symbols, edgeSet, 0);
+		expect(scope.has("Comp")).toBe(true);
+		expect(scope.size).toBe(1);
+	});
+
+	it("handles disconnected symbols with depth limit", () => {
+		const symbols = makeSymbols({
+			classes: [
+				{ kind: "class", name: "A", filePath: "/src/A.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+				{ kind: "class", name: "B", filePath: "/src/B.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+			],
+		});
+		const edgeSet = makeEdgeSet([]);
+		const scope = resolveGlobalScope(symbols, edgeSet, 1);
+		expect(scope.size).toBe(2);
+	});
+});
+
+describe("filterByExcludePatterns", () => {
+	it("returns same symbols and edges when patterns empty", () => {
+		const symbols = makeSymbols({
+			classes: [
+				{ kind: "class", name: "Foo", filePath: "/src/Foo.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+			],
+		});
+		const edgeSet = makeEdgeSet([]);
+		const result = filterByExcludePatterns(symbols, edgeSet, []);
+		expect(result.symbols.classes).toHaveLength(1);
+	});
+
+	it("excludes symbols whose filePath matches a simple glob", () => {
+		const symbols = makeSymbols({
+			classes: [
+				{ kind: "class", name: "Foo", filePath: "/src/Foo.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+				{ kind: "class", name: "Bar", filePath: "/src/test/Bar.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+			],
+		});
+		const edgeSet = makeEdgeSet([]);
+		const result = filterByExcludePatterns(symbols, edgeSet, ["**/test/**"]);
+		expect(result.symbols.classes).toHaveLength(1);
+		expect(result.symbols.classes[0].name).toBe("Foo");
+	});
+
+	it("removes edges connected to excluded symbols", () => {
+		const symbols = makeSymbols({
+			classes: [
+				{ kind: "class", name: "Keep", filePath: "/src/Keep.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+				{ kind: "class", name: "Remove", filePath: "/src/hidden/Remove.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+			],
+		});
+		const edgeSet = makeEdgeSet([
+			{ source: "Keep", target: "Remove", type: "dependency" as const },
+		]);
+		const result = filterByExcludePatterns(symbols, edgeSet, ["**/hidden/**"]);
+		expect(result.symbols.classes).toHaveLength(1);
+		expect(result.edges.edges).toHaveLength(0);
 	});
 });

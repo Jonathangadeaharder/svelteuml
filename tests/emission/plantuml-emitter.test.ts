@@ -102,4 +102,19 @@ describe("emitPlantUML", () => {
 		});
 		expect(result.content).toContain("left to right direction");
 	});
+
+	it("renders when all injection values are empty", () => {
+		const result = emitPlantUML(makeEmptySymbolTable(), createEdgeSet([]), {
+			kind: "class",
+			showMembers: false,
+			showMethods: false,
+			showVisibility: false,
+			showStores: false,
+			showProps: false,
+			hideEmptyPackages: true,
+			stereotypeColors: {},
+		});
+		expect(result.content).toContain("@startuml");
+		expect(result.content).toContain("@enduml");
+	});
 });
