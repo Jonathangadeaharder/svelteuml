@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const CONFIG_FILENAMES = [
 	"svelteuml.config.ts",
@@ -46,7 +47,7 @@ function loadJSONConfig(configPath: string): Record<string, unknown> {
 
 async function loadTypeScriptConfig(configPath: string): Promise<Record<string, unknown>> {
 	try {
-		const module = await import(configPath);
+		const module = await import(pathToFileURL(configPath).href);
 		const config = (module.default ?? module) as Record<string, unknown>;
 		warnUnknownFields(config);
 		return config;

@@ -3,7 +3,6 @@ import type { GroupConfig } from "../../src/types/diagram.js";
 import { matchGroup, groupSymbols } from "../../src/emission/groups.js";
 import type {
 	ClassSymbol,
-	FunctionSymbol,
 	StoreSymbol,
 	ComponentSymbol,
 	SymbolTable,
@@ -54,16 +53,6 @@ describe("groupSymbols", () => {
 		implements: [],
 		members: [],
 		isGeneric: false,
-		typeParams: [],
-	});
-
-	const makeFn = (name: string, filePath: string): FunctionSymbol => ({
-		kind: "function",
-		name,
-		filePath,
-		isExported: false,
-		isAsync: false,
-		parameters: [],
 		typeParams: [],
 	});
 

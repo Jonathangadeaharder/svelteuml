@@ -1,13 +1,20 @@
 import type { SymbolTable } from "../types/ast.js";
 import type { GroupConfig } from "../types/diagram.js";
 
+const regexCache = new Map<string, RegExp>();
+
 function globToRegex(pattern: string): RegExp {
-	const escaped = pattern
+	const normalized = pattern.replace(/\\/g, "/");
+	let cached = regexCache.get(normalized);
+	if (cached) return cached;
+	const escaped = normalized
 		.replace(/[.+^${}()|[\]\\]/g, "\\$&")
 		.replace(/\*\*/g, "___GLOBSTAR___")
 		.replace(/\*/g, "[^/]*")
 		.replace(/___GLOBSTAR___/g, ".*");
-	return new RegExp(`^${escaped}$`);
+	const regex = new RegExp(`^${escaped}$`);
+	regexCache.set(normalized, regex);
+	return regex;
 }
 
 export function matchGroup(filePath: string, groups: GroupConfig[]): string | undefined {
@@ -29,81 +36,42 @@ export interface GroupedSymbols {
 export function groupSymbols(symbols: SymbolTable, groupsConfig: GroupConfig[]): GroupedSymbols {
 	const grouped = new Map<string, SymbolTable>();
 	const ungrouped: SymbolTable = {
-		classes: [],
-		functions: [],
-		stores: [],
-		props: [],
-		events: [],
-		exports: [],
-		routes: [],
-		components: [],
+		classes: [], functions: [], stores: [], props: [],
+		events: [], exports: [], routes: [], components: [],
 	};
 
 	const getGroup = (name: string): SymbolTable => {
 		let group = grouped.get(name);
 		if (!group) {
 			group = {
-				classes: [],
-				functions: [],
-				stores: [],
-				props: [],
-				events: [],
-				exports: [],
-				routes: [],
-				components: [],
+				classes: [], functions: [], stores: [], props: [],
+				events: [], exports: [], routes: [], components: [],
 			};
 			grouped.set(name, group);
 		}
 		return group;
 	};
 
-	for (const cls of symbols.classes) {
-		const g = matchGroup(cls.filePath, groupsConfig);
-		if (g) getGroup(g).classes.push(cls);
-		else ungrouped.classes.push(cls);
-	}
+	const pushByGroup = <T extends { filePath: string }>(
+		items: T[] | undefined,
+		toGroup: (t: SymbolTable) => T[],
+		toUngrouped: (t: SymbolTable) => T[],
+	) => {
+		for (const item of items ?? []) {
+			const g = matchGroup(item.filePath, groupsConfig);
+			if (g) toGroup(getGroup(g)).push(item);
+			else toUngrouped(ungrouped).push(item);
+		}
+	};
 
-	for (const fn of symbols.functions) {
-		const g = matchGroup(fn.filePath, groupsConfig);
-		if (g) getGroup(g).functions.push(fn);
-		else ungrouped.functions.push(fn);
-	}
-
-	for (const store of symbols.stores) {
-		const g = matchGroup(store.filePath, groupsConfig);
-		if (g) getGroup(g).stores.push(store);
-		else ungrouped.stores.push(store);
-	}
-
-	for (const prop of symbols.props) {
-		const g = matchGroup(prop.filePath, groupsConfig);
-		if (g) getGroup(g).props.push(prop);
-		else ungrouped.props.push(prop);
-	}
-
-	for (const evt of symbols.events) {
-		const g = matchGroup(evt.filePath, groupsConfig);
-		if (g) getGroup(g).events.push(evt);
-		else ungrouped.events.push(evt);
-	}
-
-	for (const exp of symbols.exports) {
-		const g = matchGroup(exp.filePath, groupsConfig);
-		if (g) getGroup(g).exports.push(exp);
-		else ungrouped.exports.push(exp);
-	}
-
-	for (const route of symbols.routes ?? []) {
-		const g = matchGroup(route.filePath, groupsConfig);
-		if (g) getGroup(g).routes.push(route);
-		else ungrouped.routes?.push(route);
-	}
-
-	for (const comp of symbols.components ?? []) {
-		const g = matchGroup(comp.filePath, groupsConfig);
-		if (g) getGroup(g).components?.push(comp);
-		else ungrouped.components?.push(comp);
-	}
+	pushByGroup(symbols.classes, (t) => t.classes, (t) => t.classes);
+	pushByGroup(symbols.functions, (t) => t.functions, (t) => t.functions);
+	pushByGroup(symbols.stores, (t) => t.stores, (t) => t.stores);
+	pushByGroup(symbols.props, (t) => t.props, (t) => t.props);
+	pushByGroup(symbols.events, (t) => t.events, (t) => t.events);
+	pushByGroup(symbols.exports, (t) => t.exports, (t) => t.exports);
+	pushByGroup(symbols.routes, (t) => t.routes, (t) => t.routes);
+	pushByGroup(symbols.components, (t) => t.components, (t) => t.components);
 
 	return { groups: grouped, ungrouped };
 }
