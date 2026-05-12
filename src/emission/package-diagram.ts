@@ -126,10 +126,19 @@ function buildPackages(symbols: SymbolTable, options: DiagramOptions): Map<strin
 }
 
 function extractPackage(filePath: string): string | undefined {
-	const parts = filePath.split("/");
-	if (parts.length < 2) return undefined;
-	parts.pop();
-	return parts.join("/");
+	const normalized = filePath.replace(/\\/g, "/");
+	const srcIndex = normalized.indexOf("src/");
+	if (srcIndex === -1) {
+		const parts = normalized.split("/");
+		if (parts.length < 2) return undefined;
+		return parts[parts.length - 2];
+	}
+	const afterSrc = normalized.slice(srcIndex + 4);
+	const parts = afterSrc.split("/");
+	if (parts.length >= 2 && parts[0]) {
+		return parts[0];
+	}
+	return undefined;
 }
 
 function sanitizeId(path: string): string {

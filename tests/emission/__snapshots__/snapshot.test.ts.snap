@@ -65,15 +65,15 @@ exports[`PlantUML snapshot: package diagram > emits valid PlantUML with packages
 
 top to bottom direction
 
-package "/src/lib" as _src_lib {
-  class Layout
-}
-
-package "/src/routes" as _src_routes {
+package "routes" as routes {
   class App
 }
 
-_src_routes ..> _src_lib
+package "lib" as lib {
+  class Layout
+}
+
+routes ..> lib
 
 @enduml"
 `;
