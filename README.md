@@ -78,7 +78,7 @@ svelteuml generate ./my-app --focus Button
 svelteuml generate ./my-app --package-diagram -o packages.puml
 
 # Watch mode
-svelteuml generate ./my-app --watch
+svelteuml watch ./my-app
 
 # Detect circular dependencies
 svelteuml generate ./my-app --detect-circular
@@ -144,7 +144,7 @@ Tracks `<slot>` and `<slot name="...">` usage. Draws `..>` edges labeled `slot:<
 Tracks prop passing from parent to child. Draws `-->` edges with prop type signatures.
 
 ```plantuml
-Button --> ParentForm : onClick: (e: Event) => void
+ParentForm --> Button : onClick: (e: Event) => void
 ```
 
 ### Event Edges
@@ -184,7 +184,7 @@ Annotate Svelte components with HTML comments to control diagram behavior:
 
 ```svelte
 <!-- @uml.hide -->
-<Script>...</Script>
+<script>...</script>
 ```
 
 | Tag | Description |
@@ -264,7 +264,7 @@ package "routes" {
   package "api/users" {
     class "+server" <<endpoint>> {
       +GET(): RequestHandler
-      POST(): RequestHandler
+      +POST(): RequestHandler
     }
   }
 }
@@ -280,8 +280,8 @@ package "$lib" {
   }
 }
 
-"+page" --> "stores/auth" : store
-"+layout" --> "stores/auth" : store
+"+page" ..> "stores/auth" : store
+"+layout" ..> "stores/auth" : store
 "+page" ..> "+layout" : session
 @enduml
 ```
@@ -290,7 +290,7 @@ package "$lib" {
 
 SvelteUML uses a 5-phase pipeline:
 
-```
+```text
 ┌─────────────┐    ┌───────────┐    ┌─────────────┐    ┌────────────┐    ┌───────────┐
 │  Discovery  │───>│  Parsing  │───>│  Extraction │───>│ Resolution │───>│ Emission  │
 │             │    │           │    │             │    │            │    │           │
@@ -334,7 +334,7 @@ Uses [fast-check](https://github.com/dubzzz/fast-check) alongside unit tests.
 
 ### Contributing
 
-1. Clone: `git clone https://github.com/user/svelteuml.git`
+1. Clone: `git clone https://github.com/Jonathangadeaharder/svelteuml.git`
 2. Install: `pnpm install`
 3. Branch: `git checkout -b feature/my-feature`
 4. Check: `pnpm test && pnpm run typecheck && pnpm run lint`
