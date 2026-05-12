@@ -235,6 +235,39 @@ describe("parseArgs", () => {
 		expect(() => parseArgs(["generate", "./src", "--diagram", "flowchart"])).toThrow();
 	});
 
+	it("parses --class-diagram boolean flag", () => {
+		const result = parseArgs(["./src", "--class-diagram"]);
+		expect(result.classDiagram).toBe(true);
+		expect(result.diagram).toBe("class");
+	});
+
+	it("parses --package-diagram boolean flag", () => {
+		const result = parseArgs(["./src", "--package-diagram"]);
+		expect(result.packageDiagram).toBe(true);
+		expect(result.diagram).toBe("package");
+	});
+
+	it("defaults classDiagram and packageDiagram to false", () => {
+		const result = parseArgs(["./src"]);
+		expect(result.classDiagram).toBe(false);
+		expect(result.packageDiagram).toBe(false);
+		expect(result.diagram).toBe("class");
+	});
+
+	it("--class-diagram overrides --diagram package", () => {
+		const result = parseArgs(["./src", "--diagram", "package", "--class-diagram"]);
+		expect(result.classDiagram).toBe(true);
+		expect(result.packageDiagram).toBe(false);
+		expect(result.diagram).toBe("class");
+	});
+
+	it("--package-diagram overrides --diagram class", () => {
+		const result = parseArgs(["./src", "--diagram", "class", "--package-diagram"]);
+		expect(result.classDiagram).toBe(false);
+		expect(result.packageDiagram).toBe(true);
+		expect(result.diagram).toBe("package");
+	});
+
 	it("parses --focus flag", () => {
 		const result = parseArgs(["generate", "./src", "--focus", "MyComponent"]);
 		expect(result.focus).toBe("MyComponent");

@@ -17,6 +17,9 @@ export interface CliOptions {
 	failOnCircular: boolean;
 	quiet: boolean;
 	verbose: boolean;
+	watch: boolean;
+	classDiagram: boolean;
+	packageDiagram: boolean;
 	diagram: DiagramKind;
 	focus: string | undefined;
 	layoutDirection: LayoutDirection;
@@ -93,9 +96,10 @@ function addSharedOptions(cmd: Command): Command {
 			parseLayoutDirection,
 			"top-to-bottom" as LayoutDirection,
 		)
+		.option("--class-diagram", "generate a class diagram (default)", false)
+		.option("--package-diagram", "generate a package diagram", false)
 		.option("--disable-colors", "disable stereotype color theming", false)
 		.option("-q, --quiet", "suppress all output", false)
-<<<<<<< HEAD
 		.option("--verbose", "show verbose output", false)
 		.option("--detect-circular", "detect and report circular dependencies", false)
 		.option("--fail-on-circular", "exit with error code on circular dependencies", false);
@@ -106,6 +110,15 @@ function toCliOptions(
 	targetDir: string,
 	opts: Record<string, unknown>,
 ): CliOptions {
+	const classDiagram = opts.classDiagram as boolean;
+	const packageDiagram = opts.packageDiagram as boolean;
+	const diagramKind =
+		classDiagram && !packageDiagram
+			? "class"
+			: packageDiagram && !classDiagram
+				? "package"
+				: (opts.diagram as DiagramKind);
+
 	return {
 		subcommand,
 		targetDir,
@@ -119,7 +132,9 @@ function toCliOptions(
 		hideStateDeps: opts.hideStateDeps as boolean,
 		detectCircular: opts.detectCircular as boolean,
 		failOnCircular: opts.failOnCircular as boolean,
-		diagram: opts.diagram as DiagramKind,
+		classDiagram,
+		packageDiagram,
+		diagram: diagramKind,
 		focus: opts.focus as string | undefined,
 		layoutDirection: opts.layoutDirection as LayoutDirection,
 		noColor: opts.disableColors as boolean,
