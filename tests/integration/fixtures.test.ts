@@ -112,11 +112,62 @@ describe("Integration: svelte-stores fixture", () => {
 	});
 });
 
+describe("Integration: sveltekit-synthetic fixture", () => {
+	it("produces valid PlantUML output", async () => {
+		const output = await getOutput("sveltekit-synthetic");
+		expect(output).toContain("@startuml");
+		expect(output).toContain("@enduml");
+	});
+
+	it("contains route pattern entries", async () => {
+		const output = await getOutput("sveltekit-synthetic");
+		expect(output).toContain("+page");
+		expect(output).toContain("+layout");
+		expect(output).toContain("+error");
+		expect(output).toContain("+server");
+	});
+
+	it("contains dynamic and rest param routes", async () => {
+		const output = await getOutput("sveltekit-synthetic");
+		expect(output).toContain("[id]");
+		expect(output).toContain("[...slug]");
+	});
+
+	it("contains route groups", async () => {
+		const output = await getOutput("sveltekit-synthetic");
+		expect(output).toContain("auth");
+		expect(output).toContain("login");
+		expect(output).toContain("register");
+	});
+
+	it("contains component definitions", async () => {
+		const output = await getOutput("sveltekit-synthetic");
+		expect(output).toContain("Card");
+		expect(output).toContain("Header");
+	});
+
+	it("contains store definitions", async () => {
+		const output = await getOutput("sveltekit-synthetic");
+		expect(output).toContain("<<store>>");
+	});
+
+	it("contains server exports", async () => {
+		const output = await getOutput("sveltekit-synthetic");
+		expect(output).toContain("GET");
+		expect(output).toContain("POST");
+	});
+
+	it("matches snapshot", async () => {
+		const output = await getOutput("sveltekit-synthetic");
+		expect(output).toMatchSnapshot();
+	});
+});
+
 describe("Integration: cross-fixture validation", () => {
 	it("all fixtures produce valid PlantUML with @startuml/@enduml", {
 		timeout: 30_000,
 	}, async () => {
-		const fixtures = ["minimal-sveltekit", "group-layouts", "svelte-stores"];
+		const fixtures = ["minimal-sveltekit", "group-layouts", "svelte-stores", "sveltekit-synthetic"];
 		for (const fixture of fixtures) {
 			const output = await getOutput(fixture);
 			expect(output, `${fixture} should contain @startuml`).toContain("@startuml");
