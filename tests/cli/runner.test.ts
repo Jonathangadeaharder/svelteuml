@@ -97,6 +97,8 @@ function makeCliOpts(overrides: Partial<CliOptions> = {}): CliOptions {
 		focus: undefined,
 		layoutDirection: "top-to-bottom",
 		noColor: false,
+		classDiagram: false,
+		packageDiagram: false,
 		...overrides,
 	};
 }
