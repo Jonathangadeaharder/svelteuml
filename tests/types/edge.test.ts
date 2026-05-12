@@ -13,8 +13,9 @@ describe("src/types/edge.ts", () => {
 				"dependency",
 				"association",
 				"slot",
+				"component_usage",
 			];
-			expect(types).toHaveLength(7);
+			expect(types).toHaveLength(8);
 		});
 	});
 

@@ -9,7 +9,8 @@ export type EdgeType =
 	| "prop_flow"
 	| "event"
 	| "slot"
-	| "server_load";
+	| "server_load"
+	| "component_usage";
 
 export interface Edge {
 	readonly source: string;

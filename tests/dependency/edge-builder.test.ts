@@ -238,6 +238,91 @@ describe("buildEdges", () => {
 		expect(result[0]?.type).toBe("dependency");
 	});
 
+	it("creates component_usage edge for component-to-component import", () => {
+		const imports: ResolvedImport[] = [
+			{
+				sourceFile: "/src/lib/Parent.svelte",
+				targetFile: "/src/lib/Child.svelte",
+				importedNames: ["Child"],
+				isTypeOnly: false,
+			},
+		];
+		const symbols = makeSymbolTable({
+			components: [
+				{ kind: "component", name: "Parent", filePath: "/src/lib/Parent.svelte" },
+				{ kind: "component", name: "Child", filePath: "/src/lib/Child.svelte" },
+			],
+		});
+		const result = buildEdges(imports, symbols);
+		expect(result).toHaveLength(1);
+		expect(result[0]?.type).toBe("component_usage");
+		expect(result[0]?.source).toBe("/src/lib/Parent.svelte");
+		expect(result[0]?.target).toBe("/src/lib/Child.svelte");
+		expect(result[0]?.label).toBe("Child");
+	});
+
+	it("creates component_usage edge when source has props", () => {
+		const imports: ResolvedImport[] = [
+			{
+				sourceFile: "/src/lib/Parent.svelte",
+				targetFile: "/src/lib/Child.svelte",
+				importedNames: ["Child"],
+				isTypeOnly: false,
+			},
+		];
+		const symbols = makeSymbolTable({
+			props: [
+				{
+					kind: "prop",
+					name: "label",
+					filePath: "/src/lib/Parent.svelte",
+					componentName: "Parent",
+					type: "string",
+					isRequired: true,
+				},
+				{
+					kind: "prop",
+					name: "title",
+					filePath: "/src/lib/Child.svelte",
+					componentName: "Child",
+					type: "string",
+					isRequired: true,
+				},
+			],
+		});
+		const result = buildEdges(imports, symbols);
+		expect(result).toHaveLength(1);
+		expect(result[0]?.type).toBe("component_usage");
+		expect(result[0]?.label).toBe("Child");
+	});
+
+	it("creates association edge for route-to-component import even when source is also a component", () => {
+		const imports: ResolvedImport[] = [
+			{
+				sourceFile: "/src/routes/+page.svelte",
+				targetFile: "/src/lib/Button.svelte",
+				importedNames: ["Button"],
+				isTypeOnly: false,
+			},
+		];
+		const symbols = makeSymbolTable({
+			props: [
+				{
+					kind: "prop",
+					name: "label",
+					filePath: "/src/lib/Button.svelte",
+					componentName: "Button",
+					type: "string",
+					isRequired: true,
+				},
+			],
+		});
+		const result = buildEdges(imports, symbols);
+		expect(result).toHaveLength(1);
+		expect(result[0]?.type).toBe("association");
+		expect(result[0]?.label).toBe("Button");
+	});
+
 	it("defaults to dependency when imported symbol kind is unknown", () => {
 		const imports: ResolvedImport[] = [
 			{
