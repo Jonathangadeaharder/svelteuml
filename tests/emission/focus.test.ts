@@ -7,7 +7,7 @@ import {
 	resolveGlobalScope,
 } from "../../src/emission/focus.js";
 import type { SymbolTable } from "../../src/types/ast.js";
-import type { Edge, EdgeSet } from "../../src/types/edge.js";
+import type { Edge } from "../../src/types/edge.js";
 import { createEdgeSet } from "../../src/types/edge.js";
 
 function makeSymbols(overrides?: Partial<SymbolTable>): SymbolTable {
