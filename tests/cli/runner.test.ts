@@ -52,6 +52,7 @@ vi.mock("../../src/extraction/symbol-extractor.js", () => ({
 			exports: [],
 			routes: [],
 			components: [],
+			events: [],
 		}),
 	})),
 }));
@@ -107,6 +108,7 @@ function makeCliOpts(overrides: Partial<CliOptions> = {}): CliOptions {
 		noColor: false,
 		classDiagram: false,
 		packageDiagram: false,
+		aliasGroups: [],
 		...overrides,
 	};
 }
@@ -265,7 +267,7 @@ describe("src/cli/runner.ts", () => {
 			expect(result.success).toBe(false);
 		});
 
-		it("writes file when format is not text or outputPath is set", async () => {
+	it("writes file when format is not text or outputPath is set", async () => {
 			const cliOpts = makeCliOpts({ format: "text", outputPath: "/tmp/out.puml" });
 			const result = await runPipeline(cliOpts, {});
 
@@ -278,7 +280,7 @@ describe("src/cli/runner.ts", () => {
 			);
 		});
 
-		it("writes file for svg format without outputPath", async () => {
+	it("writes file for svg format without outputPath", async () => {
 			const cliOpts = makeCliOpts({ format: "svg" });
 			const result = await runPipeline(cliOpts, {});
 
