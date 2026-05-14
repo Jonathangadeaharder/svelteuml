@@ -32,6 +32,7 @@ function makeSymbols(overrides?: Partial<SymbolTable>): SymbolTable {
 		exports: [],
 		routes: [],
 		components: [],
+		events: [],
 		...overrides,
 	};
 }

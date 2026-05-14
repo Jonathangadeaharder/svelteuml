@@ -5,7 +5,7 @@ const regexCache = new Map<string, RegExp>();
 
 function globToRegex(pattern: string): RegExp {
 	const normalized = pattern.replace(/\\/g, "/");
-	let cached = regexCache.get(normalized);
+	const cached = regexCache.get(normalized);
 	if (cached) return cached;
 	const escaped = normalized
 		.replace(/[.+^${}()|[\]\\]/g, "\\$&")
@@ -36,16 +36,28 @@ export interface GroupedSymbols {
 export function groupSymbols(symbols: SymbolTable, groupsConfig: GroupConfig[]): GroupedSymbols {
 	const grouped = new Map<string, SymbolTable>();
 	const ungrouped: SymbolTable = {
-		classes: [], functions: [], stores: [], props: [],
-		events: [], exports: [], routes: [], components: [],
+		classes: [],
+		functions: [],
+		stores: [],
+		props: [],
+		events: [],
+		exports: [],
+		routes: [],
+		components: [],
 	};
 
 	const getGroup = (name: string): SymbolTable => {
 		let group = grouped.get(name);
 		if (!group) {
 			group = {
-				classes: [], functions: [], stores: [], props: [],
-				events: [], exports: [], routes: [], components: [],
+				classes: [],
+				functions: [],
+				stores: [],
+				props: [],
+				events: [],
+				exports: [],
+				routes: [],
+				components: [],
 			};
 			grouped.set(name, group);
 		}
@@ -64,14 +76,46 @@ export function groupSymbols(symbols: SymbolTable, groupsConfig: GroupConfig[]):
 		}
 	};
 
-	pushByGroup(symbols.classes, (t) => t.classes, (t) => t.classes);
-	pushByGroup(symbols.functions, (t) => t.functions, (t) => t.functions);
-	pushByGroup(symbols.stores, (t) => t.stores, (t) => t.stores);
-	pushByGroup(symbols.props, (t) => t.props, (t) => t.props);
-	pushByGroup(symbols.events, (t) => t.events, (t) => t.events);
-	pushByGroup(symbols.exports, (t) => t.exports, (t) => t.exports);
-	pushByGroup(symbols.routes, (t) => t.routes, (t) => t.routes);
-	pushByGroup(symbols.components, (t) => t.components, (t) => t.components);
+	pushByGroup(
+		symbols.classes,
+		(t) => t.classes,
+		(t) => t.classes,
+	);
+	pushByGroup(
+		symbols.functions,
+		(t) => t.functions,
+		(t) => t.functions,
+	);
+	pushByGroup(
+		symbols.stores,
+		(t) => t.stores,
+		(t) => t.stores,
+	);
+	pushByGroup(
+		symbols.props,
+		(t) => t.props,
+		(t) => t.props,
+	);
+	pushByGroup(
+		symbols.events,
+		(t) => t.events,
+		(t) => t.events,
+	);
+	pushByGroup(
+		symbols.exports,
+		(t) => t.exports,
+		(t) => t.exports,
+	);
+	pushByGroup(
+		symbols.routes,
+		(t) => t.routes,
+		(t) => t.routes,
+	);
+	pushByGroup(
+		symbols.components,
+		(t) => t.components,
+		(t) => t.components,
+	);
 
 	return { groups: grouped, ungrouped };
 }

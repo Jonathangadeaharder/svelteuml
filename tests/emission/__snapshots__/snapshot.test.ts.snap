@@ -65,12 +65,12 @@ exports[`PlantUML snapshot: package diagram > emits valid PlantUML with packages
 
 top to bottom direction
 
-package "routes" as routes {
-  class App
-}
-
 package "lib" as lib {
   class Layout
+}
+
+package "routes" as routes {
+  class App
 }
 
 routes ..> lib : 1
