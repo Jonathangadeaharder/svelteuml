@@ -219,6 +219,7 @@ export function arbSymbolInfo(): fc.Arbitrary<SymbolInfo> {
 		exportSymbol,
 		routeSymbol,
 		componentSymbol,
+		eventSymbol,
 	);
 }
 

@@ -214,6 +214,7 @@ describe("Svelte AST property-based smoke test", () => {
 					"export",
 					"route",
 					"component",
+					"event",
 				];
 				expect(validKinds).toContain(s.kind);
 			}),
@@ -226,6 +227,7 @@ describe("Svelte AST property-based smoke test", () => {
 		expect(seen.has("export")).toBe(true);
 		expect(seen.has("route")).toBe(true);
 		expect(seen.has("component")).toBe(true);
+		expect(seen.has("event")).toBe(true);
 	});
 
 	it("SymbolTable can hold all symbol types", () => {
