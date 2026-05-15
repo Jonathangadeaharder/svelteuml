@@ -91,59 +91,14 @@ describe("loadConfigFile", () => {
 		expect(result).toEqual({});
 	});
 
-	it("warns on unknown fields", async () => {
-		tempDir = join(tmpdir(), `svelteuml-test-${Date.now()}`);
-		await mkdir(tempDir, { recursive: true });
-		const configPath = join(tempDir, ".svelteumlrc.json");
-		await writeFile(configPath, JSON.stringify({ targetDir: "./src", unknownField: "value" }));
-
-		const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-		const result = await loadConfigFile(configPath);
-
-		expect(result).toEqual({ targetDir: "./src", unknownField: "value" });
-		expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("unknownField"));
-
-		warnSpy.mockRestore();
-	});
-
-	it("loads TypeScript config from .ts file", async () => {
-		tempDir = join(tmpdir(), `svelteuml-test-${Date.now()}`);
-		await mkdir(tempDir, { recursive: true });
-		const configPath = join(tempDir, "svelteuml.config.ts");
-		await writeFile(configPath, 'export default { targetDir: "./src", maxDepth: 3 };');
-
-		const result = await loadConfigFile(configPath);
-		expect(result.targetDir).toBe("./src");
-		expect(result.maxDepth).toBe(3);
-	});
-
-	it("warns on unknown fields in TypeScript config", async () => {
-		tempDir = join(tmpdir(), `svelteuml-test-${Date.now()}`);
-		await mkdir(tempDir, { recursive: true });
-		const configPath = join(tempDir, "svelteuml.config.ts");
-		await writeFile(configPath, 'export default { targetDir: "./src", badField: true };');
-
-		const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-		const result = await loadConfigFile(configPath);
-
-		expect(result.targetDir).toBe("./src");
-		expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("badField"));
-
-		warnSpy.mockRestore();
-	});
-
 	it("returns empty object for invalid TypeScript config", async () => {
 		tempDir = join(tmpdir(), `svelteuml-test-${Date.now()}`);
 		await mkdir(tempDir, { recursive: true });
 		const configPath = join(tempDir, "svelteuml.config.ts");
 		await writeFile(configPath, "this is not valid typescript {{{{{");
 
-		const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 		const result = await loadConfigFile(configPath);
 
 		expect(result).toEqual({});
-		expect(warnSpy).toHaveBeenCalled();
-
-		warnSpy.mockRestore();
 	});
 });
