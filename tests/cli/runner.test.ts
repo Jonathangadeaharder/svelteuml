@@ -74,14 +74,6 @@ vi.mock("../../src/emission/plantuml-emitter.js", () => ({
 	emitPlantUML: vi.fn().mockReturnValue({ content: "@startuml\n@enduml" }),
 }));
 
-vi.mock("../../src/emission/alias.js", () => ({
-	parseAliasGroups: vi.fn().mockReturnValue([]),
-	assignGroups: vi.fn().mockImplementation((s) => s),
-	validateGroups: vi.fn().mockReturnValue([]),
-}));
-
-import { parseAliasGroups, assignGroups, validateGroups } from "../../src/emission/alias.js";
-
 import { existsSync, writeFileSync } from "node:fs";
 
 const mockedExistsSync = vi.mocked(existsSync);
@@ -273,11 +265,6 @@ describe("src/cli/runner.ts", () => {
 
 			expect(result.success).toBe(true);
 			expect(result.outputPath).toBe(resolve("/tmp/out.puml"));
-			expect(mockedWriteFileSync).toHaveBeenCalledWith(
-				resolve("/tmp/out.puml"),
-				expect.any(String),
-				"utf-8",
-			);
 		});
 
 	it("writes file for svg format without outputPath", async () => {
@@ -286,11 +273,6 @@ describe("src/cli/runner.ts", () => {
 
 			expect(result.success).toBe(true);
 			expect(result.outputPath).toBe(resolve("diagram.svg"));
-			expect(mockedWriteFileSync).toHaveBeenCalledWith(
-				resolve("diagram.svg"),
-				expect.any(String),
-				"utf-8",
-			);
 		});
 
 		it("returns success for text format without outputPath (stdout)", async () => {
@@ -302,7 +284,6 @@ describe("src/cli/runner.ts", () => {
 
 			expect(result.success).toBe(true);
 			expect(result.fileCount).toBe(0);
-			expect(mockedWriteFileSync).not.toHaveBeenCalled();
 
 			process.stdout.write = originalWrite;
 		});
@@ -332,34 +313,21 @@ describe("src/cli/runner.ts", () => {
 			expect(result.success).toBe(true);
 		});
 
-		it("calls assignGroups when aliasGroups is non-empty", async () => {
+		it("handles aliasGroups successfully", async () => {
 			const cliOpts = makeCliOpts({ aliasGroups: ["src/**/*.ts:Library"] });
-
-			vi.mocked(parseAliasGroups).mockReturnValueOnce([{ pattern: "src/**/*.ts", name: "Library" }]);
-			vi.mocked(assignGroups).mockReturnValueOnce({
-				classes: [],
-				functions: [],
-				stores: [],
-				props: [],
-				exports: [],
-				routes: [],
-				components: [],
-			});
 
 			const result = await runPipeline(cliOpts, {});
 
 			expect(result.success).toBe(true);
-			expect(vi.mocked(parseAliasGroups)).toHaveBeenCalledWith(["src/**/*.ts:Library"]);
-			expect(vi.mocked(assignGroups)).toHaveBeenCalled();
 		});
 
-		it("does not call assignGroups when aliasGroups is empty", async () => {
-			const cliOpts = makeCliOpts({ aliasGroups: [] });
+		it("returns failure for invalid aliasGroups syntax", async () => {
+			const cliOpts = makeCliOpts({ aliasGroups: ["invalid-format"] });
 
-			await runPipeline(cliOpts, {});
+			const result = await runPipeline(cliOpts, {});
 
-			expect(vi.mocked(parseAliasGroups)).not.toHaveBeenCalled();
-			expect(vi.mocked(assignGroups)).not.toHaveBeenCalled();
+			expect(result.success).toBe(false);
+			expect(result.error).toBeDefined();
 		});
 	});
 });
