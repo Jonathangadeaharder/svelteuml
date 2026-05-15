@@ -80,12 +80,12 @@ describe("parseArgs", () => {
 	});
 
 	it("parses --exclude-patterns", () => {
-		const result = parseArgs(["./src", "--exclude-patterns", "**/*.test.ts", "**/*.spec.ts"]);
+		const result = parseArgs(["generate", "./src", "--exclude-patterns", "**/*.test.ts", "**/*.spec.ts"]);
 		expect(result.excludePatterns).toEqual(["**/*.test.ts", "**/*.spec.ts"]);
 	});
 
 	it("defaults excludePatterns to empty array", () => {
-		const result = parseArgs(["./src"]);
+		const result = parseArgs(["generate", "./src"]);
 		expect(result.excludePatterns).toEqual([]);
 	});
 
@@ -236,33 +236,33 @@ describe("parseArgs", () => {
 	});
 
 	it("parses --class-diagram boolean flag", () => {
-		const result = parseArgs(["./src", "--class-diagram"]);
+		const result = parseArgs(["generate", "./src", "--class-diagram"]);
 		expect(result.classDiagram).toBe(true);
 		expect(result.diagram).toBe("class");
 	});
 
 	it("parses --package-diagram boolean flag", () => {
-		const result = parseArgs(["./src", "--package-diagram"]);
+		const result = parseArgs(["generate", "./src", "--package-diagram"]);
 		expect(result.packageDiagram).toBe(true);
 		expect(result.diagram).toBe("package");
 	});
 
 	it("defaults classDiagram and packageDiagram to false", () => {
-		const result = parseArgs(["./src"]);
+		const result = parseArgs(["generate", "./src"]);
 		expect(result.classDiagram).toBe(false);
 		expect(result.packageDiagram).toBe(false);
 		expect(result.diagram).toBe("class");
 	});
 
 	it("--class-diagram overrides --diagram package", () => {
-		const result = parseArgs(["./src", "--diagram", "package", "--class-diagram"]);
+		const result = parseArgs(["generate", "./src", "--diagram", "package", "--class-diagram"]);
 		expect(result.classDiagram).toBe(true);
 		expect(result.packageDiagram).toBe(false);
 		expect(result.diagram).toBe("class");
 	});
 
 	it("--package-diagram overrides --diagram class", () => {
-		const result = parseArgs(["./src", "--diagram", "class", "--package-diagram"]);
+		const result = parseArgs(["generate", "./src", "--diagram", "class", "--package-diagram"]);
 		expect(result.classDiagram).toBe(false);
 		expect(result.packageDiagram).toBe(true);
 		expect(result.diagram).toBe("package");

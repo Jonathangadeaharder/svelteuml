@@ -14,6 +14,7 @@ function makeEmptySymbolTable(overrides: Partial<SymbolTable> = {}): SymbolTable
 		exports: [],
 		routes: [],
 		components: [],
+		events: [],
 		...overrides,
 	};
 }

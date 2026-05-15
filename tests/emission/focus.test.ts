@@ -7,7 +7,7 @@ import {
 	resolveGlobalScope,
 } from "../../src/emission/focus.js";
 import type { SymbolTable } from "../../src/types/ast.js";
-import type { Edge, EdgeSet } from "../../src/types/edge.js";
+import type { Edge } from "../../src/types/edge.js";
 import { createEdgeSet } from "../../src/types/edge.js";
 
 function makeSymbols(overrides?: Partial<SymbolTable>): SymbolTable {
@@ -19,12 +19,9 @@ function makeSymbols(overrides?: Partial<SymbolTable>): SymbolTable {
 		exports: [],
 		routes: [],
 		components: [],
+		events: [],
 		...overrides,
 	};
-}
-
-function makeEdgeSet(edges: Edge[]): EdgeSet {
-	return createEdgeSet(edges);
 }
 
 describe("resolveFocusScope", () => {
@@ -53,7 +50,7 @@ describe("resolveFocusScope", () => {
 				},
 			],
 		});
-		const edgeSet = makeEdgeSet([]);
+		const edgeSet = createEdgeSet([]);
 		const scope = resolveFocusScope(symbols, edgeSet, { focusNode: "Missing", depth: 1 });
 		expect(scope.size).toBe(2);
 		expect(scope.has("Foo")).toBe(true);
@@ -85,7 +82,7 @@ describe("resolveFocusScope", () => {
 				},
 			],
 		});
-		const edgeSet = makeEdgeSet([{ source: "Foo", target: "Bar", type: "dependency" as const }]);
+		const edgeSet = createEdgeSet([{ source: "Foo", target: "Bar", type: "dependency" as const }]);
 		const scope = resolveFocusScope(symbols, edgeSet, { focusNode: "Foo", depth: 0 });
 		expect(scope.size).toBe(2);
 	});
@@ -125,7 +122,7 @@ describe("resolveFocusScope", () => {
 				},
 			],
 		});
-		const edgeSet = makeEdgeSet([
+		const edgeSet = createEdgeSet([
 			{ source: "A", target: "B", type: "dependency" as const },
 			{ source: "B", target: "C", type: "dependency" as const },
 		]);
@@ -170,7 +167,7 @@ describe("resolveFocusScope", () => {
 				},
 			],
 		});
-		const edgeSet = makeEdgeSet([
+		const edgeSet = createEdgeSet([
 			{ source: "A", target: "B", type: "dependency" as const },
 			{ source: "B", target: "C", type: "dependency" as const },
 		]);
@@ -215,7 +212,7 @@ describe("resolveFocusScope", () => {
 				},
 			],
 		});
-		const edgeSet = makeEdgeSet([
+		const edgeSet = createEdgeSet([
 			{ source: "A", target: "B", type: "dependency" as const },
 			{ source: "B", target: "C", type: "dependency" as const },
 		]);
@@ -238,7 +235,7 @@ describe("resolveFocusScope", () => {
 				},
 			],
 		});
-		const edgeSet = makeEdgeSet([]);
+		const edgeSet = createEdgeSet([]);
 		const scope = resolveFocusScope(symbols, edgeSet, { focusNode: "mycomponent", depth: 1 });
 		expect(scope.has("MyComponent")).toBe(true);
 	});
@@ -258,7 +255,7 @@ describe("resolveFocusScope", () => {
 				},
 			],
 		});
-		const edgeSet = makeEdgeSet([]);
+		const edgeSet = createEdgeSet([]);
 		const scope = resolveFocusScope(symbols, edgeSet, { focusNode: "+layout.svelte", depth: 1 });
 		expect(scope.has("AuthLayout")).toBe(true);
 	});
@@ -288,7 +285,7 @@ describe("resolveFocusScope", () => {
 				},
 			],
 		});
-		const edgeSet = makeEdgeSet([{ source: "A", target: "B", type: "dependency" as const }]);
+		const edgeSet = createEdgeSet([{ source: "A", target: "B", type: "dependency" as const }]);
 		const scope = resolveFocusScope(symbols, edgeSet, { focusNode: "B", depth: 1 });
 		expect(scope.has("A")).toBe(true);
 		expect(scope.has("B")).toBe(true);
@@ -414,7 +411,7 @@ describe("resolveFocusScope fuzzy matching", () => {
 				},
 			],
 		});
-		const edgeSet = makeEdgeSet([]);
+		const edgeSet = createEdgeSet([]);
 		const scope = resolveFocusScope(symbols, edgeSet, { focusNode: "Btn", depth: 1 });
 		expect(scope.has("Btn")).toBe(true);
 	});
@@ -434,7 +431,7 @@ describe("resolveFocusScope fuzzy matching", () => {
 				},
 			],
 		});
-		const edgeSet = makeEdgeSet([]);
+		const edgeSet = createEdgeSet([]);
 		const scope = resolveFocusScope(symbols, edgeSet, { focusNode: "great", depth: 1 });
 		expect(scope.has("MyGreatWidget")).toBe(true);
 	});
@@ -454,7 +451,7 @@ describe("resolveFocusScope fuzzy matching", () => {
 				},
 			],
 		});
-		const edgeSet = makeEdgeSet([]);
+		const edgeSet = createEdgeSet([]);
 		const scope = resolveFocusScope(symbols, edgeSet, { focusNode: "helperFn", depth: 1 });
 		expect(scope.has("helperFn")).toBe(true);
 	});
@@ -473,7 +470,7 @@ describe("resolveFocusScope fuzzy matching", () => {
 				},
 			],
 		});
-		const edgeSet = makeEdgeSet([]);
+		const edgeSet = createEdgeSet([]);
 		const scope = resolveFocusScope(symbols, edgeSet, { focusNode: "userStore", depth: 1 });
 		expect(scope.has("userStore")).toBe(true);
 	});
@@ -490,7 +487,7 @@ describe("resolveFocusScope fuzzy matching", () => {
 				},
 			],
 		});
-		const edgeSet = makeEdgeSet([]);
+		const edgeSet = createEdgeSet([]);
 		const scope = resolveFocusScope(symbols, edgeSet, { focusNode: "API_URL", depth: 1 });
 		expect(scope.has("API_URL")).toBe(true);
 	});
@@ -504,7 +501,7 @@ describe("resolveGlobalScope", () => {
 				{ kind: "class", name: "B", filePath: "/src/B.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
 			],
 		});
-		const edgeSet = makeEdgeSet([{ source: "A", target: "B", type: "dependency" as const }]);
+		const edgeSet = createEdgeSet([{ source: "A", target: "B", type: "dependency" as const }]);
 		const scope = resolveGlobalScope(symbols, edgeSet, 0);
 		expect(scope.size).toBe(2);
 	});
@@ -517,7 +514,7 @@ describe("resolveGlobalScope", () => {
 				{ kind: "class", name: "Deep", filePath: "/src/Deep.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
 			],
 		});
-		const edgeSet = makeEdgeSet([
+		const edgeSet = createEdgeSet([
 			{ source: "Root", target: "Util", type: "dependency" as const },
 			{ source: "Util", target: "Deep", type: "dependency" as const },
 		]);
@@ -535,7 +532,7 @@ describe("resolveGlobalScope", () => {
 				{ kind: "class", name: "C", filePath: "/src/C.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
 			],
 		});
-		const edgeSet = makeEdgeSet([
+		const edgeSet = createEdgeSet([
 			{ source: "A", target: "B", type: "dependency" as const },
 			{ source: "B", target: "C", type: "dependency" as const },
 		]);
@@ -551,7 +548,7 @@ describe("resolveGlobalScope", () => {
 				{ kind: "class", name: "C", filePath: "/src/C.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
 			],
 		});
-		const edgeSet = makeEdgeSet([
+		const edgeSet = createEdgeSet([
 			{ source: "A", target: "B", type: "dependency" as const },
 			{ source: "B", target: "C", type: "dependency" as const },
 		]);
@@ -568,7 +565,7 @@ describe("resolveGlobalScope", () => {
 				{ kind: "prop", name: "count", filePath: "/src/Comp.svelte", componentName: "Comp", type: "number", isRequired: false },
 			],
 		});
-		const edgeSet = makeEdgeSet([]);
+		const edgeSet = createEdgeSet([]);
 		const scope = resolveGlobalScope(symbols, edgeSet, 0);
 		expect(scope.has("Comp")).toBe(true);
 		expect(scope.size).toBe(1);
@@ -581,7 +578,7 @@ describe("resolveGlobalScope", () => {
 				{ kind: "class", name: "B", filePath: "/src/B.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
 			],
 		});
-		const edgeSet = makeEdgeSet([]);
+		const edgeSet = createEdgeSet([]);
 		const scope = resolveGlobalScope(symbols, edgeSet, 1);
 		expect(scope.size).toBe(2);
 	});
@@ -594,7 +591,7 @@ describe("filterByExcludePatterns", () => {
 				{ kind: "class", name: "Foo", filePath: "/src/Foo.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
 			],
 		});
-		const edgeSet = makeEdgeSet([]);
+		const edgeSet = createEdgeSet([]);
 		const result = filterByExcludePatterns(symbols, edgeSet, []);
 		expect(result.symbols.classes).toHaveLength(1);
 	});
@@ -606,7 +603,7 @@ describe("filterByExcludePatterns", () => {
 				{ kind: "class", name: "Bar", filePath: "/src/test/Bar.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
 			],
 		});
-		const edgeSet = makeEdgeSet([]);
+		const edgeSet = createEdgeSet([]);
 		const result = filterByExcludePatterns(symbols, edgeSet, ["**/test/**"]);
 		expect(result.symbols.classes).toHaveLength(1);
 		expect(result.symbols.classes[0].name).toBe("Foo");
@@ -619,7 +616,7 @@ describe("filterByExcludePatterns", () => {
 				{ kind: "class", name: "Remove", filePath: "/src/hidden/Remove.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
 			],
 		});
-		const edgeSet = makeEdgeSet([
+		const edgeSet = createEdgeSet([
 			{ source: "Keep", target: "Remove", type: "dependency" as const },
 		]);
 		const result = filterByExcludePatterns(symbols, edgeSet, ["**/hidden/**"]);

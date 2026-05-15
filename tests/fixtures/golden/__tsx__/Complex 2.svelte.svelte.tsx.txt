@@ -1,0 +1,46 @@
+///<reference types="svelte" />
+;
+import type { Snippet } from "svelte";
+
+;type $$ComponentProps =  {
+	items: Array<{ id: string; name: string }>;
+	header?: Snippet;
+	footer?: Snippet;
+};function $$render() {
+
+
+
+let { items, header, footer }:/*Ωignore_startΩ*/$$ComponentProps/*Ωignore_endΩ*/ = $props();
+
+let selected = $state<string | null>(null);
+
+function select(id: string) {
+	selected = id;
+}
+;
+async () => {
+
+if(header){
+	;__sveltets_2_ensureSnippet(header());
+}
+
+ { svelteHTML.createElement("ul", {});
+	   for(let item of __sveltets_2_ensureArray(items)){item.id;
+		 { svelteHTML.createElement("li", {    "onclick":() => select(item.id),});selected === item.id;
+			item.name;
+		 }
+	}
+ }
+
+if(footer){
+	;__sveltets_2_ensureSnippet(footer());
+}
+
+if(selected){
+	 { svelteHTML.createElement("p", {}); selected; }
+}
+};
+return { props: {} as any as $$ComponentProps, exports: {}, bindings: __sveltets_$$bindings(''), slots: {}, events: {} }}
+const Complex2__SvelteComponent_ = __sveltets_2_fn_component($$render());
+/*Ωignore_startΩ*/type Complex2__SvelteComponent_ = ReturnType<typeof Complex2__SvelteComponent_>;
+/*Ωignore_endΩ*/export default Complex2__SvelteComponent_;

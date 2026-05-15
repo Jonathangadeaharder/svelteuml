@@ -9,10 +9,7 @@ import type { DiagramOptions } from "../types/diagram.js";
 import type { EdgeSet, EdgeType } from "../types/edge.js";
 import { normalizeFilePath } from "../utils/path.js";
 import { routeStereotype } from "./route-utils.js";
-import {
-	applyFocusFilter,
-	filterHiddenComponents,
-} from "./tag-processor.js";
+import { applyFocusFilter, filterHiddenComponents } from "./tag-processor.js";
 
 function collectGroups(symbols: SymbolTable): Map<string, SymbolTable> {
 	const groups = new Map<string, SymbolTable>();

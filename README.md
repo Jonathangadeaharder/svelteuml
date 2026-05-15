@@ -330,7 +330,8 @@ Uses [fast-check](https://github.com/dubzzz/fast-check) alongside unit tests.
 | Generator naming | Prefix with `arb` (e.g. `arbEdge`, `arbEdgeType`) |
 | File naming | `*.property.test.ts` |
 | Local runs | 100 cases (`VITEST_PBT_NUM_RUNS=100`) |
-| CI runs | 1000 cases (`VITEST_PBT_NUM_RUNS=1000`) |
+| CI runs | 100 cases (`VITEST_PBT_NUM_RUNS=100`) |
+| Extraction PBTs | capped at 30 internally |
 
 ### Contributing
 

@@ -13,6 +13,7 @@ function makeEmptySymbolTable(overrides: Partial<SymbolTable> = {}): SymbolTable
 		exports: [],
 		routes: [],
 		components: [],
+		events: [],
 		...overrides,
 	};
 }
@@ -245,7 +246,7 @@ describe("renderPackageDiagram", () => {
 			{ source: "/src/features/Parent.svelte", target: "/src/lib/Child.svelte", type: "component_usage" },
 		]);
 		const result = renderPackageDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
-		expect(result).toContain("-->");
+		expect(result).toContain("..>");
 	});
 
 	it("renders aggregation arrow between packages with weight", () => {

@@ -12,21 +12,28 @@ const OUTPUT_PATH = join(testOutputDir, "benchmark-output.puml");
 function makeCliOptions(overrides: Partial<CliOptions> = {}): CliOptions {
 	mkdirSync(testOutputDir, { recursive: true });
 	return {
+		subcommand: "generate",
 		targetDir: FIXTURE_DIR,
 		outputPath: OUTPUT_PATH,
 		format: "text",
 		excludeExternals: false,
 		maxDepth: 0,
 		exclude: [],
+		excludePatterns: [],
 		hideTypeDeps: false,
 		hideStateDeps: false,
 		quiet: true,
 		verbose: false,
+		detectCircular: false,
+		failOnCircular: false,
 		watch: false,
+		classDiagram: false,
+		packageDiagram: false,
 		diagram: "class",
 		focus: undefined,
 		layoutDirection: "top-to-bottom",
 		noColor: false,
+		aliasGroups: [],
 		...overrides,
 	};
 }

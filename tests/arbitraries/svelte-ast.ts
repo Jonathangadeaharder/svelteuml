@@ -2,6 +2,7 @@ import fc from "fast-check";
 import type {
 	ClassSymbol,
 	ComponentSymbol,
+	EventSymbol,
 	ExportSymbol,
 	FunctionSymbol,
 	MemberSymbol,
@@ -196,6 +197,19 @@ export function arbComponentSymbol(): fc.Arbitrary<ComponentSymbol> {
 
 const componentSymbol: fc.Arbitrary<ComponentSymbol> = arbComponentSymbol();
 
+export function arbEventSymbol(): fc.Arbitrary<EventSymbol> {
+	return fc.record({
+		kind: fc.constant("event" as const),
+		name: fc.string({ minLength: 1, maxLength: 30 }),
+		filePath: fc.string({ minLength: 1, maxLength: 60 }),
+		componentName: fc.string({ minLength: 1, maxLength: 30 }),
+		eventName: fc.string({ minLength: 1, maxLength: 30 }),
+		type: fc.string({ minLength: 1, maxLength: 30 }),
+	});
+}
+
+const eventSymbol: fc.Arbitrary<EventSymbol> = arbEventSymbol();
+
 export function arbSymbolInfo(): fc.Arbitrary<SymbolInfo> {
 	return fc.oneof(
 		classSymbol,
@@ -205,6 +219,7 @@ export function arbSymbolInfo(): fc.Arbitrary<SymbolInfo> {
 		exportSymbol,
 		routeSymbol,
 		componentSymbol,
+		eventSymbol,
 	);
 }
 
@@ -214,6 +229,7 @@ export function arbSymbolTable(): fc.Arbitrary<SymbolTable> {
 		functions: fc.array(functionSymbol, { maxLength: 5 }),
 		stores: fc.array(storeSymbol, { maxLength: 5 }),
 		props: fc.array(propSymbol, { maxLength: 5 }),
+		events: fc.array(eventSymbol, { maxLength: 5 }),
 		exports: fc.array(exportSymbol, { maxLength: 5 }),
 		routes: fc.array(routeSymbol, { maxLength: 5 }),
 		components: fc.array(componentSymbol, { maxLength: 5 }),

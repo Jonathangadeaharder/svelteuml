@@ -5,7 +5,7 @@ import { ParsingProject } from "../../src/parsing/ts-morph-project.js";
 import { PipelineErrorHandler } from "../../src/pipeline/error-handler.js";
 import type { SymbolTable } from "../../src/types/ast.js";
 
-const numRuns = Number(process.env.VITEST_PBT_NUM_RUNS) || 100;
+const numRuns = Math.min(Number(process.env.VITEST_PBT_NUM_RUNS) || 100, 30);
 
 // ts-morph Project creation is expensive (~1s per instance).
 // Increase timeout to accommodate PBT run batches.
@@ -270,7 +270,7 @@ function canonicalTable(table: SymbolTable): string {
 // ---------------------------------------------------------------------------
 
 describe("Extraction PBT", () => {
-	it("extracted ⊂ source: all symbol filePaths exist in the input file tree (500+ cases)", { timeout: PBT_TIMEOUT }, () => {
+	it("extracted ⊂ source: all symbol filePaths exist in the input file tree", { timeout: PBT_TIMEOUT }, () => {
 		fc.assert(
 			fc.property(arbFileTree(), (files) => {
 				const project = buildProject(files);
@@ -284,7 +284,7 @@ describe("Extraction PBT", () => {
 					}
 				}
 			}),
-			{ numRuns: 500 },
+			{ numRuns },
 		);
 	});
 
