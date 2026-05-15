@@ -270,7 +270,7 @@ function canonicalTable(table: SymbolTable): string {
 // ---------------------------------------------------------------------------
 
 describe("Extraction PBT", () => {
-	it("extracted ⊂ source: all symbol filePaths exist in the input file tree (500+ cases)", { timeout: PBT_TIMEOUT }, () => {
+	it("extracted ⊂ source: all symbol filePaths exist in the input file tree", { timeout: PBT_TIMEOUT }, () => {
 		fc.assert(
 			fc.property(arbFileTree(), (files) => {
 				const project = buildProject(files);
