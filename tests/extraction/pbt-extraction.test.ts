@@ -284,7 +284,7 @@ describe("Extraction PBT", () => {
 					}
 				}
 			}),
-			{ numRuns: 500 },
+			{ numRuns },
 		);
 	});
 
