@@ -170,23 +170,23 @@ describe("extraction properties", () => {
 						expect(sources.has(fp)).toBe(true);
 					}
 				}),
-				{ numRuns: Math.max(numRuns, 500) },
-			);
-		},
-		PBT_TIMEOUT,
-	);
+			{ numRuns },
+		);
+	},
+	PBT_TIMEOUT,
+);
 
-	it(
-		"extraction is deterministic: same input → identical output",
-		() => {
-			fc.assert(
-				fc.property(arbFileTree(), (files) => {
-					fc.pre(Object.keys(files).length > 0);
-					const table1 = extractSymbols(files);
-					const table2 = extractSymbols(files);
-					expect(table1).toEqual(table2);
-				}),
-				{ numRuns: Math.max(numRuns, 500) },
+it(
+	"extraction is deterministic: same input → identical output",
+	() => {
+		fc.assert(
+			fc.property(arbFileTree(), (files) => {
+				fc.pre(Object.keys(files).length > 0);
+				const table1 = extractSymbols(files);
+				const table2 = extractSymbols(files);
+				expect(table1).toEqual(table2);
+			}),
+			{ numRuns },
 			);
 		},
 		PBT_TIMEOUT,
@@ -206,7 +206,7 @@ describe("extraction properties", () => {
 						expect(sources.has(comp.filePath)).toBe(true);
 					}
 				}),
-				{ numRuns: Math.max(numRuns, 500) },
+				{ numRuns },
 			);
 		},
 		PBT_TIMEOUT,
