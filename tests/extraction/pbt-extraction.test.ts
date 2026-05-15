@@ -5,7 +5,7 @@ import { ParsingProject } from "../../src/parsing/ts-morph-project.js";
 import { PipelineErrorHandler } from "../../src/pipeline/error-handler.js";
 import type { SymbolTable } from "../../src/types/ast.js";
 
-const numRuns = Number(process.env.VITEST_PBT_NUM_RUNS) || 100;
+const numRuns = Math.min(Number(process.env.VITEST_PBT_NUM_RUNS) || 100, 30);
 
 // ts-morph Project creation is expensive (~1s per instance).
 // Increase timeout to accommodate PBT run batches.

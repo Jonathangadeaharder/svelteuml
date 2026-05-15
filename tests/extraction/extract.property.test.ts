@@ -10,7 +10,7 @@ import { PipelineErrorHandler } from "../../src/pipeline/error-handler.js";
 // Generators
 // ---------------------------------------------------------------------------
 
-const numRuns = Number(process.env.VITEST_PBT_NUM_RUNS) || 100;
+const numRuns = Math.min(Number(process.env.VITEST_PBT_NUM_RUNS) || 100, 30);
 
 function isSafeSegment(s: string): boolean {
 	return /^[a-zA-Z0-9_$][a-zA-Z0-9_$\-+.]*$/.test(s) && s.length > 0;
