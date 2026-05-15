@@ -321,12 +321,13 @@ describe("src/cli/runner.ts", () => {
 			expect(result.success).toBe(true);
 		});
 
-		it("handles empty aliasGroups", async () => {
-			const cliOpts = makeCliOpts({ aliasGroups: [] });
+		it("returns failure for invalid aliasGroups syntax", async () => {
+			const cliOpts = makeCliOpts({ aliasGroups: ["invalid-format"] });
 
 			const result = await runPipeline(cliOpts, {});
 
-			expect(result.success).toBe(true);
+			expect(result.success).toBe(false);
+			expect(result.error).toBeDefined();
 		});
 	});
 });
