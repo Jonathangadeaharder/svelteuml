@@ -4,7 +4,7 @@ export default defineConfig({
 		test: {
 		testTimeout: 15_000,
 		globals: true,
-		exclude: ["tests/integration/**", "tests/e2e/**"],
+		exclude: ["tests/integration/**", "tests/e2e/**", "**/node_modules/**"],
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "html", "clover"],

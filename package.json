@@ -26,7 +26,7 @@
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage tests/",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:e2e": "vitest run tests/e2e/",
     "test:mutation": "stryker run",
