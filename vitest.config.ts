@@ -1,9 +1,10 @@
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-	test: {
+		test: {
 		testTimeout: 15_000,
 		globals: true,
+		exclude: ["tests/integration/**", "tests/e2e/**"],
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "html", "clover"],

@@ -1,0 +1,20 @@
+///<reference types="svelte" />
+;function $$render() {
+
+	 let title/*Ωignore_startΩ*/;title = __sveltets_2_any(title);/*Ωignore_endΩ*/;
+	 let count = 0;
+	 let onSelect/*Ωignore_startΩ*/;onSelect = __sveltets_2_any(onSelect);/*Ωignore_endΩ*/;
+
+	let internal = "private";
+;
+async () => {
+
+ { svelteHTML.createElement("h1", {});title; }
+ { svelteHTML.createElement("p", {}); count; }
+ { svelteHTML.createElement("button", {  "on:click":onSelect,});  }
+ { svelteHTML.createElement("p", {}); internal; }
+};
+return { props: {title: title , count: count , onSelect: onSelect}, exports: {}, bindings: "", slots: {}, events: {} }}
+const Legacy2__SvelteComponent_ = __sveltets_2_isomorphic_component(__sveltets_2_partial(['count'], __sveltets_2_with_any_event($$render())));
+/*Ωignore_startΩ*/type Legacy2__SvelteComponent_ = InstanceType<typeof Legacy2__SvelteComponent_>;
+/*Ωignore_endΩ*/export default Legacy2__SvelteComponent_;
