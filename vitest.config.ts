@@ -1,7 +1,7 @@
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-		test: {
+	test: {
 		pool: "forks",
 		poolOptions: {
 			forks: {
@@ -23,7 +23,7 @@ export default defineConfig({
 				"src/types/pipeline.ts",
 			],
 			thresholds: {
-				branches: 85,
+				branches: 90,
 				lines: 80,
 				functions: 85,
 				statements: 85,
