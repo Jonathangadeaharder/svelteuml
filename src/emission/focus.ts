@@ -170,7 +170,6 @@ export function filterByExcludePatterns(
 	for (const store of symbols.stores) checkSymbol(store.filePath, store.name);
 	for (const comp of symbols.components) checkSymbol(comp.filePath, comp.name);
 	for (const route of symbols.routes) checkSymbol(route.filePath, route.name);
-	for (const evt of symbols.events) checkSymbol(evt.filePath, evt.componentName);
 	for (const exp of symbols.exports) checkSymbol(exp.filePath, exp.name);
 
 	const filteredSymbols: SymbolTable = {
@@ -178,7 +177,7 @@ export function filterByExcludePatterns(
 		functions: symbols.functions.filter((f) => !excludedNames.has(f.name)),
 		stores: symbols.stores.filter((s) => !excludedNames.has(s.name)),
 		props: symbols.props.filter((p) => !excludedNames.has(p.componentName)),
-		events: symbols.events.filter((e) => !excludedNames.has(e.componentName)),
+		events: symbols.events.filter((e) => !excludedNames.has(e.name)),
 		exports: symbols.exports.filter((e) => !excludedNames.has(e.name)),
 		routes: symbols.routes.filter((r) => !excludedNames.has(r.name)),
 		components: symbols.components.filter((c) => !excludedNames.has(c.name)),
