@@ -46,7 +46,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 			method: event.request.method,
 			headers,
 			body: event.request.body,
-			// @ts-expect-error - duplex is required for streaming request bodies
 			duplex: 'half',
 		});
 

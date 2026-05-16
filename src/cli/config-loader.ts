@@ -32,7 +32,6 @@ export async function searchConfigFile(searchDir: string): Promise<{ path: strin
 function warnUnknownFields(config: Record<string, unknown>): void {
 	for (const key of Object.keys(config)) {
 		if (!KNOWN_FIELDS.has(key)) {
-			// biome-ignore lint/suspicious/noConsole: CLI warns user about unknown config fields
 			console.warn(`Unknown config field: "${key}"`);
 		}
 	}
@@ -65,7 +64,6 @@ export async function loadConfigFile(configPath: string): Promise<Record<string,
 		return loadJSONConfig(configPath);
 	} catch (err: unknown) {
 		const message = err instanceof Error ? err.message : String(err);
-		// biome-ignore lint/suspicious/noConsole: CLI warns user about config load failure
 		console.warn(`Warning: ${message}`);
 		return {};
 	}

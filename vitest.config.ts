@@ -10,7 +10,7 @@ export default defineConfig({
 		},
 		testTimeout: 15_000,
 		globals: true,
-		exclude: ["tests/integration/**", "tests/e2e/**", "**/node_modules/**"],
+		exclude: ["tests/integration/**", "tests/e2e/**", "**/node_modules/**", ".stryker-tmp/**"],
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "html", "clover"],

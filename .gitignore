@@ -3,4 +3,6 @@ dist/
 *.tsbuildinfo
 .svelte-kit/
 coverage/
+.stryker-tmp/
+reports/
 .DS_Store
