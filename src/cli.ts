@@ -15,7 +15,6 @@ async function main(): Promise<void> {
 	if (!result.success) {
 		process.exitCode = 1;
 		if (result.error) {
-			// biome-ignore lint/suspicious/noConsole: CLI must surface error details
 			console.error(result.error);
 		}
 		return;
@@ -31,7 +30,6 @@ main().catch((err: unknown) => {
 	if (err instanceof CommanderError && err.exitCode === 0) {
 		return;
 	}
-	// biome-ignore lint/suspicious/noConsole: CLI must surface unhandled errors
 	console.error(err instanceof Error ? err.message : String(err));
 	process.exitCode = 2;
 });

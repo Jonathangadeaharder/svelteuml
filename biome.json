@@ -38,6 +38,18 @@
       "trailingCommas": "all"
     }
   },
+  "overrides": [
+    {
+      "includes": ["src/cli.ts", "src/cli/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    }
+  ],
   "files": {
     "includes": ["**/*", "!node_modules", "!dist", "!coverage"]
   }

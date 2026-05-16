@@ -21,9 +21,8 @@ export function resolveFocusScope(
 	let head = 0;
 
 	while (head < queue.length) {
-		const current = queue[head];
+		const current = queue[head]!;
 		head++;
-		if (!current) continue;
 		if (visited.has(current.name)) continue;
 		visited.add(current.name);
 		if (current.hop >= maxHops) continue;
@@ -47,8 +46,8 @@ function collectAllNames(symbols: SymbolTable): Set<string> {
 	for (const fn of symbols.functions) names.add(fn.name);
 	for (const store of symbols.stores) names.add(store.name);
 	for (const exp of symbols.exports) names.add(exp.name);
-	for (const route of symbols.routes ?? []) names.add(route.name);
-	for (const comp of symbols.components ?? []) names.add(comp.name);
+	for (const route of symbols.routes) names.add(route.name);
+	for (const comp of symbols.components) names.add(comp.name);
 	const componentMap = new Map<string, string[]>();
 	for (const prop of symbols.props) {
 		let list = componentMap.get(prop.componentName);
@@ -87,9 +86,9 @@ export function filterSymbolsByScope(symbols: SymbolTable, scope: Set<string>): 
 		stores: symbols.stores.filter((s) => scope.has(s.name)),
 		props: symbols.props.filter((p) => scope.has(p.componentName)),
 		exports: symbols.exports.filter((e) => scope.has(e.name)),
-		routes: (symbols.routes ?? []).filter((r) => scope.has(r.name)),
-		components: (symbols.components ?? []).filter((c) => scope.has(c.name)),
-		events: (symbols.events ?? []).filter((e) => scope.has(e.componentName)),
+		routes: symbols.routes.filter((r) => scope.has(r.name)),
+		components: symbols.components.filter((c) => scope.has(c.name)),
+		events: symbols.events.filter((e) => scope.has(e.componentName)),
 	};
 }
 
@@ -112,9 +111,8 @@ export function resolveGlobalScope(
 	let head = 0;
 
 	while (head < queue.length) {
-		const current = queue[head];
+		const current = queue[head]!;
 		head++;
-		if (!current) continue;
 		if (visited.has(current.name)) continue;
 		visited.add(current.name);
 		if (current.hop >= maxHops) continue;
@@ -169,18 +167,19 @@ export function filterByExcludePatterns(
 	for (const fn of symbols.functions) checkSymbol(fn.filePath, fn.name);
 	for (const store of symbols.stores) checkSymbol(store.filePath, store.name);
 	for (const comp of symbols.components) checkSymbol(comp.filePath, comp.name);
-	for (const route of symbols.routes ?? []) checkSymbol(route.filePath, route.name);
-	for (const evt of symbols.events ?? []) checkSymbol(evt.filePath, evt.name);
+	for (const route of symbols.routes) checkSymbol(route.filePath, route.name);
+	for (const evt of symbols.events) checkSymbol(evt.filePath, evt.componentName);
+	for (const exp of symbols.exports) checkSymbol(exp.filePath, exp.name);
 
 	const filteredSymbols: SymbolTable = {
 		classes: symbols.classes.filter((c) => !excludedNames.has(c.name)),
 		functions: symbols.functions.filter((f) => !excludedNames.has(f.name)),
 		stores: symbols.stores.filter((s) => !excludedNames.has(s.name)),
 		props: symbols.props.filter((p) => !excludedNames.has(p.componentName)),
-		events: (symbols.events ?? []).filter((e) => !excludedNames.has(e.name)),
+		events: symbols.events.filter((e) => !excludedNames.has(e.componentName)),
 		exports: symbols.exports.filter((e) => !excludedNames.has(e.name)),
-		routes: (symbols.routes ?? []).filter((r) => !excludedNames.has(r.name)),
-		components: (symbols.components ?? []).filter((c) => !excludedNames.has(c.name)),
+		routes: symbols.routes.filter((r) => !excludedNames.has(r.name)),
+		components: symbols.components.filter((c) => !excludedNames.has(c.name)),
 	};
 
 	const remainingNames = new Set(collectAllNames(filteredSymbols));

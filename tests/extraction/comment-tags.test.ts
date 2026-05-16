@@ -60,6 +60,18 @@ describe("parseCommentTags", () => {
 		expect(tags[0]).toEqual<UmlTag>({ kind: "hide" });
 	});
 
+	it("uses 'unnamed' default for group without value", () => {
+		const source = "<!-- @uml.group() -->";
+		const tags = parseCommentTags(source);
+		expect(tags).toEqual<UmlTag[]>([{ kind: "group", name: "unnamed" }]);
+	});
+
+	it("uses 'red' default for color without value", () => {
+		const source = "<!-- @uml.color() -->";
+		const tags = parseCommentTags(source);
+		expect(tags).toEqual<UmlTag[]>([{ kind: "color", color: "red" }]);
+	});
+
 	it("supports double-quoted strings for group", () => {
 		const source = '<!-- @uml.group("My Group") -->';
 		const tags = parseCommentTags(source);

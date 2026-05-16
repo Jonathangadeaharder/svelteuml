@@ -220,6 +220,25 @@ describe("resolveFocusScope", () => {
 		expect(scope.size).toBe(3);
 	});
 
+	it("diamond-pattern skips already-visited node in resolveFocusScope", () => {
+		const symbols = makeSymbols({
+			classes: [
+				{ kind: "class", name: "A", filePath: "/src/A.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+				{ kind: "class", name: "B", filePath: "/src/B.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+				{ kind: "class", name: "C", filePath: "/src/C.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+			],
+		});
+		const edgeSet = createEdgeSet([
+			{ source: "A", target: "B", type: "dependency" as const },
+			{ source: "A", target: "C", type: "dependency" as const },
+			{ source: "B", target: "C", type: "dependency" as const },
+		]);
+		const scope = resolveFocusScope(symbols, edgeSet, { focusNode: "A", depth: 0 });
+		expect(scope.has("A")).toBe(true);
+		expect(scope.has("B")).toBe(true);
+		expect(scope.has("C")).toBe(true);
+	});
+
 	it("fuzzy matches case-insensitively", () => {
 		const symbols = makeSymbols({
 			classes: [
@@ -493,6 +512,34 @@ describe("resolveFocusScope fuzzy matching", () => {
 	});
 });
 
+describe("findBestMatch suffix and prefix matching", () => {
+	it("matches route by name suffix", () => {
+		const symbols = makeSymbols({
+			routes: [
+				{ kind: "route", name: "/about", filePath: "/src/routes/about/+page.svelte", routeKind: "page" as const, isServer: false, routeSegment: { raw: "/about", params: [], groups: [] } },
+				{ kind: "route", name: "/other", filePath: "/src/routes/other/+page.svelte", routeKind: "page" as const, isServer: false, routeSegment: { raw: "/other", params: [], groups: [] } },
+			],
+		});
+		const edgeSet = createEdgeSet([]);
+		const scope = resolveFocusScope(symbols, edgeSet, { focusNode: "about", depth: 1 });
+		expect(scope.has("/about")).toBe(true);
+		expect(scope.has("/other")).toBe(false);
+	});
+
+	it("matches name by prefix", () => {
+		const symbols = makeSymbols({
+			classes: [
+				{ kind: "class", name: "lib/Helper", filePath: "/src/lib/helper.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+				{ kind: "class", name: "OtherClass", filePath: "/src/other.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+			],
+		});
+		const edgeSet = createEdgeSet([]);
+		const scope = resolveFocusScope(symbols, edgeSet, { focusNode: "lib", depth: 1 });
+		expect(scope.has("lib/Helper")).toBe(true);
+		expect(scope.has("OtherClass")).toBe(false);
+	});
+});
+
 describe("resolveGlobalScope", () => {
 	it("returns all names when maxDepth is 0", () => {
 		const symbols = makeSymbols({
@@ -582,6 +629,22 @@ describe("resolveGlobalScope", () => {
 		const scope = resolveGlobalScope(symbols, edgeSet, 1);
 		expect(scope.size).toBe(2);
 	});
+
+	it("diamond graph skips already-visited nodes", () => {
+		const symbols = makeSymbols({
+			classes: [
+				{ kind: "class", name: "RootA", filePath: "/src/RootA.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+				{ kind: "class", name: "RootB", filePath: "/src/RootB.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+				{ kind: "class", name: "Shared", filePath: "/src/Shared.ts", extends: undefined, implements: [], members: [], isGeneric: false, typeParams: [] },
+			],
+		});
+		const edgeSet = createEdgeSet([
+			{ source: "RootA", target: "Shared", type: "dependency" as const },
+			{ source: "RootB", target: "Shared", type: "dependency" as const },
+		]);
+		const scope = resolveGlobalScope(symbols, edgeSet, 2);
+		expect(scope.size).toBe(3);
+	});
 });
 
 describe("filterByExcludePatterns", () => {
@@ -594,6 +657,77 @@ describe("filterByExcludePatterns", () => {
 		const edgeSet = createEdgeSet([]);
 		const result = filterByExcludePatterns(symbols, edgeSet, []);
 		expect(result.symbols.classes).toHaveLength(1);
+	});
+
+	it("excludes functions by filePath pattern", () => {
+		const symbols = makeSymbols({
+			functions: [
+				{ kind: "function" as const, name: "helper", filePath: "/helper.ts", isExported: true, isAsync: false, parameters: [], returnType: "void", typeParams: [] },
+				{ kind: "function" as const, name: "testHelper", filePath: "/test/testHelper.ts", isExported: true, isAsync: false, parameters: [], returnType: "void", typeParams: [] },
+			],
+		});
+		const edgeSet = createEdgeSet([]);
+		const result = filterByExcludePatterns(symbols, edgeSet, ["*/test/*"]);
+		expect(result.symbols.functions).toHaveLength(1);
+		expect(result.symbols.functions[0].name).toBe("helper");
+	});
+
+	it("excludes stores by filePath pattern", () => {
+		const symbols = makeSymbols({
+			stores: [
+				{ kind: "store" as const, name: "userStore", filePath: "/stores/user.ts", storeType: "writable", valueType: "User", runeKind: undefined, isExported: true },
+				{ kind: "store" as const, name: "keepStore", filePath: "/lib/keep.ts", storeType: "writable", valueType: "string", runeKind: undefined, isExported: true },
+			],
+		});
+		const edgeSet = createEdgeSet([]);
+		const result = filterByExcludePatterns(symbols, edgeSet, ["*/stores/*"]);
+		expect(result.symbols.stores).toHaveLength(1);
+		expect(result.symbols.stores[0].name).toBe("keepStore");
+	});
+
+	it("excludes routes by filePath pattern", () => {
+		const symbols = makeSymbols({
+			routes: [
+				{ kind: "route", name: "/admin", filePath: "/admin/+page.svelte", routeKind: "page" as const, isServer: false, routeSegment: { raw: "/admin", params: [], groups: [] } },
+				{ kind: "route", name: "/public", filePath: "/public/+page.svelte", routeKind: "page" as const, isServer: false, routeSegment: { raw: "/public", params: [], groups: [] } },
+			],
+		});
+		const edgeSet = createEdgeSet([]);
+		const result = filterByExcludePatterns(symbols, edgeSet, ["*/admin/*"]);
+		expect(result.symbols.routes).toHaveLength(1);
+		expect(result.symbols.routes[0].name).toBe("/public");
+	});
+
+	it("excludes components and events by filePath pattern", () => {
+		const symbols = makeSymbols({
+			components: [
+				{ kind: "component", name: "HiddenWidget", filePath: "/internal/HiddenWidget.svelte" },
+				{ kind: "component", name: "VisibleWidget", filePath: "/lib/VisibleWidget.svelte" },
+			],
+			events: [
+				{ kind: "event", name: "hiddenEvent", filePath: "/internal/HiddenWidget.svelte", componentName: "HiddenWidget", type: "create" },
+				{ kind: "event", name: "visibleEvent", filePath: "/lib/VisibleWidget.svelte", componentName: "VisibleWidget", type: "create" },
+			],
+		});
+		const edgeSet = createEdgeSet([]);
+		const result = filterByExcludePatterns(symbols, edgeSet, ["*/internal/*"]);
+		expect(result.symbols.components).toHaveLength(1);
+		expect(result.symbols.components[0].name).toBe("VisibleWidget");
+		expect(result.symbols.events).toHaveLength(1);
+		expect(result.symbols.events[0].name).toBe("visibleEvent");
+	});
+
+	it("excludes exports by filePath pattern", () => {
+		const symbols = makeSymbols({
+			exports: [
+				{ kind: "export" as const, name: "INTERNAL_KEY", filePath: "/internal/config.ts", exportType: "value" as const, typeAnnotation: "string" },
+				{ kind: "export" as const, name: "PUBLIC_KEY", filePath: "/public/config.ts", exportType: "value" as const, typeAnnotation: "string" },
+			],
+		});
+		const edgeSet = createEdgeSet([]);
+		const result = filterByExcludePatterns(symbols, edgeSet, ["*/internal/*"]);
+		expect(result.symbols.exports).toHaveLength(1);
+		expect(result.symbols.exports[0].name).toBe("PUBLIC_KEY");
 	});
 
 	it("excludes symbols whose filePath matches a simple glob", () => {
