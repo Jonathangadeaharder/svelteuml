@@ -131,5 +131,5 @@ function extractPageProps(sourceFile: import("ts-morph").SourceFile): string[] {
 		}
 	}
 
-	return props.sort();
+	return props.sort((a, b) => a.localeCompare(b));
 }

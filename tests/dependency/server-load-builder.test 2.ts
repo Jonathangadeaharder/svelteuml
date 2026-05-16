@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { buildServerLoadEdges } from "../../src/dependency/server-load-builder.js";
 import { ParsingProject } from "../../src/parsing/ts-morph-project.js";
-import type { SymbolTable, ComponentSymbol } from "../../src/types/ast.js";
-import type { RouteSymbol } from "../../src/types/ast.js";
+import type { ComponentSymbol, RouteSymbol, SymbolTable } from "../../src/types/ast.js";
 
-function makeRoute(overrides: Partial<RouteSymbol> & { name: string; filePath: string }): RouteSymbol {
+function makeRoute(
+	overrides: Partial<RouteSymbol> & { name: string; filePath: string },
+): RouteSymbol {
 	return {
 		kind: "route",
 		routeKind: "page",
@@ -41,9 +42,7 @@ describe("buildServerLoadEdges", () => {
 	it("returns empty when no server routes exist", () => {
 		const pp = new ParsingProject();
 		const symbols = makeSymbolTable({
-			routes: [
-				makeRoute({ name: "+page", filePath: "/src/routes/+page.svelte", isServer: false }),
-			],
+			routes: [makeRoute({ name: "+page", filePath: "/src/routes/+page.svelte", isServer: false })],
 		});
 		const result = buildServerLoadEdges(symbols, pp);
 		expect(result).toHaveLength(0);
@@ -229,14 +228,22 @@ describe("buildServerLoadEdges", () => {
 					filePath: "/src/routes/game/[code]/+page.server.ts",
 					routeKind: "page",
 					isServer: true,
-					routeSegment: { raw: "/game/[code]", params: [{ kind: "dynamic", name: "code" }], groups: [] },
+					routeSegment: {
+						raw: "/game/[code]",
+						params: [{ kind: "dynamic", name: "code" }],
+						groups: [],
+					},
 				}),
 				makeRoute({
 					name: "+page",
 					filePath: "/src/routes/game/[code]/+page.svelte",
 					routeKind: "page",
 					isServer: false,
-					routeSegment: { raw: "/game/[code]", params: [{ kind: "dynamic", name: "code" }], groups: [] },
+					routeSegment: {
+						raw: "/game/[code]",
+						params: [{ kind: "dynamic", name: "code" }],
+						groups: [],
+					},
 				}),
 			],
 			components: [makeComponent("+page", "/src/routes/game/[code]/+page.svelte")],

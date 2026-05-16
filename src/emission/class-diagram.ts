@@ -11,53 +11,48 @@ import { normalizeFilePath } from "../utils/path.js";
 import { routeStereotype } from "./route-utils.js";
 import { applyFocusFilter, filterHiddenComponents } from "./tag-processor.js";
 
+function emptySymbolTable(): SymbolTable {
+	return {
+		classes: [],
+		functions: [],
+		stores: [],
+		props: [],
+		events: [],
+		exports: [],
+		routes: [],
+		components: [],
+	};
+}
+
 function collectGroups(symbols: SymbolTable): Map<string, SymbolTable> {
 	const groups = new Map<string, SymbolTable>();
 
-	function ensureGroup(name: string): SymbolTable {
-		let g = groups.get(name);
-		if (!g) {
-			g = {
-				classes: [],
-				functions: [],
-				stores: [],
-				props: [],
-				events: [],
-				exports: [],
-				routes: [],
-				components: [],
-			};
-			groups.set(name, g);
-		}
-		return g;
-	}
-
-	for (const cls of symbols.classes) {
-		if (cls.group) ensureGroup(cls.group).classes.push(cls);
-	}
-	for (const store of symbols.stores) {
-		if (store.group) ensureGroup(store.group).stores.push(store);
-	}
-	for (const fn of symbols.functions) {
-		if (fn.group) ensureGroup(fn.group).functions.push(fn);
-	}
-	for (const route of symbols.routes ?? []) {
-		if (route.group) ensureGroup(route.group).routes.push(route);
-	}
-	for (const comp of symbols.components ?? []) {
-		if (comp.group) ensureGroup(comp.group).components.push(comp);
-	}
-	for (const prop of symbols.props) {
-		if (prop.group) ensureGroup(prop.group).props.push(prop);
-	}
-	for (const evt of symbols.events) {
-		if (evt.group) ensureGroup(evt.group).events.push(evt);
-	}
-	for (const exp of symbols.exports) {
-		if (exp.group) ensureGroup(exp.group).exports.push(exp);
-	}
+	pushToGroup(symbols.classes, groups, (t) => t.classes);
+	pushToGroup(symbols.stores, groups, (t) => t.stores);
+	pushToGroup(symbols.functions, groups, (t) => t.functions);
+	pushToGroup(symbols.props, groups, (t) => t.props);
+	pushToGroup(symbols.events, groups, (t) => t.events);
+	pushToGroup(symbols.exports, groups, (t) => t.exports);
+	pushToGroup(symbols.routes ?? [], groups, (t) => t.routes);
+	pushToGroup(symbols.components ?? [], groups, (t) => t.components);
 
 	return groups;
+}
+
+function pushToGroup<T extends { group?: string }>(
+	items: T[],
+	groups: Map<string, SymbolTable>,
+	getList: (t: SymbolTable) => T[],
+): void {
+	for (const item of items) {
+		if (!item.group) continue;
+		let g = groups.get(item.group);
+		if (!g) {
+			g = emptySymbolTable();
+			groups.set(item.group, g);
+		}
+		getList(g).push(item);
+	}
 }
 
 function renderGroupedSymbols(
@@ -245,7 +240,8 @@ function renderComponent(
 	options: DiagramOptions,
 	color?: string,
 ): void {
-	const colorSuffix = color ? ` ${color.startsWith("#") ? "" : "#"}${color}` : "";
+	const hash = color?.startsWith("#") ? "" : "#";
+	const colorSuffix = color ? ` ${hash}${color}` : "";
 	lines.push(`class "${name}" <<component>>${colorSuffix} {`);
 	if (options.showMembers) {
 		for (const prop of props) {

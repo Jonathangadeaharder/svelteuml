@@ -49,10 +49,10 @@ export function decodePlantUml(encoded: string): string {
 		const remaining = encoded.length - i;
 		const chunk = encoded.slice(i, i + 4);
 
-		const c1 = ALPHABET_LOOKUP[chunk[0] as string] ?? 0;
-		const c2 = chunk[1] !== undefined ? (ALPHABET_LOOKUP[chunk[1] as string] ?? 0) : 0;
-		const c3 = chunk[2] !== undefined ? (ALPHABET_LOOKUP[chunk[2] as string] ?? 0) : 0;
-		const c4 = chunk[3] !== undefined ? (ALPHABET_LOOKUP[chunk[3] as string] ?? 0) : 0;
+		const c1 = ALPHABET_LOOKUP[chunk[0] ?? ""] ?? 0;
+		const c2 = ALPHABET_LOOKUP[chunk[1] ?? ""] ?? 0;
+		const c3 = ALPHABET_LOOKUP[chunk[2] ?? ""] ?? 0;
+		const c4 = ALPHABET_LOOKUP[chunk[3] ?? ""] ?? 0;
 
 		const triple = (c1 << 18) | (c2 << 12) | (c3 << 6) | c4;
 

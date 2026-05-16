@@ -11,7 +11,9 @@ function makeParsingProject(files: Array<{ path: string; content: string }>): Pa
 	return project;
 }
 
-function makeStoreSymbol(overrides: Partial<StoreSymbol> & { name: string; filePath: string }): StoreSymbol {
+function makeStoreSymbol(
+	overrides: Partial<StoreSymbol> & { name: string; filePath: string },
+): StoreSymbol {
 	return {
 		kind: "store",
 		storeType: "writable",
@@ -87,7 +89,7 @@ describe("trackStoreSubscriptions", () => {
 		];
 		const result = trackStoreSubscriptions(project, stores);
 		expect(result).toHaveLength(2);
-		const names = result.map((d) => d.symbolName).sort();
+		const names = result.map((d) => d.symbolName).sort((a, b) => a.localeCompare(b));
 		expect(names).toEqual(["$count", "$user"]);
 	});
 

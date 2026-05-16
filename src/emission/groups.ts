@@ -8,8 +8,8 @@ function globToRegex(pattern: string): RegExp {
 	const cached = regexCache.get(normalized);
 	if (cached) return cached;
 	const escaped = normalized
-		.replace(/[.+^${}()|[\]\\]/g, "\\$&")
-		.replace(/\*\*/g, "___GLOBSTAR___")
+		.replaceAll(/[.+^${}()|[\]\\]/g, "\\$&")
+		.replaceAll("**", "___GLOBSTAR___")
 		.replace(/\*/g, "[^/]*")
 		.replace(/___GLOBSTAR___/g, ".*");
 	const regex = new RegExp(`^${escaped}$`);
