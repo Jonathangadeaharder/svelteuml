@@ -7,6 +7,8 @@ exclude:
   - build/**
   - coverage/**
   - docs/**
+  - tests/fixtures
+  - tests/fixtures/**
 
 rules:
   max-depth:
@@ -14,6 +16,7 @@ rules:
     exemptions:
       - ".git/**"
       - "node_modules/**"
+      - "tests/fixtures/**"
 
   max-files-in-dir:
     max: 30
@@ -25,6 +28,7 @@ rules:
     max: 15
     exemptions:
       - ".git/**"
+      - "tests/fixtures/**"
 
   naming-convention:
     style: "camelCase"

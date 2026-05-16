@@ -130,30 +130,92 @@ describe("getComponentColor", () => {
 });
 
 describe("removeHiddenComponents", () => {
-	it("removes hidden components from symbol table", () => {
-		const symbols: SymbolTable = {
+	const hidden = [{ kind: "hide" } as const];
+
+	function symWithPropsAndEvents(
+		comps: ComponentSymbol[],
+		props?: { componentName: string }[],
+		events?: { componentName: string }[],
+	): SymbolTable {
+		return {
 			...makeEmptySymbols(),
-			components: [
-				makeComp("Visible", "/Visible.svelte"),
-				makeComp("Hidden", "/Hidden.svelte", [{ kind: "hide" }]),
-			],
+			components: comps,
+			props: props ?? [],
+			events: events ?? [],
 		};
-		const result = removeHiddenComponents(symbols, {
-			edges: [],
-			bySource: new Map(),
-			byTarget: new Map(),
-		});
+	}
+
+	function edgeSet(edges?: { source: string; target: string }[]): EdgeSet {
+		return { edges: edges ?? [], bySource: new Map(), byTarget: new Map() };
+	}
+
+	it("removes hidden components from symbol table", () => {
+		const result = removeHiddenComponents(
+			symWithPropsAndEvents([
+				makeComp("Visible", "/Visible.svelte"),
+				makeComp("Hidden", "/Hidden.svelte", hidden),
+			]),
+			edgeSet(),
+		);
 		expect(result.symbols.components).toHaveLength(1);
 		expect(result.symbols.components[0]?.name).toBe("Visible");
 	});
 
+	it("filters props and events belonging to hidden components", () => {
+		const result = removeHiddenComponents(
+			symWithPropsAndEvents(
+				[makeComp("Visible", "/Visible.svelte"), makeComp("Hidden", "/Hidden.svelte", hidden)],
+				[
+					{ componentName: "Visible", name: "foo", type: "string", optional: false },
+					{ componentName: "Hidden", name: "bar", type: "number", optional: false },
+				],
+				[
+					{ componentName: "Visible", name: "click", type: "function" },
+					{ componentName: "Hidden", name: "dblclick", type: "function" },
+				],
+			),
+			edgeSet(),
+		);
+		expect(result.symbols.props).toHaveLength(1);
+		expect(result.symbols.props[0]?.componentName).toBe("Visible");
+		expect(result.symbols.events).toHaveLength(1);
+		expect(result.symbols.events[0]?.componentName).toBe("Visible");
+	});
+
+	it("removes edges where both endpoints are hidden", () => {
+		const result = removeHiddenComponents(
+			symWithPropsAndEvents([
+				makeComp("Visible", "/Visible.svelte"),
+				makeComp("HiddenA", "/HiddenA.svelte", hidden),
+				makeComp("HiddenB", "/HiddenB.svelte", hidden),
+			]),
+			edgeSet([
+				{ source: "Visible", target: "HiddenA" },
+				{ source: "HiddenA", target: "HiddenB" },
+				{ source: "HiddenB", target: "HiddenA" },
+			]),
+		);
+		expect(result.edges.edges).toHaveLength(1);
+		expect(result.edges.edges[0]?.source).toBe("Visible");
+		expect(result.edges.edges[0]?.target).toBe("HiddenA");
+	});
+
+	it("returns rebuilt edge lookup maps", () => {
+		const result = removeHiddenComponents(
+			symWithPropsAndEvents([makeComp("A", "/A.svelte")]),
+			edgeSet(),
+		);
+		expect(result.edges).toHaveProperty("bySource");
+		expect(result.edges.bySource).toBeInstanceOf(Map);
+		expect(result.edges).toHaveProperty("byTarget");
+		expect(result.edges.byTarget).toBeInstanceOf(Map);
+	});
+
 	it("returns original when no hidden components", () => {
-		const symbols: SymbolTable = {
-			...makeEmptySymbols(),
-			components: [makeComp("A", "/A.svelte")],
-		};
-		const edges: EdgeSet = { edges: [], bySource: new Map(), byTarget: new Map() };
-		const result = removeHiddenComponents(symbols, edges);
+		const result = removeHiddenComponents(
+			symWithPropsAndEvents([makeComp("A", "/A.svelte")]),
+			edgeSet(),
+		);
 		expect(result.symbols.components).toHaveLength(1);
 		expect(result.edges.edges).toHaveLength(0);
 	});
