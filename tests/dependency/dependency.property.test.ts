@@ -73,7 +73,7 @@ function topologicalSort(edges: Edge[]): string[] | null {
 		nodes.add(e.source);
 		nodes.add(e.target);
 		if (!adj.has(e.source)) adj.set(e.source, []);
-		adj.get(e.source)!.push(e.target);
+		adj.get(e.source)?.push(e.target);
 		inDegree.set(e.target, (inDegree.get(e.target) ?? 0) + 1);
 		if (!inDegree.has(e.source)) inDegree.set(e.source, 0);
 	}
@@ -98,32 +98,35 @@ function topologicalSort(edges: Edge[]): string[] | null {
 }
 
 function transitiveClosure(edges: Edge[]): Map<string, Set<string>> {
-	const closure = new Map<string, Set<string>>();
-	const nodes = new Set<string>();
+	const closure = initClosure(edges);
 
-	for (const e of edges) {
-		nodes.add(e.source);
-		nodes.add(e.target);
-		if (!closure.has(e.source)) closure.set(e.source, new Set());
-		closure.get(e.source)!.add(e.target);
-		if (!closure.has(e.target)) closure.set(e.target, new Set());
-	}
-
-	for (const k of nodes) {
-		for (const i of nodes) {
-			const iSet = closure.get(i);
-			if (iSet?.has(k)) {
-				const kSet = closure.get(k);
-				if (kSet) {
-					for (const t of kSet) {
-						iSet.add(t);
-					}
-				}
-			}
+	for (const k of closure.keys()) {
+		for (const i of closure.keys()) {
+			propagateNode(closure, k, i);
 		}
 	}
 
 	return closure;
+}
+
+function initClosure(edges: Edge[]): Map<string, Set<string>> {
+	const closure = new Map<string, Set<string>>();
+	for (const e of edges) {
+		if (!closure.has(e.source)) closure.set(e.source, new Set());
+		if (!closure.has(e.target)) closure.set(e.target, new Set());
+		closure.get(e.source)?.add(e.target);
+	}
+	return closure;
+}
+
+function propagateNode(closure: Map<string, Set<string>>, k: string, i: string): void {
+	const iSet = closure.get(i);
+	if (!iSet?.has(k)) return;
+	const kSet = closure.get(k);
+	if (!kSet) return;
+	for (const t of kSet) {
+		iSet.add(t);
+	}
 }
 
 const numRuns = Number(process.env.VITEST_PBT_NUM_RUNS) || 100;
@@ -147,7 +150,7 @@ describe("dependency graph property tests", () => {
 				const direct = new Map<string, Set<string>>();
 				for (const e of edges) {
 					if (!direct.has(e.source)) direct.set(e.source, new Set());
-					direct.get(e.source)!.add(e.target);
+					direct.get(e.source)?.add(e.target);
 				}
 				for (const e of edges) {
 					const directB = direct.get(e.target);
@@ -175,8 +178,7 @@ describe("dependency graph property tests", () => {
 					if (sorted) {
 						const pos = new Map(sorted.map((n, i) => [n, i]));
 						for (const e of edges) {
-							expect(pos.get(e.source)!)
-								.toBeLessThan(pos.get(e.target)!);
+							expect(pos.get(e.source)!).toBeLessThan(pos.get(e.target)!);
 						}
 					}
 				}
@@ -204,9 +206,7 @@ describe("dependency graph property tests", () => {
 	it("detectCircularDependencies preserves input edges in cycle results", () => {
 		fc.assert(
 			fc.property(arbEdgeList(), (edges) => {
-				const inputSet = new Set(
-					edges.map((e) => `${e.source}|${e.target}|${e.type}`),
-				);
+				const inputSet = new Set(edges.map((e) => `${e.source}|${e.target}|${e.type}`));
 				const { cycles } = detectCircularDependencies(edges);
 				for (const cycle of cycles) {
 					for (const ce of cycle.edges) {

@@ -177,9 +177,9 @@ describe("parsing property-based tests", () => {
 				const ast = parse(source);
 				const nodeCount =
 					ast.html.children.length +
-					(ast.instance != null ? 1 : 0) +
-					(ast.module != null ? 1 : 0) +
-					(ast.css != null ? 1 : 0);
+					(ast.instance ? 1 : 0) +
+					(ast.module ? 1 : 0) +
+					(ast.css ? 1 : 0);
 				if (source.length === 0) {
 					expect(nodeCount).toBe(0);
 				} else {

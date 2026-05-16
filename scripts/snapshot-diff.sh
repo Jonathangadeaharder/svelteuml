@@ -46,7 +46,7 @@ $d
 done
 echo "::endgroup::" >&2
 
-if [ "$found" = false ]; then
+if [[ "$found" == false ]]; then
   echo "No snapshot differences." >&2
   exit 0
 fi

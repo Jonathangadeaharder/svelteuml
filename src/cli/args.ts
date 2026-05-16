@@ -61,6 +61,16 @@ function parseLayoutDirection(value: string): LayoutDirection {
 	return value as LayoutDirection;
 }
 
+function diagramKindFromFlags(
+	classDiagram: boolean,
+	packageDiagram: boolean,
+	fallback: DiagramKind,
+): DiagramKind {
+	if (classDiagram && !packageDiagram) return "class";
+	if (packageDiagram && !classDiagram) return "package";
+	return fallback;
+}
+
 function parseMaxDepth(value: string): number {
 	const n = Number.parseInt(value, 10);
 	if (Number.isNaN(n) || n < 0) {
@@ -72,31 +82,16 @@ function parseMaxDepth(value: string): number {
 function addSharedOptions(cmd: Command): Command {
 	return cmd
 		.option("-o, --output <path>", "output file path")
-		.option(
-			"-f, --format <type>",
-			"output format (text, svg, png)",
-			parseFormat,
-			"text" as OutputFormat,
-		)
+		.option("-f, --format <type>", "output format (text, svg, png)", parseFormat, "text")
 		.option("--exclude-externals", "exclude external dependencies", false)
 		.option("--max-depth <n>", "max dependency traversal depth (0 = unlimited)", parseMaxDepth, 0)
 		.option("-e, --exclude [glob...]", "glob patterns to exclude from discovery", [])
 		.option("--exclude-patterns [glob...]", "glob patterns to exclude from output diagram", [])
 		.option("--hide-type-deps", "hide TypeScript type dependencies", false)
 		.option("--hide-state-deps", "hide Svelte store/state dependencies", false)
-		.option(
-			"-d, --diagram <kind>",
-			"diagram kind (class, package)",
-			parseDiagramKind,
-			"class" as DiagramKind,
-		)
+		.option("-d, --diagram <kind>", "diagram kind (class, package)", parseDiagramKind, "class")
 		.option("--focus <name>", "focus on a specific node and its neighbourhood")
-		.option(
-			"--layout-direction <dir>",
-			"layout direction",
-			parseLayoutDirection,
-			"top-to-bottom" as LayoutDirection,
-		)
+		.option("--layout-direction <dir>", "layout direction", parseLayoutDirection, "top-to-bottom")
 		.option("--class-diagram", "generate a class diagram (default)", false)
 		.option("--package-diagram", "generate a package diagram", false)
 		.option(
@@ -119,12 +114,11 @@ function toCliOptions(
 ): CliOptions {
 	const classDiagram = opts.classDiagram as boolean;
 	const packageDiagram = opts.packageDiagram as boolean;
-	const diagramKind =
-		classDiagram && !packageDiagram
-			? "class"
-			: packageDiagram && !classDiagram
-				? "package"
-				: (opts.diagram as DiagramKind);
+	const diagramKind = diagramKindFromFlags(
+		classDiagram,
+		packageDiagram,
+		opts.diagram as DiagramKind,
+	);
 
 	return {
 		subcommand,

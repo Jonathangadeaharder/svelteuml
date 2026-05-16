@@ -83,7 +83,7 @@ export function assignGroups(symbols: SymbolTable, groups: AliasGroup[]): Symbol
 	): T[] =>
 		list.map((s) => {
 			const g = grouped.get(symbolKey(s.kind, s.name, s.filePath));
-			return g !== undefined ? { ...s, group: g } : s;
+			return g ? { ...s, group: g } : s;
 		});
 
 	return {

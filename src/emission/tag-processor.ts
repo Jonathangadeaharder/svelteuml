@@ -14,7 +14,7 @@ export function groupComponentsByTag(components: ComponentSymbol[]): {
 
 	for (const comp of components) {
 		const groupTag = comp.tags?.find((t) => t.kind === "group");
-		if (groupTag && groupTag.kind === "group") {
+		if (groupTag?.kind === "group") {
 			let list = grouped.get(groupTag.name);
 			if (!list) {
 				list = [];
@@ -38,7 +38,7 @@ export function applyFocusFilter(components: ComponentSymbol[]): ComponentSymbol
 
 export function getComponentColor(comp: ComponentSymbol): string | undefined {
 	const colorTag = comp.tags?.find((t) => t.kind === "color");
-	if (colorTag && colorTag.kind === "color") {
+	if (colorTag?.kind === "color") {
 		return colorTag.color;
 	}
 	return undefined;
@@ -74,10 +74,4 @@ export function removeHiddenComponents(
 	};
 }
 
-export function getFocusedComponents(components: ComponentSymbol[]): ComponentSymbol[] {
-	const focusNames = new Set(
-		components.filter((c) => c.tags?.some((t) => t.kind === "focus")).map((c) => c.name),
-	);
-	if (focusNames.size === 0) return components;
-	return components.filter((c) => focusNames.has(c.name));
-}
+export { applyFocusFilter as getFocusedComponents };

@@ -42,12 +42,8 @@ const ROUTE_CONTENTS: Record<string, string[]> = {
 		"export async function load() { return {}; }",
 		"export async function load({ params }: { params: Record<string, string> }) { return {}; }",
 	],
-	"+layout.ts": [
-		"export function load() { return {}; }",
-	],
-	"+layout.server.ts": [
-		"export async function load() { return {}; }",
-	],
+	"+layout.ts": ["export function load() { return {}; }"],
+	"+layout.server.ts": ["export async function load() { return {}; }"],
 	"+server.ts": [
 		"export async function GET() { return new Response('ok'); }",
 		"export async function POST() { return new Response('created'); }",
@@ -209,7 +205,7 @@ function arbImportGraph(): fc.Arbitrary<Record<string, string>> {
 				if (p.startsWith("/src/routes/")) {
 					const fileName = p.split("/").at(-1) ?? "+page.ts";
 					const candidates = ROUTE_CONTENTS[fileName];
-					const content = candidates ? candidates[0] ?? "" : "";
+					const content = candidates ? (candidates[0] ?? "") : "";
 					return { path: p, content };
 				}
 				return { path: p, content: "export function helper(): void {}" };
@@ -252,7 +248,11 @@ function canonicalTable(table: SymbolTable): string {
 	const parts: string[] = [];
 	const add = (label: string, objs: { filePath: string; name?: string }[]) => {
 		if (objs.length === 0) return;
-		parts.push(`${label}:${objs.map((o) => `${o.filePath}::${o.name ?? ""}`).sort().join(",")}`);
+		const serialised = objs
+			.map((o) => `${o.filePath}::${o.name ?? ""}`)
+			.sort((a, b) => a.localeCompare(b))
+			.join(",");
+		parts.push(`${label}:${serialised}`);
 	};
 	add("cls", table.classes);
 	add("fn", table.functions);
@@ -270,7 +270,9 @@ function canonicalTable(table: SymbolTable): string {
 // ---------------------------------------------------------------------------
 
 describe("Extraction PBT", () => {
-	it("extracted ⊂ source: all symbol filePaths exist in the input file tree", { timeout: PBT_TIMEOUT }, () => {
+	it("extracted ⊂ source: all symbol filePaths exist in the input file tree", {
+		timeout: PBT_TIMEOUT,
+	}, () => {
 		fc.assert(
 			fc.property(arbFileTree(), (files) => {
 				const project = buildProject(files);
@@ -288,7 +290,9 @@ describe("Extraction PBT", () => {
 		);
 	});
 
-	it("deterministic: same file tree twice produces identical output", { timeout: PBT_TIMEOUT }, () => {
+	it("deterministic: same file tree twice produces identical output", {
+		timeout: PBT_TIMEOUT,
+	}, () => {
 		fc.assert(
 			fc.property(arbFileTree(), (files) => {
 				const project1 = buildProject(files);
@@ -303,7 +307,9 @@ describe("Extraction PBT", () => {
 		);
 	});
 
-	it("no phantom: never produces components not backed by source files", { timeout: PBT_TIMEOUT }, () => {
+	it("no phantom: never produces components not backed by source files", {
+		timeout: PBT_TIMEOUT,
+	}, () => {
 		fc.assert(
 			fc.property(arbFileTree(), (files) => {
 				const project = buildProject(files);
@@ -314,20 +320,22 @@ describe("Extraction PBT", () => {
 					(p) => p.endsWith(".svelte") || p.endsWith(".svelte.tsx"),
 				);
 
-				if (!hasSvelteFiles) {
-					expect(table.components).toHaveLength(0);
-				} else {
+				if (hasSvelteFiles) {
 					const sourcePaths = new Set(Object.keys(files));
 					for (const c of table.components) {
 						expect(sourcePaths.has(c.filePath)).toBe(true);
 					}
+				} else {
+					expect(table.components).toHaveLength(0);
 				}
 			}),
 			{ numRuns },
 		);
 	});
 
-	it("import graph: extracted symbols are a subset of input paths", { timeout: PBT_TIMEOUT }, () => {
+	it("import graph: extracted symbols are a subset of input paths", {
+		timeout: PBT_TIMEOUT,
+	}, () => {
 		fc.assert(
 			fc.property(arbImportGraph(), (files) => {
 				const project = buildProject(files);

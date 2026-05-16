@@ -86,7 +86,7 @@ function declarationNames(puml: string): string[] {
 	const lines = puml.split("\n");
 	const names: string[] = [];
 	for (const line of lines) {
-		const m = line.match(/^\s*(?:(?:abstract\s+)?class|interface)\s+"([^"]+)"\s+as\s+/);
+		const m = /^\s*(?:(?:abstract\s+)?class|interface)\s+"([^"]+)"\s+as\s+/.exec(line);
 		if (m) names.push(m[1]);
 	}
 	return names;
