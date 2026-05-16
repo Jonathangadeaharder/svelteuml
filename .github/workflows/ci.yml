@@ -7,6 +7,9 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint & Format
@@ -186,8 +189,6 @@ jobs:
   repo-structure:
     name: Repo Structure
     runs-on: self-hosted
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -195,8 +196,7 @@ jobs:
           go-version: '1.24'
       - name: Build structurelint
         run: |
-          rm -rf /tmp/structurelint
-          git clone --branch feat/quality-gates --depth 1 https://github.com/Jonathangadeaharder/structurelint.git /tmp/structurelint
+          git clone --depth 1 https://github.com/Jonathangadeaharder/structurelint.git /tmp/structurelint
           cd /tmp/structurelint && go build -o /usr/local/bin/structurelint ./cmd/structurelint
       - name: Run structurelint
         run: structurelint .
