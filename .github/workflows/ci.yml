@@ -102,6 +102,45 @@ jobs:
           version_output=$(node dist/cli.js --version)
           [ "$version_output" = "0.1.0" ] || { echo "FAIL: --version expected 0.1.0, got $version_output"; exit 1; }
 
+  mutation:
+    name: Mutation Test (Incremental)
+    runs-on: self-hosted
+    needs: [test]
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Restore stryker incremental cache
+        id: cache-stryker
+        uses: actions/cache@v4
+        with:
+          path: .stryker-incremental.json
+          key: stryker-incremental-${{ github.base_ref }}-${{ github.sha }}
+          restore-keys: |
+            stryker-incremental-${{ github.base_ref }}-
+            stryker-incremental-main-
+      - name: Mutation test (incremental, changed files only)
+        run: |
+          CHANGED=$(git diff --name-only origin/main...HEAD -- 'src/' | tr '\n' ',' | sed 's/,$//')
+          if [ -n "$CHANGED" ]; then
+            pnpm exec stryker run --incremental --force --mutate "$CHANGED"
+          else
+            echo "No src/ files changed, skipping mutation"
+          fi
+      - name: Upload stryker incremental state
+        uses: actions/upload-artifact@v4
+        with:
+          name: stryker-incremental
+          path: .stryker-incremental.json
+          if-no-files-found: ignore
+
   integration:
     name: Integration Tests
     runs-on: self-hosted

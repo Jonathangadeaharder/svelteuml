@@ -1,0 +1,36 @@
+name: Mutation Test (Full)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  mutation:
+    name: Full Mutation Test
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Restore stryker incremental cache
+        id: cache-stryker
+        uses: actions/cache@v4
+        with:
+          path: .stryker-incremental.json
+          key: stryker-incremental-main-${{ github.sha }}
+          restore-keys: |
+            stryker-incremental-main-
+      - name: Full mutation test
+        run: pnpm exec stryker run --incremental
+      - name: Upload stryker incremental state
+        uses: actions/upload-artifact@v4
+        with:
+          name: stryker-incremental
+          path: .stryker-incremental.json
+          if-no-files-found: ignore
