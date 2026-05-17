@@ -1,0 +1,150 @@
+name: PR Gate
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_call:
+
+jobs:
+  lint:
+    name: Lint & Format
+    runs-on: ["self-hosted", "node", "macos"]
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm dlx @biomejs/biome check src/
+
+  typecheck:
+    name: Type Check
+    runs-on: ["self-hosted", "node", "macos"]
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec tsc --noEmit
+
+  test:
+    name: Test (Node ${{ matrix.node-version }})
+    runs-on: ["self-hosted", "node", "macos"]
+    strategy:
+      matrix:
+        node-version: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run test:coverage
+        env:
+          VITEST_PBT_NUM_RUNS: 100
+      - name: Upload coverage
+        if: matrix.node-version == 22
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+
+  build:
+    name: Build
+    runs-on: ["self-hosted", "node", "macos"]
+    needs: [typecheck, test]
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - name: Verify dist output
+        run: |
+          test -f dist/index.js
+          test -f dist/index.d.ts
+          test -f dist/cli.js
+          test -f dist/cli.d.ts
+
+  smoke:
+    name: CLI Smoke Test
+    runs-on: ["self-hosted", "node", "macos"]
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - name: Smoke test --help
+        run: |
+          help_output=$(node dist/cli.js --help)
+          echo "$help_output" | grep -q "Usage:" || { echo "FAIL: --help missing 'Usage:'"; exit 1; }
+          echo "$help_output" | grep -q "generate" || { echo "FAIL: --help missing 'generate' subcommand"; exit 1; }
+          echo "$help_output" | grep -q "watch" || { echo "FAIL: --help missing 'watch' subcommand"; exit 1; }
+      - name: Smoke test --version
+        run: |
+          version_output=$(node dist/cli.js --version)
+          [ "$version_output" = "0.1.0" ] || { echo "FAIL: --version expected 0.1.0, got $version_output"; exit 1; }
+
+  gitleaks:
+    name: Secrets Scan (Gitleaks)
+    runs-on: ["self-hosted", "node", "macos"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  trivy:
+    name: Vulnerability Scan (Trivy)
+    runs-on: ["self-hosted", "node", "macos"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Trivy vulnerability scanner (filesystem)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-results.sarif
+          severity: HIGH,CRITICAL
+          exit-code: 0
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy
+
+  required-checks:
+    name: Required Checks (PR Gate)
+    runs-on: ["self-hosted", "node", "macos"]
+    needs: [lint, typecheck, test, build, gitleaks]
+    if: always()
+    steps:
+      - name: Verify all jobs passed
+        run: |
+          if [ "${{ needs.lint.result }}" != "success" ] || \
+             [ "${{ needs.typecheck.result }}" != "success" ] || \
+             [ "${{ needs.test.result }}" != "success" ] || \
+             [ "${{ needs.build.result }}" != "success" ] || \
+             [ "${{ needs.gitleaks.result }}" != "success" ]; then
+            echo "::error::One or more PR Gate jobs failed."
+            exit 1
+          fi
+          echo "All PR Gate jobs passed."

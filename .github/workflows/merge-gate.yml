@@ -1,0 +1,164 @@
+name: Merge Gate
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  # Reuse PR Gate checks
+  pr-gate:
+    name: PR Gate
+    uses: ./.github/workflows/pr-gate.yml
+
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ["self-hosted", "node", "macos"]
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          build-mode: manual
+      - name: Build
+        run: pnpm run build
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+  mutation:
+    name: Full Mutation Test
+    runs-on: ["self-hosted", "node", "macos"]
+    needs: [pr-gate]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Restore stryker incremental cache
+        id: cache-stryker
+        uses: actions/cache@v4
+        with:
+          path: .stryker-incremental.json
+          key: stryker-incremental-main-${{ github.sha }}
+          restore-keys: |
+            stryker-incremental-main-
+      - name: Full mutation test
+        run: pnpm exec stryker run --incremental
+      - name: Upload stryker incremental state
+        uses: actions/upload-artifact@v4
+        with:
+          name: stryker-incremental
+          path: .stryker-incremental.json
+          if-no-files-found: ignore
+
+  integration:
+    name: Integration Tests
+    runs-on: ["self-hosted", "node", "macos"]
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run test:integration
+
+  snapshot-diff:
+    name: Snapshot Diff
+    runs-on: ["self-hosted", "node", "macos"]
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Generate & post snapshot diff
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          diff_body=$(./scripts/snapshot-diff.sh)
+          if [ -n "$diff_body" ]; then
+            echo "$diff_body" | gh pr comment "${{ github.event.pull_request.number }}" --body-file -
+          else
+            echo "No snapshot differences."
+          fi
+
+  repo-structure:
+    name: Repo Structure
+    runs-on: ["self-hosted", "go", "macos"]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+      - name: Build structurelint
+        run: |
+          rm -rf /tmp/structurelint
+          git clone --branch feat/quality-gates --depth 1 https://github.com/Jonathangadeaharder/structurelint.git /tmp/structurelint
+          cd /tmp/structurelint && go build -o /usr/local/bin/structurelint ./cmd/structurelint
+      - name: Run structurelint
+        run: structurelint .
+
+  publish:
+    name: Publish to npm
+    runs-on: ["self-hosted", "node", "macos"]
+    needs: [codeql, mutation, integration, repo-structure]
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - run: pnpm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  required-checks:
+    name: Required Checks (Merge Gate)
+    runs-on: ["self-hosted", "node", "macos"]
+    needs: [pr-gate, codeql, mutation, integration, repo-structure]
+    if: always()
+    steps:
+      - name: Verify all jobs passed
+        run: |
+          if [ "${{ needs.pr-gate.result }}" != "success" ] || \
+             [ "${{ needs.codeql.result }}" != "success" ] || \
+             [ "${{ needs.mutation.result }}" != "success" ] || \
+             [ "${{ needs.integration.result }}" != "success" ] || \
+             [ "${{ needs.repo-structure.result }}" != "success" ]; then
+            echo "::error::One or more Merge Gate jobs failed."
+            exit 1
+          fi
+          echo "All Merge Gate jobs passed."
