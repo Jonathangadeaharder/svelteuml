@@ -6,3 +6,9 @@ coverage/
 .stryker-tmp/
 reports/
 .DS_Store
+
+# Fusion file duplicates (space-number suffix)
+* 2.*
+
+# Stryker incremental
+.stryker-incremental.json
