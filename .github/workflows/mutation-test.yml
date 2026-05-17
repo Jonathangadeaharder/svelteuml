@@ -7,7 +7,7 @@ on:
 jobs:
   mutation:
     name: Full Mutation Test
-    runs-on: self-hosted
+    runs-on: ["self-hosted", "node", "macos"]
     steps:
       - uses: actions/checkout@v4
         with:
