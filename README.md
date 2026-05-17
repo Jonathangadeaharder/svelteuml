@@ -1,7 +1,7 @@
 # SvelteUML
 
-[![CI](https://github.com/user/svelteuml/actions/workflows/ci.yml/badge.svg)](https://github.com/user/svelteuml/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-v8-brightgreen)](https://github.com/user/svelteuml)
+[![CI](https://github.com/Jonathangadeaharder/svelteuml/actions/workflows/ci.yml/badge.svg)](https://github.com/Jonathangadeaharder/svelteuml/actions/workflows/ci.yml)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Jonathangadeaharder_svelteuml&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Jonathangadeaharder_svelteuml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-green)](https://nodejs.org/)
 
@@ -14,7 +14,7 @@ Static analysis tool that generates PlantUML architecture diagrams from SvelteKi
 pnpm add -g svelteuml
 
 # Or run without installing
-npx svelteuml generate ./my-sveltekit-app
+pnpm dlx svelteuml generate ./my-sveltekit-app
 
 # Generate a class diagram (default)
 svelteuml generate ./my-sveltekit-app
