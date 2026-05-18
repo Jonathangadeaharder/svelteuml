@@ -9,7 +9,8 @@ on:
 jobs:
   lint:
     name: Lint & Format
-    runs-on: ["self-hosted", "node", "macos"]
+    runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
       - run: corepack enable
@@ -22,7 +23,8 @@ jobs:
 
   typecheck:
     name: Type Check
-    runs-on: ["self-hosted", "node", "macos"]
+    runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
       - run: corepack enable
@@ -35,7 +37,8 @@ jobs:
 
   test:
     name: Test (Node ${{ matrix.node-version }})
-    runs-on: ["self-hosted", "node", "macos"]
+    runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     strategy:
       matrix:
         node-version: [20, 22]
@@ -59,7 +62,8 @@ jobs:
 
   build:
     name: Build
-    runs-on: ["self-hosted", "node", "macos"]
+    runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     needs: [typecheck, test]
     steps:
       - uses: actions/checkout@v4
@@ -79,7 +83,8 @@ jobs:
 
   smoke:
     name: CLI Smoke Test
-    runs-on: ["self-hosted", "node", "macos"]
+    runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     needs: [build]
     steps:
       - uses: actions/checkout@v4
@@ -103,7 +108,8 @@ jobs:
 
   gitleaks:
     name: Secrets Scan (Gitleaks)
-    runs-on: ["self-hosted", "node", "macos"]
+    runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
         with:
@@ -114,7 +120,8 @@ jobs:
 
   trivy:
     name: Vulnerability Scan (Trivy)
-    runs-on: ["self-hosted", "node", "macos"]
+    runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
       - name: Run Trivy vulnerability scanner (filesystem)
@@ -134,17 +141,17 @@ jobs:
 
   required-checks:
     name: Required Checks (PR Gate)
-    runs-on: ["self-hosted", "node", "macos"]
+    runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    if: always() && (github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository)
     needs: [lint, typecheck, test, build, gitleaks]
-    if: always()
     steps:
       - name: Verify all jobs passed
         run: |
-          if [ "${{ needs.lint.result }}" != "success" ] || \
-             [ "${{ needs.typecheck.result }}" != "success" ] || \
-             [ "${{ needs.test.result }}" != "success" ] || \
-             [ "${{ needs.build.result }}" != "success" ] || \
-             [ "${{ needs.gitleaks.result }}" != "success" ]; then
+          if [ "${{ needs.lint.result }}" != "success" ] && [ "${{ needs.lint.result }}" != "skipped" ] || \
+             [ "${{ needs.typecheck.result }}" != "success" ] && [ "${{ needs.typecheck.result }}" != "skipped" ] || \
+             [ "${{ needs.test.result }}" != "success" ] && [ "${{ needs.test.result }}" != "skipped" ] || \
+             [ "${{ needs.build.result }}" != "success" ] && [ "${{ needs.build.result }}" != "skipped" ] || \
+             [ "${{ needs.gitleaks.result }}" != "success" ] && [ "${{ needs.gitleaks.result }}" != "skipped" ]; then
             echo "::error::One or more PR Gate jobs failed."
             exit 1
           fi
