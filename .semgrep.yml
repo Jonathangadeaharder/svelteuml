@@ -1,0 +1,41 @@
+rules:
+  - id: no-console-log
+    pattern: console.log(...)
+    message: "Do not use console.log in production code"
+    severity: WARNING
+    languages: [typescript, javascript]
+
+  - id: no-debugger
+    pattern: debugger
+    message: "Remove debugger statement before shipping"
+    severity: ERROR
+    languages: [typescript, javascript]
+
+  - id: no-eval
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: Function(...)
+    message: "Avoid eval and Function constructor for security"
+    severity: ERROR
+    languages: [typescript, javascript]
+
+  - id: no-hardcoded-secrets
+    patterns:
+      - pattern-either:
+          - pattern: 'const $KEY = "$VALUE"'
+          - pattern: 'let $KEY = "$VALUE"'
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: (?i).*(api.?key|secret|token|password|passwd|credential).*
+      - metavariable-regex:
+          metavariable: $VALUE
+          regex: ^(?!(your_|example_|test_|dummy_)).{8,}$
+    message: "Possible hardcoded secret"
+    severity: ERROR
+    languages: [typescript, javascript]
+
+  - id: no-innerhtml
+    pattern: $ELEMENT.innerHTML = $EXPR
+    message: "Avoid innerHTML assignments due to XSS risk"
+    severity: WARNING
+    languages: [typescript, javascript]

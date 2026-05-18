@@ -1,0 +1,14 @@
+{
+  "threshold": 5,
+  "reporters": ["console"],
+  "ignore": ["node_modules/**", "dist/**", "coverage/**", "tests/fixtures/**"],
+  "absoluteImpact": 10,
+  "pattern": "src/**/*.ts",
+  "blame": false,
+  "gitignore": true,
+  "mode": "strict",
+  "minLines": 10,
+  "maxLines": 1000,
+  "maxSize": "100kb",
+  "minTokens": 50
+}
