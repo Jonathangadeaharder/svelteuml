@@ -1,0 +1,11 @@
+rules:
+  - id: no-debugger
+    pattern: debugger
+    message: "Remove debugger statement before shipping"
+    severity: ERROR
+    languages: [typescript, javascript]
+  - id: no-hardcoded-secrets
+    pattern-either:
+      - pattern: password = "..."
+      - pattern: api_key = "..."
+    severity: ERROR
