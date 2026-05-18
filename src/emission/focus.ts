@@ -21,8 +21,9 @@ export function resolveFocusScope(
 	let head = 0;
 
 	while (head < queue.length) {
-		const current = queue[head]!;
+		const current = queue[head];
 		head++;
+		if (!current) continue;
 		if (visited.has(current.name)) continue;
 		visited.add(current.name);
 		if (current.hop >= maxHops) continue;
@@ -111,8 +112,9 @@ export function resolveGlobalScope(
 	let head = 0;
 
 	while (head < queue.length) {
-		const current = queue[head]!;
+		const current = queue[head];
 		head++;
+		if (!current) continue;
 		if (visited.has(current.name)) continue;
 		visited.add(current.name);
 		if (current.hop >= maxHops) continue;
