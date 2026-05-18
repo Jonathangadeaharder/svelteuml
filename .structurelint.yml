@@ -59,5 +59,10 @@ rules:
     - ".DS_Store"
     - "*.swp"
 
+  deploy-action: false
+  mandatory-linters:
+    - structurelint
+    - vitest-linter
+
   test-adjacency:
     enabled: false

@@ -140,11 +140,46 @@ jobs:
           sarif_file: trivy-results.sarif
           category: trivy
 
+  structure:
+    name: Repository Structure
+    runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+      - name: Build structurelint
+        run: |
+          rm -rf /tmp/structurelint
+          git clone --depth 1 https://github.com/Jonathangadeaharder/structurelint.git /tmp/structurelint
+          cd /tmp/structurelint && go build -o /usr/local/bin/structurelint ./cmd/structurelint
+      - name: Run structurelint
+        run: structurelint .
+      - name: Cleanup structurelint build
+        if: always()
+        run: rm -rf /tmp/structurelint
+
+  vitest-lint:
+    name: Test Quality (Vitest)
+    runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install and run vitest-linter
+        run: |
+          npm install -g vitest-linter 2>/dev/null || true
+          vitest-linter . --format terminal
+
   required-checks:
     name: Required Checks (PR Gate)
     runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
     if: always() && (github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository)
-    needs: [lint, typecheck, test, build, gitleaks]
+    needs: [lint, typecheck, test, build, gitleaks, structure, vitest-lint]
     steps:
       - name: Verify all jobs passed
         run: |
@@ -152,7 +187,9 @@ jobs:
              [ "${{ needs.typecheck.result }}" != "success" ] && [ "${{ needs.typecheck.result }}" != "skipped" ] || \
              [ "${{ needs.test.result }}" != "success" ] && [ "${{ needs.test.result }}" != "skipped" ] || \
              [ "${{ needs.build.result }}" != "success" ] && [ "${{ needs.build.result }}" != "skipped" ] || \
-             [ "${{ needs.gitleaks.result }}" != "success" ] && [ "${{ needs.gitleaks.result }}" != "skipped" ]; then
+             [ "${{ needs.gitleaks.result }}" != "success" ] && [ "${{ needs.gitleaks.result }}" != "skipped" ] || \
+             [ "${{ needs.structure.result }}" != "success" ] && [ "${{ needs.structure.result }}" != "skipped" ] || \
+             [ "${{ needs.vitest-lint.result }}" != "success" ] && [ "${{ needs.vitest-lint.result }}" != "skipped" ]; then
             echo "::error::One or more PR Gate jobs failed."
             exit 1
           fi

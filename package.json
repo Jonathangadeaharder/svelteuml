@@ -76,7 +76,7 @@
 	"engines": {
 		"node": ">=20.0.0"
 	},
-	"packageManager": "pnpm@10.33.2",
+	"packageManager": "pnpm@11.1.2",
 	"lint-staged": {
 		"*.{js,ts}": [
 			"pnpm exec biome check --write --unsafe",
@@ -94,6 +94,10 @@
 			"esbuild",
 			"svelte",
 			"@biomejs/biome"
-		]
+		],
+		"onlyBuiltDependenciesFiles": [],
+		"overrides": {
+			"devalue": "5.8.1"
+		}
 	}
 }
