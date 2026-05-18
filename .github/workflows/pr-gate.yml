@@ -151,6 +151,7 @@ jobs:
           go-version: "1.24"
       - name: Build structurelint
         run: |
+          rm -rf /tmp/structurelint
           git clone --depth 1 https://github.com/Jonathangadeaharder/structurelint.git /tmp/structurelint
           cd /tmp/structurelint && go build -o /usr/local/bin/structurelint ./cmd/structurelint
       - name: Run structurelint
@@ -165,7 +166,14 @@ jobs:
     if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
-      - uses: Jonathangadeaharder/vitest-linter@v1
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install and run vitest-linter
+        run: |
+          npm install -g vitest-linter 2>/dev/null || true
+          vitest-linter . --format terminal
 
   required-checks:
     name: Required Checks (PR Gate)
