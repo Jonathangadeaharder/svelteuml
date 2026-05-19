@@ -145,10 +145,22 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+  sonarcloud:
+    name: SonarCloud Code Analysis
+    runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@v3
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
   required-checks:
     name: Required Checks (Merge Gate)
     runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
-    needs: [pr-gate, codeql, mutation, integration, repo-structure]
+    needs: [pr-gate, codeql, mutation, integration, repo-structure, sonarcloud]
     if: always()
     steps:
       - name: Verify all jobs passed
@@ -157,7 +169,8 @@ jobs:
              [ "${{ needs.codeql.result }}" != "success" ] || \
              [ "${{ needs.mutation.result }}" != "success" ] || \
              [ "${{ needs.integration.result }}" != "success" ] || \
-             [ "${{ needs.repo-structure.result }}" != "success" ]; then
+             [ "${{ needs.repo-structure.result }}" != "success" ] || \
+             [ "${{ needs.sonarcloud.result }}" != "success" ]; then
             echo "::error::One or more Merge Gate jobs failed."
             exit 1
           fi
