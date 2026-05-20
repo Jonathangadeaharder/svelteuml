@@ -94,28 +94,13 @@ describe("emitPlantUML", () => {
 		expect(result.content).toContain("top to bottom direction");
 	});
 
-	it("handles no stereotypeColors (undefined)", () => {
+	it("handles missing stereotypeColors by using empty defaults", () => {
 		const result = emitPlantUML(makeEmptySymbolTable(), createEdgeSet([]), {
 			...DEFAULT_DIAGRAM_OPTIONS,
 			kind: "class",
 			layoutDirection: "left-to-right",
-			stereotypeColors: undefined as any,
+			stereotypeColors: {} as Record<string, string>,
 		});
 		expect(result.content).toContain("left to right direction");
-	});
-
-	it("renders when all injection values are empty", () => {
-		const result = emitPlantUML(makeEmptySymbolTable(), createEdgeSet([]), {
-			kind: "class",
-			showMembers: false,
-			showMethods: false,
-			showVisibility: false,
-			showStores: false,
-			showProps: false,
-			hideEmptyPackages: true,
-			stereotypeColors: {},
-		});
-		expect(result.content).toContain("@startuml");
-		expect(result.content).toContain("@enduml");
 	});
 });

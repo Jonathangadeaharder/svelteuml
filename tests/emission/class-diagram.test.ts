@@ -484,7 +484,9 @@ describe("renderClassDiagram", () => {
 	});
 
 	it("renders component_usage edge", () => {
-		const edges = createEdgeSet([{ source: "/Parent.svelte", target: "/Child.svelte", type: "component_usage" }]);
+		const edges = createEdgeSet([
+			{ source: "/Parent.svelte", target: "/Child.svelte", type: "component_usage" },
+		]);
 		const result = renderClassDiagram(makeEmptySymbolTable(), edges, DEFAULT_DIAGRAM_OPTIONS);
 		expect(result).toContain("-->");
 	});
@@ -624,5 +626,69 @@ describe("renderClassDiagram", () => {
 		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
 		expect(result).toContain("internal");
 		expect(result).not.toContain("<<Exported>>");
+	});
+
+	it("renders grouped symbols inside package blocks", () => {
+		const symbols = makeEmptySymbolTable({
+			classes: [
+				{
+					kind: "class",
+					name: "ServiceA",
+					filePath: "/src/lib/services/a.ts",
+					extends: undefined,
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+					group: "core",
+				},
+				{
+					kind: "class",
+					name: "ServiceB",
+					filePath: "/src/lib/services/b.ts",
+					extends: undefined,
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+					group: "core",
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain('package "core" <<group>>');
+		expect(result).toContain("ServiceA");
+		expect(result).toContain("ServiceB");
+	});
+
+	it("renders grouped and ungrouped symbols separately", () => {
+		const symbols = makeEmptySymbolTable({
+			classes: [
+				{
+					kind: "class",
+					name: "GroupedClass",
+					filePath: "/src/lib/g.ts",
+					extends: undefined,
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+					group: "utils",
+				},
+				{
+					kind: "class",
+					name: "UngroupedClass",
+					filePath: "/src/lib/u.ts",
+					extends: undefined,
+					implements: [],
+					members: [],
+					isGeneric: false,
+					typeParams: [],
+				},
+			],
+		});
+		const result = renderClassDiagram(symbols, createEdgeSet([]), DEFAULT_DIAGRAM_OPTIONS);
+		expect(result).toContain('package "utils" <<group>>');
+		expect(result).toContain("UngroupedClass");
 	});
 });

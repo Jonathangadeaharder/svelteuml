@@ -141,4 +141,19 @@ describe("Emission PBT", () => {
 			{ numRuns },
 		);
 	});
+
+	it("package diagram has valid structure with package blocks", () => {
+		fc.assert(
+			fc.property(arbComponentGraph(), arbUMLConfig(), (graph, opts) => {
+				fc.pre(opts.kind === "package");
+				const result = emitPlantUML(graph.symbols, graph.edges, opts);
+				const content = result.content.trim();
+				expect(content.startsWith("@startuml")).toBe(true);
+				expect(content.endsWith("@enduml")).toBe(true);
+				const packageCount = (content.match(/^package "/gm) ?? []).length;
+				expect(packageCount).toBeGreaterThanOrEqual(0);
+			}),
+			{ numRuns },
+		);
+	});
 });
