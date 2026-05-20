@@ -59,25 +59,35 @@ function renderGroupedSymbols(
 	lines: string[],
 	symbols: SymbolTable,
 	options: DiagramOptions,
+	declared: Set<string>,
 ): void {
 	const groups = collectGroups(symbols);
 	if (groups.size === 0) return;
 
 	for (const [groupName, groupSymbols] of groups) {
 		lines.push(`package "${groupName}" <<group>> {`);
-		renderSymbolsBlock(lines, groupSymbols, options);
+		renderSymbolsBlock(lines, groupSymbols, options, declared);
 		lines.push("}");
 		lines.push("");
 	}
 }
 
-function renderSymbolsBlock(lines: string[], symbols: SymbolTable, options: DiagramOptions): void {
+function renderSymbolsBlock(
+	lines: string[],
+	symbols: SymbolTable,
+	options: DiagramOptions,
+	declared: Set<string>,
+): void {
 	for (const cls of [...symbols.classes].sort((a, b) => a.name.localeCompare(b.name))) {
+		if (declared.has(cls.name)) continue;
+		declared.add(cls.name);
 		renderClass(lines, cls, options);
 	}
 
 	if (options.showStores) {
 		for (const store of [...symbols.stores].sort((a, b) => a.name.localeCompare(b.name))) {
+			if (declared.has(store.name)) continue;
+			declared.add(store.name);
 			renderStore(lines, store);
 		}
 	}
@@ -85,6 +95,8 @@ function renderSymbolsBlock(lines: string[], symbols: SymbolTable, options: Diag
 	if (options.showProps) {
 		const propMap = groupPropsByComponent(symbols.props);
 		for (const comp of [...symbols.components].sort((a, b) => a.name.localeCompare(b.name))) {
+			if (declared.has(comp.name)) continue;
+			declared.add(comp.name);
 			const key = `${comp.filePath}::${comp.name}`;
 			const compProps = propMap.get(key) ?? [];
 			renderComponent(lines, comp.name, compProps, options);
@@ -92,6 +104,8 @@ function renderSymbolsBlock(lines: string[], symbols: SymbolTable, options: Diag
 	}
 
 	for (const fn of [...symbols.functions].sort((a, b) => a.name.localeCompare(b.name))) {
+		if (declared.has(fn.name)) continue;
+		declared.add(fn.name);
 		const fnStereotype = fn.isExported ? " <<Exported>>" : "";
 		lines.push(`class "${fn.name}" <<function>>${fnStereotype} {`);
 		lines.push("}");
@@ -99,6 +113,8 @@ function renderSymbolsBlock(lines: string[], symbols: SymbolTable, options: Diag
 	}
 
 	for (const route of [...(symbols.routes ?? [])].sort((a, b) => a.name.localeCompare(b.name))) {
+		if (declared.has(route.name)) continue;
+		declared.add(route.name);
 		renderRoute(lines, route);
 	}
 }
@@ -117,6 +133,7 @@ export function renderClassDiagram(
 	options: DiagramOptions,
 ): string {
 	const lines: string[] = [];
+	const declaredNames = new Set<string>();
 	const title = options.title ?? "Diagram";
 	lines.push(`@startuml ${title}`);
 	lines.push("skinparam classAttributeIconSize 0");
@@ -140,7 +157,7 @@ export function renderClassDiagram(
 
 	const groups = collectGroups(symbols);
 	if (groups.size > 0) {
-		renderGroupedSymbols(lines, symbols, options);
+		renderGroupedSymbols(lines, symbols, options, declaredNames);
 	}
 
 	const ungrouped: SymbolTable = {
@@ -153,7 +170,7 @@ export function renderClassDiagram(
 		routes: (symbols.routes ?? []).filter(isUngrouped),
 		components: (symbols.components ?? []).filter(isUngrouped),
 	};
-	renderSymbolsBlock(lines, ungrouped, options);
+	renderSymbolsBlock(lines, ungrouped, options, declaredNames);
 
 	const sortedEdges = [...edgeSet.edges].sort((a, b) => {
 		const bySource = a.source.localeCompare(b.source);
