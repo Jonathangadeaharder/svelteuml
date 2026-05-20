@@ -74,9 +74,14 @@ vi.mock("../../src/emission/plantuml-emitter.js", () => ({
 	emitPlantUML: vi.fn().mockReturnValue({ content: "@startuml\n@enduml" }),
 }));
 
+vi.mock("../../src/emission/renderer.js", () => ({
+	renderPlantUml: vi.fn().mockResolvedValue({ success: false, error: "mock fallback" }),
+}));
+
 import { existsSync, writeFileSync } from "node:fs";
 
 const mockedExistsSync = vi.mocked(existsSync);
+// biome-ignore lint/correctness/noUnusedVariables: used by write assertions
 const mockedWriteFileSync = vi.mocked(writeFileSync);
 
 function makeCliOpts(overrides: Partial<CliOptions> = {}): CliOptions {
@@ -101,6 +106,8 @@ function makeCliOpts(overrides: Partial<CliOptions> = {}): CliOptions {
 		classDiagram: false,
 		packageDiagram: false,
 		aliasGroups: [],
+		detectCircular: false,
+		failOnCircular: false,
 		...overrides,
 	};
 }
@@ -259,7 +266,7 @@ describe("src/cli/runner.ts", () => {
 			expect(result.success).toBe(false);
 		});
 
-	it("writes file when format is not text or outputPath is set", async () => {
+		it("writes file when format is not text or outputPath is set", async () => {
 			const cliOpts = makeCliOpts({ format: "text", outputPath: "/tmp/out.puml" });
 			const result = await runPipeline(cliOpts, {});
 
@@ -267,7 +274,13 @@ describe("src/cli/runner.ts", () => {
 			expect(result.outputPath).toBe(resolve("/tmp/out.puml"));
 		});
 
-	it("writes file for svg format without outputPath", async () => {
+		it("writes file for svg format without outputPath", async () => {
+			const { renderPlantUml } = await import("../../src/emission/renderer.js");
+			vi.mocked(renderPlantUml).mockResolvedValueOnce({
+				success: true,
+				data: "<svg></svg>",
+			});
+
 			const cliOpts = makeCliOpts({ format: "svg" });
 			const result = await runPipeline(cliOpts, {});
 
@@ -328,6 +341,64 @@ describe("src/cli/runner.ts", () => {
 
 			expect(result.success).toBe(false);
 			expect(result.error).toBeDefined();
+		});
+
+		it("reports circular dependencies as warnings when detectCircular is enabled", async () => {
+			const { detectCircularDependencies, buildEdges, buildServerLoadEdges } = await import(
+				"../../src/dependency/index.js"
+			);
+			vi.mocked(buildEdges).mockReturnValueOnce([{ source: "a", target: "b", type: "dependency" }]);
+			vi.mocked(buildServerLoadEdges).mockReturnValueOnce([]);
+			vi.mocked(detectCircularDependencies).mockReturnValueOnce({
+				cycles: [{ files: ["a.ts -> b.ts -> c.ts -> a.ts"] }],
+			});
+
+			const cliOpts = makeCliOpts({ detectCircular: true });
+			const result = await runPipeline(cliOpts, {});
+
+			expect(result.success).toBe(true);
+		});
+
+		it("fails on circular dependencies when failOnCircular is set", async () => {
+			const { detectCircularDependencies, buildEdges, buildServerLoadEdges } = await import(
+				"../../src/dependency/index.js"
+			);
+			vi.mocked(buildEdges).mockReturnValueOnce([{ source: "x", target: "y", type: "dependency" }]);
+			vi.mocked(buildServerLoadEdges).mockReturnValueOnce([]);
+			vi.mocked(detectCircularDependencies).mockReturnValueOnce({
+				cycles: [{ files: ["x.ts -> y.ts -> x.ts"] }],
+			});
+
+			const cliOpts = makeCliOpts({ detectCircular: true, failOnCircular: true });
+			const result = await runPipeline(cliOpts, {});
+
+			expect(result.success).toBe(false);
+		});
+
+		it("handles svg format output via renderer", async () => {
+			const { renderPlantUml } = await import("../../src/emission/renderer.js");
+			vi.mocked(renderPlantUml).mockResolvedValueOnce({
+				success: true,
+				data: "<svg></svg>",
+			});
+
+			const cliOpts = makeCliOpts({ format: "svg" });
+			const result = await runPipeline(cliOpts, {});
+
+			expect(result.success).toBe(true);
+		});
+
+		it("handles png format with render failure fallback", async () => {
+			const { renderPlantUml } = await import("../../src/emission/renderer.js");
+			vi.mocked(renderPlantUml).mockResolvedValueOnce({
+				success: false,
+				error: "server error",
+			});
+
+			const cliOpts = makeCliOpts({ format: "png" });
+			const result = await runPipeline(cliOpts, {});
+
+			expect(result.success).toBe(true);
 		});
 	});
 });
