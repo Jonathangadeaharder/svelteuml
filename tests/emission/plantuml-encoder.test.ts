@@ -72,4 +72,28 @@ describe("encodePlantUml", () => {
 		const decoded = decodePlantUml(encoded);
 		expect(decoded).toBe(source);
 	});
+
+	it("encode handles single byte remainder", () => {
+		// Single character source exercises remainder === 1 in toPlantUmlBase64
+		const source = "@";
+		const encoded = encodePlantUml(source);
+		const decoded = decodePlantUml(encoded);
+		expect(decoded).toBe(source);
+	});
+
+	it("encode handles two byte remainder", () => {
+		// Two character source exercises remainder === 2 in toPlantUmlBase64
+		const source = "@s";
+		const encoded = encodePlantUml(source);
+		const decoded = decodePlantUml(encoded);
+		expect(decoded).toBe(source);
+	});
+
+	it("decode handles characters not in plantuml alphabet", () => {
+		// Characters outside PLANTUML_ALPHABET exercise the ?? 0 fallback
+		const source = encodePlantUml("A");
+		const corrupted = source.replace(/[0-9A-Za-z\-_]/, "!");
+		const decoded = decodePlantUml(corrupted);
+		expect(decoded).toBeTypeOf("string");
+	});
 });

@@ -23,12 +23,15 @@ export default defineConfig({
 				"src/types/pipeline.ts",
 			],
 			thresholds: {
-				branches: 60,
-				lines: 50,
-				functions: 55,
-				statements: 50,
+				branches: 70,
+				lines: 80,
+				functions: 80,
+				statements: 80,
+				"src/emission/plantuml-encoder.ts": {
+					branches: 80,
+				},
 				"src/parsing/svelte-to-tsx.ts": {
-					branches: 77,
+					branches: 80,
 				},
 			},
 		},

@@ -9,6 +9,7 @@ export interface CliOptions {
 	format: OutputFormat;
 	excludeExternals: boolean;
 	maxDepth: number;
+	include: string[];
 	exclude: string[];
 	excludePatterns: string[];
 	hideTypeDeps: boolean;
@@ -85,6 +86,7 @@ function addSharedOptions(cmd: Command): Command {
 		.option("-f, --format <type>", "output format (text, svg, png)", parseFormat, "text")
 		.option("--exclude-externals", "exclude external dependencies", false)
 		.option("--max-depth <n>", "max dependency traversal depth (0 = unlimited)", parseMaxDepth, 0)
+		.option("--include [glob...]", "glob patterns to include in discovery", [])
 		.option("-e, --exclude [glob...]", "glob patterns to exclude from discovery", [])
 		.option("--exclude-patterns [glob...]", "glob patterns to exclude from output diagram", [])
 		.option("--hide-type-deps", "hide TypeScript type dependencies", false)
@@ -127,6 +129,7 @@ function toCliOptions(
 		format: opts.format as OutputFormat,
 		excludeExternals: opts.excludeExternals as boolean,
 		maxDepth: opts.maxDepth as number,
+		include: (opts.include as string[] | undefined) ?? [],
 		exclude: (opts.exclude as string[] | undefined) ?? [],
 		excludePatterns: (opts.excludePatterns as string[] | undefined) ?? [],
 		hideTypeDeps: opts.hideTypeDeps as boolean,
