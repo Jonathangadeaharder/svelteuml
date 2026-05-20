@@ -70,7 +70,14 @@ describe("parseArgs", () => {
 	});
 
 	it("parses --exclude with multiple patterns", () => {
-		const result = parseArgs(["generate", "./src", "--exclude", "node_modules", "dist", ".svelte-kit"]);
+		const result = parseArgs([
+			"generate",
+			"./src",
+			"--exclude",
+			"node_modules",
+			"dist",
+			".svelte-kit",
+		]);
 		expect(result.exclude).toEqual(["node_modules", "dist", ".svelte-kit"]);
 	});
 
@@ -79,8 +86,24 @@ describe("parseArgs", () => {
 		expect(result.exclude).toEqual([]);
 	});
 
+	it("parses --include with multiple patterns", () => {
+		const result = parseArgs(["generate", "./src", "--include", "src/**/*.svelte", "src/**/*.ts"]);
+		expect(result.include).toEqual(["src/**/*.svelte", "src/**/*.ts"]);
+	});
+
+	it("defaults include to empty array", () => {
+		const result = parseArgs(["generate", "./src"]);
+		expect(result.include).toEqual([]);
+	});
+
 	it("parses --exclude-patterns", () => {
-		const result = parseArgs(["generate", "./src", "--exclude-patterns", "**/*.test.ts", "**/*.spec.ts"]);
+		const result = parseArgs([
+			"generate",
+			"./src",
+			"--exclude-patterns",
+			"**/*.test.ts",
+			"**/*.spec.ts",
+		]);
 		expect(result.excludePatterns).toEqual(["**/*.test.ts", "**/*.spec.ts"]);
 	});
 
@@ -316,10 +339,7 @@ describe("parseArgs", () => {
 			"--alias-group",
 			"src/**/*.svelte:Components",
 		]);
-		expect(result.aliasGroups).toEqual([
-			"src/**/*.ts:Library",
-			"src/**/*.svelte:Components",
-		]);
+		expect(result.aliasGroups).toEqual(["src/**/*.ts:Library", "src/**/*.svelte:Components"]);
 	});
 
 	it("defaults aliasGroups to empty array", () => {

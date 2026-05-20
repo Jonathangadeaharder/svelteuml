@@ -3,6 +3,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+	convertFiles,
 	convertPlainTsFile,
 	convertSvelteToTsx,
 	isTypeScriptSvelte,
@@ -116,5 +117,55 @@ describe("convertSvelteToTsx", () => {
 		if (!result.success) {
 			expect(result.error).toBeDefined();
 		}
+	});
+});
+
+describe("convertFiles", () => {
+	let tempDir: string;
+
+	beforeEach(() => {
+		tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "convert-files-test-"));
+	});
+
+	afterEach(() => {
+		fs.rmSync(tempDir, { recursive: true, force: true });
+	});
+
+	it("processes both svelte and plain files", async () => {
+		const sveltePath = path.join(tempDir, "Test.svelte");
+		fs.writeFileSync(sveltePath, `<script>let x = 1;</script><span>{x}</span>`, "utf-8");
+
+		const tsPath = path.join(tempDir, "helper.ts");
+		fs.writeFileSync(tsPath, "export const foo = 42;", "utf-8");
+
+		const { results, parseResults } = await convertFiles([sveltePath], [tsPath]);
+
+		expect(results).toHaveLength(2);
+		expect(parseResults).toHaveLength(2);
+		expect(results[0]?.success).toBe(true);
+		expect(results[1]?.success).toBe(true);
+	});
+
+	it("handles empty file lists", async () => {
+		const { results, parseResults } = await convertFiles([], []);
+
+		expect(results).toHaveLength(0);
+		expect(parseResults).toHaveLength(0);
+	});
+
+	it("reports error when plain file read fails", async () => {
+		const sveltePath = path.join(tempDir, "Ok.svelte");
+		fs.writeFileSync(sveltePath, `<script>let x = 1;</script><span>{x}</span>`, "utf-8");
+
+		const { results, parseResults } = await convertFiles([sveltePath], ["/nonexistent/missing.ts"]);
+
+		expect(results).toHaveLength(2);
+		expect(parseResults).toHaveLength(2);
+		const plainResult = results.find((r) => r.sourcePath === "/nonexistent/missing.ts");
+		expect(plainResult?.success).toBe(false);
+		expect(plainResult?.error).toBeDefined();
+		const plainParse = parseResults.find((r) => r.sourceFile === "/nonexistent/missing.ts");
+		expect(plainParse?.success).toBe(false);
+		expect(plainParse?.error).toBeDefined();
 	});
 });
