@@ -1,6 +1,6 @@
 {
 	"name": "svelteuml",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"description": "Architecture and Dependency Visualization for SvelteKit: TypeScript-Native PlantUML Generator",
 	"type": "module",
 	"main": "dist/index.js",
