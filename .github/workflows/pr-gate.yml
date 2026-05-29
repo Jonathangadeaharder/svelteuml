@@ -147,9 +147,11 @@ jobs:
 
   integration:
     name: Integration Tests
-    runs-on: ["self-hosted", "node", "macos"]
+    runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
     needs: [build]
     if: github.ref == 'refs/heads/main'
+    steps:
+      - run: echo "Integration tests placeholder — not yet configured"
 
   gitleaks:
     name: Secrets Scan (Gitleaks)
