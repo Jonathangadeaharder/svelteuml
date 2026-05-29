@@ -3,6 +3,8 @@
 **Status:** Accepted  
 **Date:** 2026-05-17  
 **Deciders:** Project maintainers
+**Authors:** Jonathan Gadea Harder
+**Reviewers:** Jonathan Gadea Harder
 
 ## Context
 
