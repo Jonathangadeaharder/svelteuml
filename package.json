@@ -69,7 +69,7 @@
 		"commander": "^14.0.3",
 		"fast-glob": "^3.3.0",
 		"ora": "^9.4.0",
-		"svelte": "^5.55.5",
+		"svelte": "^5.55.10",
 		"ts-morph": "^28.0.0",
 		"zod": "^3.24.0"
 	},
@@ -97,7 +97,8 @@
 		],
 		"onlyBuiltDependenciesFiles": [],
 		"overrides": {
-			"devalue": "5.8.1"
+			"devalue": "5.8.1",
+			"qs": "6.15.2"
 		}
 	}
 }
