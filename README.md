@@ -246,6 +246,31 @@ Create `.svelteumlrc.json` in your project root:
 
 CLI flags always override config file values.
 
+## Demo Gallery
+
+### Class Diagram
+
+Generated from a SvelteKit project — shows components, stores, routes, functions, and their relationships:
+
+![Sample Class Diagram](docs/sample-class.png)
+
+*PlantUML source: [docs/sample-class.puml](docs/sample-class.puml)*
+
+### Package Diagram
+
+High-level module structure grouped by filesystem path:
+
+![Sample Package Diagram](docs/sample-package.png)
+
+*PlantUML source: [docs/sample-package.puml](docs/sample-package.puml)*
+
+Generate your own:
+
+```bash
+npx svelteuml generate ./my-sveltekit-app -d class -o diagram.puml
+npx svelteuml generate ./my-sveltekit-app -d package -o packages.puml
+```
+
 ## Example Output
 
 ```plantuml
