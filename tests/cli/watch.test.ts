@@ -68,7 +68,11 @@ describe("startWatcher", () => {
 		const testFile = join(tempDir, "test.svelte");
 		await writeFile(testFile, "<script>let x = 1;</script>");
 
-		await new Promise((resolve) => setTimeout(resolve, 2000));
+		// Poll until handler is called or timeout (chokidar event timing is unpredictable)
+		const deadline = Date.now() + 5000;
+		while (!handler.mock.calls.length && Date.now() < deadline) {
+			await new Promise((resolve) => setTimeout(resolve, 200));
+		}
 
 		expect(handler).toHaveBeenCalled();
 		await watcher.close();
@@ -80,11 +84,17 @@ describe("startWatcher", () => {
 		const handler = vi.fn();
 		watcher.on("change", handler);
 
+		await watcher.ready;
+
 		await writeFile(join(tempDir, "a.svelte"), "<script>let a = 1;</script>");
 		await new Promise((resolve) => setTimeout(resolve, 100));
 		await writeFile(join(tempDir, "b.svelte"), "<script>let b = 2;</script>");
 
-		await new Promise((resolve) => setTimeout(resolve, 700));
+		// Poll until handler is called or timeout
+		const deadline = Date.now() + 5000;
+		while (!handler.mock.calls.length && Date.now() < deadline) {
+			await new Promise((resolve) => setTimeout(resolve, 200));
+		}
 
 		expect(handler).toHaveBeenCalledTimes(1);
 		await watcher.close();

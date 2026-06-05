@@ -1,8 +1,8 @@
-import fc from "fast-check";
 import { basename } from "node:path";
+import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { SymbolExtractor } from "../../src/extraction/symbol-extractor.js";
 import { componentNameFromPath } from "../../src/extraction/component-extractor.js";
+import { SymbolExtractor } from "../../src/extraction/symbol-extractor.js";
 import { ParsingProject } from "../../src/parsing/ts-morph-project.js";
 import { PipelineErrorHandler } from "../../src/pipeline/error-handler.js";
 
@@ -44,10 +44,14 @@ function arbRouteBasename(): fc.Arbitrary<string> {
 
 /**
  * Generate appropriate TypeScript content for a given file path so that the
- * extraction pipeline finds symbols to extract.  Uses fc.sample only for the
- * small set of content decisions, not for the file-tree shape.
+ * extraction pipeline finds symbols to extract.  Uses fc.constantFrom for
+ * all content decisions to ensure reproducibility and shrinking.
  */
-function contentForPath(filePath: string): string {
+function contentForPath(
+	filePath: string,
+	contentChoice: "function" | "store" | "class",
+	storeType: "writable" | "readable" | "derived",
+): string {
 	const name = basename(filePath).replace(/\.(svelte\.tsx|svelte|ts)$/, "");
 
 	if (filePath.endsWith(".svelte.tsx")) {
@@ -65,11 +69,9 @@ function contentForPath(filePath: string): string {
 		return "export function load() { return {}; }\n";
 	}
 
-	const r = Math.random();
-	if (r < 0.34) return `export function ${name}(): void {}\n`;
-	if (r < 0.67) {
-		const st = fc.sample(fc.constantFrom("writable", "readable", "derived"), 1)[0] ?? "writable";
-		return `import { ${st} } from 'svelte/store';\nexport const ${name} = ${st}<number>(0);\n`;
+	if (contentChoice === "function") return `export function ${name}(): void {}\n`;
+	if (contentChoice === "store") {
+		return `import { ${storeType} } from 'svelte/store';\nexport const ${name} = ${storeType}<number>(0);\n`;
 	}
 	return `export class ${name} {}\n`;
 }
@@ -83,25 +85,44 @@ function contentForPath(filePath: string): string {
  *   - SvelteKit route files under `src/routes/`
  */
 function arbFileTree(): fc.Arbitrary<Record<string, string>> {
+	const arbContentChoice = fc.constantFrom("function", "store", "class") as fc.Arbitrary<
+		"function" | "store" | "class"
+	>;
+	const arbStoreType = fc.constantFrom("writable", "readable", "derived") as fc.Arbitrary<
+		"writable" | "readable" | "derived"
+	>;
+
 	return fc
 		.record({
 			libNames: fc.array(arbIdentifier(), { minLength: 0, maxLength: 3 }),
+			libContentChoices: fc.array(arbContentChoice, { minLength: 0, maxLength: 3 }),
+			libStoreTypes: fc.array(arbStoreType, { minLength: 0, maxLength: 3 }),
 			compNames: fc.array(arbIdentifier(), { minLength: 0, maxLength: 2 }),
 			routeFiles: fc.array(arbRouteBasename(), { minLength: 0, maxLength: 3 }),
 			routeDir: fc.array(arbSegment(), { minLength: 0, maxLength: 2 }),
 		})
-		.chain(({ libNames, compNames, routeFiles, routeDir }) => {
+		.chain(({ libNames, libContentChoices, libStoreTypes, compNames, routeFiles, routeDir }) => {
 			const tree: Record<string, string> = {};
 			const rd = routeDir.length > 0 ? `/src/routes/${routeDir.join("/")}` : "/src/routes";
 
-			for (const name of libNames) {
-				tree[`/src/lib/${name}.ts`] = contentForPath(`/src/lib/${name}.ts`);
+			for (let i = 0; i < libNames.length; i++) {
+				const choice = libContentChoices[i] ?? "function";
+				const storeType = libStoreTypes[i] ?? "writable";
+				tree[`/src/lib/${libNames[i]}.ts`] = contentForPath(
+					`/src/lib/${libNames[i]}.ts`,
+					choice,
+					storeType,
+				);
 			}
 			for (const name of compNames) {
-				tree[`/src/lib/${name}.svelte.tsx`] = contentForPath(`/src/lib/${name}.svelte.tsx`);
+				tree[`/src/lib/${name}.svelte.tsx`] = contentForPath(
+					`/src/lib/${name}.svelte.tsx`,
+					"function",
+					"writable",
+				);
 			}
 			for (const rn of routeFiles) {
-				tree[`${rd}/${rn}`] = contentForPath(`${rd}/${rn}`);
+				tree[`${rd}/${rn}`] = contentForPath(`${rd}/${rn}`, "function", "writable");
 			}
 			return fc.constant(tree);
 		});
@@ -170,23 +191,23 @@ describe("extraction properties", () => {
 						expect(sources.has(fp)).toBe(true);
 					}
 				}),
-			{ numRuns },
-		);
-	},
-	PBT_TIMEOUT,
-);
+				{ numRuns },
+			);
+		},
+		PBT_TIMEOUT,
+	);
 
-it(
-	"extraction is deterministic: same input → identical output",
-	() => {
-		fc.assert(
-			fc.property(arbFileTree(), (files) => {
-				fc.pre(Object.keys(files).length > 0);
-				const table1 = extractSymbols(files);
-				const table2 = extractSymbols(files);
-				expect(table1).toEqual(table2);
-			}),
-			{ numRuns },
+	it(
+		"extraction is deterministic: same input → identical output",
+		() => {
+			fc.assert(
+				fc.property(arbFileTree(), (files) => {
+					fc.pre(Object.keys(files).length > 0);
+					const table1 = extractSymbols(files);
+					const table2 = extractSymbols(files);
+					expect(table1).toEqual(table2);
+				}),
+				{ numRuns },
 			);
 		},
 		PBT_TIMEOUT,

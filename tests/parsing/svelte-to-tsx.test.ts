@@ -111,11 +111,11 @@ describe("convertSvelteToTsx", () => {
 
 		const result = await convertSvelteToTsx(filePath);
 
-		// svelte2tsx with emitOnTemplateError: true may still succeed
-		// but we validate the result structure regardless
-		expect(typeof result.success).toBe("boolean");
-		if (!result.success) {
+		if (result.success) {
+			expect(result.tsxCode.length).toBeGreaterThan(0);
+		} else {
 			expect(result.error).toBeDefined();
+			expect(result.error?.message).toBeTruthy();
 		}
 	});
 });

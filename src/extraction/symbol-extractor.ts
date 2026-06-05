@@ -57,6 +57,24 @@ export class SymbolExtractor {
 		for (const [originalPath, sourceFile] of this.project.getAllSourceFiles()) {
 			if (shouldSkipFile(originalPath)) continue;
 
+			// Check for syntax (parse-level) errors before extraction.
+			// Use getSyntacticDiagnostics to avoid triggering type checking,
+			// which can crash on unresolved imports in partial project setups.
+			const program = this.project.getProject().getProgram().compilerObject;
+			const syntaxDiags = program.getSyntacticDiagnostics(sourceFile.compilerNode);
+			if (syntaxDiags.length > 0) {
+				const messages = syntaxDiags
+					.map((d) =>
+						typeof d.messageText === "string" ? d.messageText : d.messageText.messageText,
+					)
+					.join("; ");
+				this.errorHandler.addError({
+					file: originalPath,
+					phase: "extraction",
+					message: `Syntax errors: ${messages}`,
+				});
+			}
+
 			try {
 				const extracted = this.extractFile(originalPath, sourceFile);
 				classes.push(...extracted.classes);
