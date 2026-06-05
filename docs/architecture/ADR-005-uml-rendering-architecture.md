@@ -15,7 +15,7 @@ SvelteUML's core value is generating useful architecture diagrams from SvelteKit
 ### Output Format: PlantUML
 
 - **PlantUML** class diagram syntax as the primary output format
-- Text `.puml` output by default; SVG/PNG generation deferred to external tooling
+- Text `.puml` output by default; SVG/PNG via remote PlantUML server (`src/emission/renderer.ts` encodes and fetches from `plantuml.com/plantuml`)
 - PlantUML was chosen over Mermaid, Graphviz, or custom SVG because:
   - Mature class diagram support (extends, implements, composition, dependency arrows)
   - Widely supported by documentation tools (GitHub Markdown via kroki, IntelliJ plugin, etc.)
@@ -50,13 +50,21 @@ Two diagram types share a common data model:
 | `aggregation` | `o--` | Class-type property | Reserved for future use |
 | `dependency` | `..>` | Generic import | Default classification |
 | `association` | `-->` | Route imports component | Route imports component file |
-| `state_dependency` | `..>` | Reactive state subscription | `findReferencesAsNodes()` on `$state`/`$derived` |
+| `state_dependency` | `..>` | Reactive state subscription | `findReferencesAsNodes()` on `$state`/`$derived`, store `$prefix` auto-subscriptions |
+| `prop_flow` | `-->` | Prop passing | `trackPropFlows()` in `src/dependency/prop-flow-tracker.ts` |
+| `event` | `..>` | Event dispatch | `createEventDispatcher` in `EventSymbol` |
+| `slot` | `..>` | Slot fill | `extractSlotFills()` in `src/extraction/slot-extractor.ts` |
+| `server_load` | `..>` | Server load → page | `buildServerLoadEdges()` in `src/dependency/server-load-builder.ts` |
+| `component_usage` | `-->` | Component imports component | Component file in import source & target |
 
 ### Dependency Resolution
 
 - **Import Scanning** (`src/dependency/import-scanner.ts`): Extracts `ImportDeclaration` nodes via ts-morph, resolves specifiers through alias maps and extension probing
 - **Edge Building** (`src/dependency/edge-builder.ts`): Classifies resolved imports into edge types by cross-referencing with symbol table
 - **Reactive Tracking** (`src/dependency/reactive-tracker.ts`): Uses ts-morph `findReferencesAsNodes()` to trace `$state`/`$derived` variable references across files
+- **Store Subscription Tracking** (`src/dependency/store-subscription.ts`): Detects `$storeName` auto-subscription identifiers in `.svelte` TSX output
+- **Prop Flow Tracking** (`src/dependency/prop-flow-tracker.ts`): Tracks prop passing from parent to child components
+- **Server Load Building** (`src/dependency/server-load-builder.ts`): Builds edges from `+page.server.ts`/`+layout.server.ts` to corresponding `.svelte` pages via `$page.data`/`$page.url` usage
 
 ### SvelteKit Route Awareness
 
@@ -72,7 +80,7 @@ Two diagram types share a common data model:
 - Route awareness provides SvelteKit-specific value no generic UML tool offers
 
 **Negative:**
-- PlantUML requires external rendering for SVG/PNG output (Java dependency)
+- PlantUML requires external rendering for SVG/PNG output (uses remote PlantUML server at `plantuml.com/plantuml`)
 - Package diagram with many files can produce very wide diagrams
 - Class diagram type inference requires correct ts-morph AST analysis
 

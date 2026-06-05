@@ -1,4 +1,4 @@
-# ADR-001: Project Architecture — SvelteKit + TypeScript Monorepo
+# ADR-001: Project Architecture — TypeScript CLI/Library
 
 **Status:** Accepted  
 **Date:** 2026-05-17  

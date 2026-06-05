@@ -14,51 +14,81 @@ The project needs automated quality enforcement on every pull request and merge 
 
 ### Runner Infrastructure
 
-**Self-hosted macOS runner** for all CI jobs. Rationale:
+**Self-hosted macOS ARM64 runner** for all CI jobs. Rationale:
 - macOS runner matches local development environment
 - Avoids macOS-specific CI minutes costs
 - Full control over installed tooling (pnpm, Node.js versions)
 
 ### CI Workflows
 
-Two workflows, plus a mutation testing workflow:
+Three workflows plus supporting jobs:
 
-#### `ci.yml` (PR + push to main)
-Runs four parallel jobs on PR and push to main:
+#### `pr-gate.yml` (PR + push to main)
+Runs on PRs targeting main and on push to main. Jobs:
 
 | Job | Command | Purpose |
 |-----|---------|---------|
-| `lint` | `pnpm biome check src/` | Code style and anti-pattern detection |
+| `lint` | `pnpm dlx @biomejs/biome check src/` | Code style and anti-pattern detection |
 | `typecheck` | `pnpm exec tsc --noEmit` | Type safety verification |
-| `test` | `pnpm run test:coverage` | Vitest with branch coverage ≥90% (matrix: Node 20, 22) |
+| `test` | `pnpm run test:coverage` | Vitest with branch coverage ≥70% (matrix: Node 22) |
 | `build` | `pnpm run build` | TypeScript compilation + dist output verification |
+| `smoke` | `node dist/cli.js --help/--version` | CLI smoke test after build |
+| `mutation` | `pnpm exec stryker run --incremental` | Incremental mutation testing on changed files (PR only) |
+| `integration` | placeholder | Integration tests (main branch only) |
+| `gitleaks` | `gitleaks detect --source .` | Secrets scanning |
+| `trivy` | Trivy filesystem scan | Vulnerability scanning (SARIF) |
+| `structure` | `structurelint .` | Repository structure validation |
+| `vitest-lint` | `vitest-linter .` | Test quality linting |
+| `required-checks` | Gate job | Verifies all required jobs passed |
 
-`build` depends on `typecheck` + `test` (sequential after those pass).
+`build` depends on `typecheck` + `test`. `smoke` depends on `build`. `mutation` depends on `test`.
 
-#### `mutation-test.yml` (push to main only)
-Full Stryker mutation test suite with incremental caching. Only runs on main because:
-- Mutation testing is expensive (~5-10x test time)
-- Incremental mode reuses previous results
-- Coverage thresholds already enforced per-PR
+#### `merge-gate.yml` (push to main)
+Reuses `pr-gate.yml` via `workflow_call`, then adds:
 
-### Quality Gates Not Implemented (Deferred)
+| Job | Purpose |
+|-----|---------|
+| `codeql` | CodeQL security analysis (JavaScript/TypeScript) |
+| `mutation` | Full Stryker mutation test suite (incremental) |
+| `integration` | `pnpm run test:integration` |
+| `snapshot-diff` | Generate & post PlantUML snapshot diffs |
+| `repo-structure` | Repository structure validation |
+| `sonarcloud` | SonarCloud code quality analysis |
+| `publish` | npm publish on version tags |
 
-- **SonarCloud**: Not yet configured. Will be added when SonarCloud project is set up.
-- **PR-Agent / CodeRabbit**: Not configured. Manual review process for now.
-- **Branch protection rules**: Not enforced on GitHub. Will be added when team workflow stabilizes.
+#### `mutation-test.yml` (push to main)
+Standalone full Stryker mutation test suite with incremental caching. Duplicates merge-gate mutation job for independent triggering.
+
+### Security Scanning
+
+- **Gitleaks**: Runs on every PR to detect committed secrets
+- **Trivy**: Filesystem vulnerability scan on every PR (HIGH/CRITICAL severity, non-blocking SARIF upload)
+- **CodeQL**: Runs on push to main for JavaScript/TypeScript security analysis
+
+### Code Quality
+
+- **SonarCloud**: Configured in merge-gate, runs `sonar-scanner` with `SONAR_TOKEN` secret
+- **Structurelint**: Custom repository structure validation tool, runs on PR and merge
+- **Vitest-linter**: Test quality linting on every PR
+
+### Automated Code Review
+
+- **PR-Agent**: Configured in `.github/workflows/pr-agent.yml` (slash-command only: `/review`, `/describe`, `/improve`, `/ask`). Disabled by default, enabled via `ENABLE_PR_AGENT` repository variable.
 
 ## Consequences
 
 **Positive:**
-- Every PR gets lint, typecheck, test+coverage, and build verification
+- Every PR gets lint, typecheck, test+coverage, build, secrets scan, and structure validation
 - Self-hosted runner provides consistent environment with local dev
-- Mutation testing runs post-merge (non-blocking for PR velocity)
+- Incremental mutation testing runs on PRs (changed files only), full suite on merge
+- Security scanning (Gitleaks, Trivy, CodeQL) catches vulnerabilities early
+- SonarCloud provides continuous code quality metrics
 
 **Negative:**
 - Self-hosted runner maintenance burden (OS updates, toolchain upgrades)
-- No security scanning (Trivy, CodeQL, Gitleaks) — deferred to future PR
-- No automated code review (PR-Agent/CodeRabbit) — deferred
+- Many CI jobs increase PR feedback latency
+- PR-Agent requires LM Studio for local model inference
 
 **Neutral:**
-- Coverage threshold at 90% branches may cause PR friction but ensures quality
-- Matrix testing on Node 20 + 22 catches version-specific issues
+- Coverage threshold at 70% branches balances quality with PR velocity
+- Single Node version matrix (22) — no cross-version testing

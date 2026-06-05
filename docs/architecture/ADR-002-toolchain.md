@@ -15,7 +15,7 @@ The project requires a modern JavaScript toolchain that enforces code quality, t
 ### Package Manager: pnpm
 
 - **pnpm** is the sole package manager. Prohibited: `npm`, `yarn`.
-- `pnpm@10.33.2` with `onlyBuiltDependencies: ["esbuild", "svelte", "@biomejs/biome"]`
+- `pnpm@11.1.2` with `onlyBuiltDependencies: ["esbuild", "svelte", "@biomejs/biome"]`
 - Corepack-enabled CI workflow
 
 ### Linting & Formatting: Biome

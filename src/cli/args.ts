@@ -152,7 +152,7 @@ function toCliOptions(
 export function parseArgs(argv: string[]): CliOptions {
 	let result: CliOptions | undefined;
 
-	const program = new Command().name("svelteuml").version("0.1.0").exitOverride();
+	const program = new Command().name("svelteuml").version("1.0.0").exitOverride();
 
 	const generateCmd = program
 		.command("generate")
