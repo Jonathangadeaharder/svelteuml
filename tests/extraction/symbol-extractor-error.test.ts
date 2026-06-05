@@ -38,7 +38,7 @@ describe("SymbolExtractor error handling", () => {
 		project.addPlainSourceFile(path.join(tmpDir, "good.ts"), "export function ok(): void {}");
 		const extractor = new SymbolExtractor(project, errorHandler);
 		const symbols = extractor.extract();
-		expect(errorHandler.getFailedFiles().length).toBeGreaterThanOrEqual(0);
-		expect(symbols.functions.length).toBeGreaterThanOrEqual(0);
+		expect(errorHandler.getFailedFiles().length).toBeGreaterThanOrEqual(1);
+		expect(symbols.functions.some((f) => f.name === "ok")).toBe(true);
 	});
 });
