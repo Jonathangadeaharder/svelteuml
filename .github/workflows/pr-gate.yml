@@ -104,7 +104,7 @@ jobs:
       - name: Smoke test --version
         run: |
           version_output=$(node dist/cli.js --version)
-          [ "$version_output" = "0.1.0" ] || { echo "FAIL: --version expected 0.1.0, got $version_output"; exit 1; }
+          [ "$version_output" = "1.0.0" ] || { echo "FAIL: --version expected 1.0.0, got $version_output"; exit 1; }
 
   mutation:
     name: Mutation Test (Incremental)

@@ -1,6 +1,6 @@
 # SvelteUML
 
-[![CI](https://github.com/Jonathangadeaharder/svelteuml/actions/workflows/ci.yml/badge.svg)](https://github.com/Jonathangadeaharder/svelteuml/actions/workflows/ci.yml)
+[![CI](https://github.com/Jonathangadeaharder/svelteuml/actions/workflows/pr-gate.yml/badge.svg)](https://github.com/Jonathangadeaharder/svelteuml/actions/workflows/pr-gate.yml)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Jonathangadeaharder_svelteuml&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Jonathangadeaharder_svelteuml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-green)](https://nodejs.org/)
@@ -22,7 +22,7 @@ svelteuml generate ./my-sveltekit-app
 # Generate to a specific file
 svelteuml generate ./my-sveltekit-app -o docs/architecture.puml
 
-# Generate SVG (requires Java + PlantUML)
+# Generate SVG (via PlantUML server)
 svelteuml generate ./my-sveltekit-app -f svg -o diagram.svg
 ```
 
@@ -54,6 +54,7 @@ svelteuml generate ./my-sveltekit-app -f svg -o diagram.svg
 | `--layout-direction <dir>` | Layout direction for PlantUML | `top-to-bottom` |
 | `--detect-circular` | Detect and report circular dependencies | `false` |
 | `--fail-on-circular` | Exit with error code on circular deps | `false` |
+| `--alias-group <value>` | Group symbols by glob pattern into named package (repeatable, format: `PATTERN:NAME`) | `[]` |
 | `--disable-colors` | Disable stereotype color theming | `false` |
 | `-q, --quiet` | Suppress all output | `false` |
 | `--verbose` | Show verbose output | `false` |
@@ -168,11 +169,13 @@ Respects SvelteKit path aliases (`$lib`, `$components`, custom). Components unde
 
 ### Config File Support
 
-Supports three config file formats (searched in order):
+Supports five config file formats (searched in order):
 
 | File | Format |
 |------|--------|
 | `svelteuml.config.ts` | TypeScript module |
+| `svelteuml.config.js` | JavaScript module |
+| `svelteuml.config.mjs` | JavaScript ESM module |
 | `.svelteumlrc.json` | JSON |
 | `.svelteumlrc` | JSON (no extension) |
 
@@ -199,8 +202,8 @@ Annotate Svelte components with HTML comments to control diagram behavior:
 | Format | Extension | Requires | Description |
 |--------|-----------|----------|-------------|
 | `text` | `.puml` | Nothing | Raw PlantUML DSL text |
-| `svg` | `.svg` | Java + PlantUML CLI | Vector graphic |
-| `png` | `.png` | Java + PlantUML CLI | Raster graphic |
+| `svg` | `.svg` | PlantUML server (remote) | Vector graphic |
+| `png` | `.png` | PlantUML server (remote) | Raster graphic |
 
 ```bash
 # SVG output
@@ -228,7 +231,11 @@ Create `.svelteumlrc.json` in your project root:
   "aliasOverrides": {
     "$components": "./src/components",
     "$utils": "./src/lib/utils"
-  }
+  },
+  "groups": [
+    { "pattern": "src/components/**", "name": "Components" },
+    { "pattern": "src/lib/stores/**", "name": "Stores" }
+  ]
 }
 ```
 
@@ -243,6 +250,7 @@ Create `.svelteumlrc.json` in your project root:
 | `maxDepth` | `number` | `0` | Max dependency traversal depth (0 = unlimited) |
 | `excludeExternals` | `boolean` | `false` | Truncate at node_modules boundaries |
 | `aliasOverrides` | `Record<string, string>` | `{}` | Custom path alias overrides |
+| `groups` | `Array<{pattern: string, name: string}>` | `[]` | Group definitions for organizing symbols by file path pattern |
 
 CLI flags always override config file values.
 
@@ -267,8 +275,8 @@ High-level module structure grouped by filesystem path:
 Generate your own:
 
 ```bash
-npx svelteuml generate ./my-sveltekit-app -d class -o diagram.puml
-npx svelteuml generate ./my-sveltekit-app -d package -o packages.puml
+pnpm dlx svelteuml generate ./my-sveltekit-app -d class -o diagram.puml
+pnpm dlx svelteuml generate ./my-sveltekit-app -d package -o packages.puml
 ```
 
 ## Example Output

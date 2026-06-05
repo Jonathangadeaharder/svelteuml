@@ -1,4 +1,4 @@
-# ADR-004: Testing Strategy — Vitest, Stryker, Playwright
+# ADR-004: Testing Strategy — Vitest, Stryker
 
 **Status:** Accepted  
 **Date:** 2026-05-17  
@@ -23,12 +23,14 @@ SvelteUML is a static analysis tool that parses ASTs and generates diagrams. Tes
 
 | Metric | Minimum | Instrumentation |
 |--------|---------|-----------------|
-| Branches | 90% | Required (hard fail) |
+| Branches | 70% | Required (hard fail) |
 | Lines | 80% | Required |
-| Functions | 85% | Required |
-| Statements | 85% | Required |
+| Functions | 80% | Required |
+| Statements | 80% | Required |
 
-Coverage excludes barrel files (`index.ts`), the CLI entry point (`cli.ts`), and type-only files (`types/`).
+Per-file overrides: `plantuml-encoder.ts` and `svelte-to-tsx.ts` require ≥80% branches.
+
+Coverage excludes barrel files (`src/**/index.ts`), the CLI entry point (`src/cli.ts`), and specific type files (`src/types/ast.ts`, `src/types/config.ts`, `src/types/pipeline.ts`).
 
 ### Test Categories
 
@@ -55,8 +57,11 @@ Coverage excludes barrel files (`index.ts`), the CLI entry point (`cli.ts`), and
 ### Mutation Testing: Stryker
 
 - **Stryker** v9 with `@stryker-mutator/vitest-runner`
-- Runs on push to main (not per-PR) due to time cost
+- Incremental mutation testing on PRs (changed files only) via `pr-gate.yml`
+- Full mutation test suite on push to main via `merge-gate.yml`
 - Incremental mode with GitHub Actions caching
+- Mutates: `src/discovery/`, `src/parsing/`, `src/extraction/`, `src/dependency/`, `src/emission/`, `src/cli/`
+- Excludes `StringLiteral` mutations
 
 ### What We Don't Test (Deliberately)
 
@@ -67,14 +72,14 @@ Coverage excludes barrel files (`index.ts`), the CLI entry point (`cli.ts`), and
 ## Consequences
 
 **Positive:**
-- High branch coverage (90%) ensures edge cases are handled in AST-heavy code
+- Branch coverage (70%) balances quality with PR velocity in AST-heavy code
 - Golden tests catch regressions in PlantUML output format
 - Property-based testing finds edge cases human-written tests miss
 
 **Negative:**
-- Branch coverage at 90% is expensive to maintain (diminishing returns on edge case tests)
+- Branch coverage at 70% may miss some edge cases; per-file overrides mitigate this for critical modules
 - Integration tests require fixture projects that must be kept in sync with SvelteKit versions
-- Mutation testing is slow (~5-10x) and only feasible post-merge
+- Mutation testing is slow (~5-10x) even with incremental mode
 
 **Neutral:**
 - In-memory ts-morph projects in unit tests avoid filesystem dependencies
