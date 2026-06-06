@@ -10,6 +10,7 @@ jobs:
   lint:
     name: Lint & Format
     runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    timeout-minutes: 25
     if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
@@ -24,6 +25,7 @@ jobs:
   typecheck:
     name: Type Check
     runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    timeout-minutes: 25
     if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
@@ -38,6 +40,7 @@ jobs:
   test:
     name: Test (Node ${{ matrix.node-version }})
     runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    timeout-minutes: 25
     if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     strategy:
       matrix:
@@ -63,6 +66,7 @@ jobs:
   build:
     name: Build
     runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    timeout-minutes: 25
     if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     needs: [typecheck, test]
     steps:
@@ -84,6 +88,7 @@ jobs:
   smoke:
     name: CLI Smoke Test
     runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    timeout-minutes: 25
     if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     needs: [build]
     steps:
@@ -109,6 +114,7 @@ jobs:
   mutation:
     name: Mutation Test (Incremental)
     runs-on: ["self-hosted", "node", "macos"]
+    timeout-minutes: 25
     needs: [test]
     if: github.event_name == 'pull_request'
     steps:
@@ -148,6 +154,7 @@ jobs:
   integration:
     name: Integration Tests
     runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    timeout-minutes: 25
     needs: [build]
     if: github.ref == 'refs/heads/main'
     steps:
@@ -156,6 +163,7 @@ jobs:
   gitleaks:
     name: Secrets Scan (Gitleaks)
     runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    timeout-minutes: 25
     if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
@@ -169,6 +177,7 @@ jobs:
   trivy:
     name: Vulnerability Scan (Trivy)
     runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    timeout-minutes: 25
     if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
@@ -190,6 +199,7 @@ jobs:
   structure:
     name: Repository Structure
     runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    timeout-minutes: 25
     if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
@@ -210,6 +220,7 @@ jobs:
   vitest-lint:
     name: Test Quality (Vitest)
     runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    timeout-minutes: 25
     if: github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository
     steps:
       - uses: actions/checkout@v4
@@ -224,7 +235,8 @@ jobs:
 
   required-checks:
     name: Required Checks (PR Gate)
-    runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
     if: always() && (github.event.pull_request == null || github.event.pull_request.head.repo.full_name == github.repository)
     needs: [lint, typecheck, test, build, gitleaks, structure, vitest-lint]
     steps:

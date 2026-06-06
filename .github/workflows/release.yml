@@ -12,6 +12,7 @@ permissions:
 jobs:
   release:
     runs-on: ["self-hosted", "macos", "arm64", "VidiomTM"]
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
