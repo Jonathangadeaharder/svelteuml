@@ -8,6 +8,7 @@ jobs:
   mutation:
     name: Full Mutation Test
     runs-on: self-hosted
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
