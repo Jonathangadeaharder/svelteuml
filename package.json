@@ -82,7 +82,7 @@
 			"pnpm exec biome check --write --unsafe",
 			"pnpm exec biome format --write"
 		],
-		"*.{json,css,md}": [
+		"*.{json,css}": [
 			"pnpm exec biome format --write"
 		]
 	},

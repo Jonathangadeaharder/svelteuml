@@ -1,0 +1,61 @@
+@startuml Diagram
+skinparam classAttributeIconSize 0
+
+top to bottom direction
+
+class "count" <<store>> {
+  storeType: writable
+  valueType: unknown
+}
+
+class "doubleCount" <<store>> {
+  storeType: derived
+  valueType: unknown
+}
+
+class "+layout" <<component>> {
+  + children: unknown
+}
+
+class "+page" <<component>> {
+}
+
+class "Button" <<component>> {
+  + disabled?: unknown
+  + label: unknown
+  + variant?: unknown
+}
+
+class "Card" <<component>> {
+  + children: unknown
+  + footer: unknown
+  + title: unknown
+}
+
+class "formatPrice" <<function>> <<Exported>> {
+}
+
+class "GET" <<function>> <<Exported>> {
+}
+
+class "greet" <<function>> <<Exported>> {
+}
+
+class "isPositive" <<function>> <<Exported>> {
+}
+
+class "POST" <<function>> <<Exported>> {
+}
+
+class "reset" <<function>> <<Exported>> {
+}
+
+class "+server" as _server <<endpoint>> {
+  path: /api/data
+}
+
+Button ..> Card : click
+Card --> Button : Button
+_page ..> reset : $count <<store-subscription>>
+_page ..> reset : $doubleCount <<store-subscription>>
+@enduml

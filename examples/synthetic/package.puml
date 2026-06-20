@@ -1,0 +1,28 @@
+@startuml Package Diagram
+
+top to bottom direction
+
+package "lib" as lib {
+  class "Button" <<component>>
+  class "Card" <<component>>
+  class "count" <<store>>
+  class "doubleCount" <<store>>
+  class "formatPrice" <<function>> <<Exported>>
+  class "greet" <<function>> <<Exported>>
+  class "isPositive" <<function>> <<Exported>>
+  class "reset" <<function>> <<Exported>>
+}
+
+package "routes" as routes {
+  class "+layout" <<component>>
+  class "+layout" <<layout>>
+  class "+page" <<component>>
+  class "+page" <<page>>
+  class "+server" <<endpoint>>
+  class "GET" <<function>> <<Exported>>
+  class "POST" <<function>> <<Exported>>
+}
+
+routes ..> lib : 2
+
+@enduml

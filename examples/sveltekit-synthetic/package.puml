@@ -1,0 +1,53 @@
+@startuml Package Diagram
+
+top to bottom direction
+
+package "lib" as lib {
+  class "addItem" <<function>> <<Exported>>
+  class "addProduct" <<function>> <<Exported>>
+  class "Card" <<component>>
+  class "cart" <<state>>
+  class "clearCart" <<function>> <<Exported>>
+  class "formatDate" <<function>> <<Exported>>
+  class "Header" <<component>>
+  class "productCount" <<store>>
+  class "products" <<store>>
+  class "removeItem" <<function>> <<Exported>>
+  class "slugify" <<function>> <<Exported>>
+  class "truncate" <<function>> <<Exported>>
+  interface CartItem
+  interface Product
+}
+
+package "routes" as routes {
+  class "+error" <<component>>
+  class "+error" <<error-page>>
+  class "+layout.server" <<LayoutLoad>>
+  class "+layout" <<component>>
+  class "+layout" <<component>>
+  class "+layout" <<layout>>
+  class "+layout" <<layout>>
+  class "+page.server" <<PageLoad>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+server" <<endpoint>>
+  class "GET" <<function>> <<Exported>>
+  class "load" <<function>> <<Exported>>
+  class "load" <<function>> <<Exported>>
+  class "load" <<function>> <<Exported>>
+  class "POST" <<function>> <<Exported>>
+}
+
+routes ..> lib : 2
+
+@enduml
