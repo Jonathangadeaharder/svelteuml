@@ -1,0 +1,159 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`E4.6 — Snapshot tests on fixture corpus (round-trip lock-in) > class diagram on sveltekit-synthetic fixture > snapshot locks class diagram output 1`] = `
+"@startuml Diagram
+skinparam classAttributeIconSize 0
+
+top to bottom direction
+
+interface "CartItem" as CartItem {
+  + id: string
+  + name: string
+  + quantity: number
+}
+
+interface "Product" as Product {
+  + id: string
+  + name: string
+  + price: number
+}
+
+class "cart" <<state>> {
+  storeType: writable
+  valueType: { length: number }
+}
+
+class "productCount" <<store>> {
+  storeType: derived
+  valueType: unknown
+}
+
+class "products" <<store>> {
+  storeType: writable
+  valueType: Product[]
+}
+
+class "+error" <<component>> {
+  + error: unknown
+  + status: unknown
+}
+
+class "+layout" <<component>> {
+  + children: unknown
+}
+
+class "+page" <<component>> {
+}
+
+class "Card" <<component>> {
+  + label: unknown
+  + onClick: unknown
+}
+
+class "Header" <<component>> {
+  + title: unknown
+}
+
+class "addItem" <<function>> <<Exported>> {
+}
+
+class "addProduct" <<function>> <<Exported>> {
+}
+
+class "clearCart" <<function>> <<Exported>> {
+}
+
+class "formatDate" <<function>> <<Exported>> {
+}
+
+class "GET" <<function>> <<Exported>> {
+}
+
+class "load" <<function>> <<Exported>> {
+}
+
+class "POST" <<function>> <<Exported>> {
+}
+
+class "removeItem" <<function>> <<Exported>> {
+}
+
+class "slugify" <<function>> <<Exported>> {
+}
+
+class "truncate" <<function>> <<Exported>> {
+}
+
+class "+layout.server" as _layout_server <<LayoutLoad>> {
+  path: /
+}
+
+class "+page.server" as _page_server <<PageLoad>> {
+  path: /products/[id]
+  dynamic id
+}
+
+class "+server" as _server <<endpoint>> {
+  path: /api/items
+}
+
+_page ..> removeItem : $cart <<store-subscription>>
+_page ..> addProduct : $products <<store-subscription>>
+@enduml"
+`;
+
+exports[`E4.6 — Snapshot tests on fixture corpus (round-trip lock-in) > package diagram on sveltekit-synthetic fixture > snapshot locks package diagram output 1`] = `
+"@startuml Package Diagram
+
+top to bottom direction
+
+package "lib" as lib {
+  class "addItem" <<function>> <<Exported>>
+  class "addProduct" <<function>> <<Exported>>
+  class "Card" <<component>>
+  class "cart" <<state>>
+  class "clearCart" <<function>> <<Exported>>
+  class "formatDate" <<function>> <<Exported>>
+  class "Header" <<component>>
+  class "productCount" <<store>>
+  class "products" <<store>>
+  class "removeItem" <<function>> <<Exported>>
+  class "slugify" <<function>> <<Exported>>
+  class "truncate" <<function>> <<Exported>>
+  interface CartItem
+  interface Product
+}
+
+package "routes" as routes {
+  class "+error" <<component>>
+  class "+error" <<error-page>>
+  class "+layout.server" <<LayoutLoad>>
+  class "+layout" <<component>>
+  class "+layout" <<component>>
+  class "+layout" <<layout>>
+  class "+layout" <<layout>>
+  class "+page.server" <<PageLoad>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+server" <<endpoint>>
+  class "GET" <<function>> <<Exported>>
+  class "load" <<function>> <<Exported>>
+  class "load" <<function>> <<Exported>>
+  class "load" <<function>> <<Exported>>
+  class "POST" <<function>> <<Exported>>
+}
+
+routes ..> lib : 2
+
+@enduml"
+`;
