@@ -1,0 +1,456 @@
+@startuml Diagram
+skinparam classAttributeIconSize 0
+
+top to bottom direction
+
+interface "DeezerTrackData" as DeezerTrackData {
+  + id: number
+  + title: string
+  + artist: { name: string; } | undefined
+  + album: { cover_small?: string | undefined; cover_medium?: string | undefined; title?: string | undefined; } | undefined
+  + preview: string | undefined
+  + duration: number | undefined
+  + release_date: string | undefined
+}
+
+interface "GameHistoryEntry" as GameHistoryEntry {
+  + room_id: string
+  + room_code: string
+  + created_at: string
+  + started_at: string | null
+  + finished_at: string | null
+  + game_duration: string | null
+  + winner_name: string | null
+  + players: string[]
+  + player_count: number
+}
+
+interface "GameState" as GameState {
+  + screen: import("/Users/jonathangadeaharder/projects/svelteuml/tests/fixtures/songster-svelte/src/lib/types").Screen
+  + round: number
+  + players: import("/Users/jonathangadeaharder/projects/svelteuml/tests/fixtures/songster-svelte/src/lib/types").Player[]
+  + drawPile: import("/Users/jonathangadeaharder/projects/svelteuml/tests/fixtures/songster-svelte/src/lib/types").Song[]
+  + activeCard: import("/Users/jonathangadeaharder/projects/svelteuml/tests/fixtures/songster-svelte/src/lib/types").Song | null
+  + activePlayerId: string
+  + phase: import("/Users/jonathangadeaharder/projects/svelteuml/tests/fixtures/songster-svelte/src/lib/types").Phase
+  + hoverSlot: number | null
+  + placedSlot: number | null
+  + placedResult: boolean | null
+  + interceptor: string | null
+  + winner: import("/Users/jonathangadeaharder/projects/svelteuml/tests/fixtures/songster-svelte/src/lib/types").Player | null
+  + dragging: boolean
+}
+
+interface "GameStateRow" as GameStateRow {
+  + id: string
+  + room_id: string
+  + round: number
+  + phase: string
+  + active_player_id: string | null
+  + draw_pile: Song[]
+  + active_card: any
+  + updated_at: string
+}
+
+interface "LeaderboardEntry" as LeaderboardEntry {
+  + user_id: string
+  + name: string
+  + games_played: number
+  + games_won: number
+  + win_rate: number
+  + avg_timeline_length: number
+}
+
+interface "MusicProvider" as MusicProvider {
+  + search(query: string, limit: number | undefined): Promise<import("/Users/jonathangadeaharder/projects/svelteuml/tests/fixtures/songster-svelte/src/lib/types").Track[]>
+  + getTrack(deezerId: number): Promise<import("/Users/jonathangadeaharder/projects/svelteuml/tests/fixtures/songster-svelte/src/lib/types").Track | null>
+}
+
+interface "Player" as Player {
+  + id: string
+  + name: string
+  + avatar: string
+  + timeline: import("/Users/jonathangadeaharder/projects/svelteuml/tests/fixtures/songster-svelte/src/lib/types").Song[]
+  + tokens: number
+}
+
+interface "RemoteGameConfig" as RemoteGameConfig {
+  + roomCode: string
+  + roomId: string
+  + myPlayerId: string
+  + isHost: boolean
+}
+
+interface "Room" as Room {
+  + id: string
+  + code: string
+  + host_id: string
+  + status: "waiting" | "playing" | "finished"
+  + winner_player_id: string | null
+  + created_at: string
+  + started_at: string | null
+}
+
+interface "RoomPlayer" as RoomPlayer {
+  + id: string
+  + room_id: string
+  + user_id: string
+  + name: string
+  + avatar: string
+  + tokens: number
+  + is_host: boolean
+  + joined_at: string
+}
+
+interface "Song" as Song {
+  + id: string
+  + num: number
+  + title: string
+  + artist: string
+  + year: number
+}
+
+interface "TimelineRow" as TimelineRow {
+  + id: string
+  + player_id: string
+  + song_id: string
+  + position: number
+}
+
+interface "Toast" as Toast {
+  + id: string
+  + message: string
+  + type: import("/Users/jonathangadeaharder/projects/svelteuml/tests/fixtures/songster-svelte/src/lib/stores/toast").ToastType
+  + duration: number
+}
+
+interface "Track" as Track {
+  + deezer_id: number
+  + preview_url: string
+  + cover_small: string | null
+  + cover_medium: string | null
+  + duration: number
+}
+
+interface "Tweaks" as Tweaks {
+  + theme: import("/Users/jonathangadeaharder/projects/svelteuml/tests/fixtures/songster-svelte/src/lib/types").Theme
+  + artStyle: import("/Users/jonathangadeaharder/projects/svelteuml/tests/fixtures/songster-svelte/src/lib/types").ArtStyle
+  + flipStyle: import("/Users/jonathangadeaharder/projects/svelteuml/tests/fixtures/songster-svelte/src/lib/types").FlipStyle
+  + density: import("/Users/jonathangadeaharder/projects/svelteuml/tests/fixtures/songster-svelte/src/lib/types").Density
+  + animIntensity: number
+  + interceptionEnabled: boolean
+}
+
+class "loading" <<store>> {
+  storeType: writable
+  valueType: unknown
+}
+
+class "session" <<store>> {
+  storeType: writable
+  valueType: Session | null
+}
+
+class "user" <<store>> {
+  storeType: writable
+  valueType: User | null
+}
+
+class "+layout" <<component>> {
+  + children: unknown
+  + data: unknown
+}
+
+class "+page" <<component>> {
+}
+
+class "AuthBar" <<component>> {
+}
+
+class "Chrome" <<component>> {
+  + children: unknown
+  + right: unknown
+  + theme?: unknown
+  + title?: unknown
+}
+
+class "DeckBuilder" <<component>> {
+  + onSelect: unknown
+}
+
+class "DeezerAttribution" <<component>> {
+  + trackUrl?: unknown
+}
+
+class "ErrorBoundary" <<component>> {
+  + children: unknown
+  + fallback: unknown
+}
+
+class "GameStats" <<component>> {
+  + activePlayerId: unknown
+  + drawPileCount: unknown
+  + players: unknown
+  + round: unknown
+  + startTime?: unknown
+}
+
+class "HitCard" <<component>> {
+  + artStyle?: unknown
+  + correct: unknown
+  + faceDown?: unknown
+  + flipStyle?: unknown
+  + size?: unknown
+  + song: unknown
+  + styleExtra?: unknown
+  + theme?: unknown
+}
+
+class "PlayerChip" <<component>> {
+  + active?: unknown
+  + player: unknown
+  + theme?: unknown
+}
+
+class "Rematch" <<component>> {
+  + isHost: unknown
+  + roomCode: unknown
+}
+
+class "Skeleton" <<component>> {
+  + borderRadius?: unknown
+  + height?: unknown
+  + width?: unknown
+}
+
+class "Timeline" <<component>> {
+  + artStyle?: unknown
+  + cards: unknown
+  + density?: unknown
+  + draggingActive?: unknown
+  + frozen?: unknown
+  + highlightSlot?: unknown
+  + hoverSlot?: unknown
+  + onSlotClick: unknown
+  + onSlotDragLeave: unknown
+  + onSlotDragOver: unknown
+  + onSlotDrop: unknown
+  + theme?: unknown
+  + wrongSlot?: unknown
+}
+
+class "TweakButton" <<component>> {
+  + label: unknown
+  + onclick: unknown
+  + secondary?: unknown
+}
+
+class "TweakRadio" <<component>> {
+  + label: unknown
+  + onchange: unknown
+  + options: unknown
+  + value: unknown
+}
+
+class "TweakSection" <<component>> {
+  + label: unknown
+}
+
+class "TweakSlider" <<component>> {
+  + label: unknown
+  + max?: unknown
+  + min?: unknown
+  + onchange: unknown
+  + step?: unknown
+  + unit?: unknown
+  + value?: unknown
+}
+
+class "TweakToggle" <<component>> {
+  + label: unknown
+  + onchange: unknown
+  + value?: unknown
+}
+
+class "Vinyl" <<component>> {
+  + intensity?: unknown
+  + label?: unknown
+  + size?: unknown
+  + spinning?: unknown
+  + subLabel?: unknown
+}
+
+class "Waveform" <<component>> {
+  + audioElement?: unknown
+  + bars?: unknown
+  + height?: unknown
+  + intensity?: unknown
+  + playing?: unknown
+}
+
+class "Wordmark" <<component>> {
+  + scale?: unknown
+}
+
+class "addSpectator" <<function>> <<Exported>> {
+}
+
+class "buildDrawPile" <<function>> <<Exported>> {
+}
+
+class "chat" <<function>> <<Exported>> {
+}
+
+class "colors" <<function>> <<Exported>> {
+}
+
+class "connectRemoteGame" <<function>> <<Exported>> {
+}
+
+class "createRematch" <<function>> <<Exported>> {
+}
+
+class "createRoom" <<function>> <<Exported>> {
+}
+
+class "disconnectRemoteGame" <<function>> <<Exported>> {
+}
+
+class "embed" <<function>> <<Exported>> {
+}
+
+class "findCorrectSlot" <<function>> <<Exported>> {
+}
+
+class "generate" <<function>> <<Exported>> {
+}
+
+class "GET" <<function>> <<Exported>> {
+}
+
+class "getCurrentPlayer" <<function>> <<Exported>> {
+}
+
+class "getCurrentPlayerInRoom" <<function>> <<Exported>> {
+}
+
+class "getGameHistory" <<function>> <<Exported>> {
+}
+
+class "getGameState" <<function>> <<Exported>> {
+}
+
+class "getLeaderboard" <<function>> <<Exported>> {
+}
+
+class "getPlayerTimelines" <<function>> <<Exported>> {
+}
+
+class "getPostHogClient" <<function>> <<Exported>> {
+}
+
+class "getProvider" <<function>> <<Exported>> {
+}
+
+class "getRoomByCode" <<function>> <<Exported>> {
+}
+
+class "getRoomPlayers" <<function>> <<Exported>> {
+}
+
+class "handle" <<function>> <<Exported>> {
+}
+
+class "handleError" <<function>> <<Exported>> {
+}
+
+class "init" <<function>> <<Exported>> {
+}
+
+class "initAuth" <<function>> <<Exported>> {
+}
+
+class "joinRoom" <<function>> <<Exported>> {
+}
+
+class "load" <<function>> <<Exported>> {
+}
+
+class "pickAvatar" <<function>> <<Exported>> {
+}
+
+class "placeCard" <<function>> <<Exported>> {
+}
+
+class "playPreview" <<function>> <<Exported>> {
+}
+
+class "preloadPreviews" <<function>> <<Exported>> {
+}
+
+class "resetClient" <<function>> <<Exported>> {
+}
+
+class "seededPlayers" <<function>> <<Exported>> {
+}
+
+class "shuffled" <<function>> <<Exported>> {
+}
+
+class "shutdownPostHog" <<function>> <<Exported>> {
+}
+
+class "signIn" <<function>> <<Exported>> {
+}
+
+class "signInAsGuest" <<function>> <<Exported>> {
+}
+
+class "signOut" <<function>> <<Exported>> {
+}
+
+class "signUp" <<function>> <<Exported>> {
+}
+
+class "startGame" <<function>> <<Exported>> {
+}
+
+class "stopPreview" <<function>> <<Exported>> {
+}
+
+class "subscribeToRoom" <<function>> <<Exported>> {
+}
+
+class "trackToSong" <<function>> <<Exported>> {
+}
+
+class "updateGameState" <<function>> <<Exported>> {
+}
+
+class "useToken" <<function>> <<Exported>> {
+}
+
+class "validatePlacement" <<function>> <<Exported>> {
+}
+
+class "+layout.server" as _layout_server <<LayoutLoad>> {
+  path: /
+}
+
+class "+page.server" as _page_server <<PageLoad>> {
+  path: /game/[code]
+  dynamic code
+}
+
+class "+server" as _server <<endpoint>> {
+  path: /api/track/[id]
+  dynamic id
+}
+
+AuthBar ..> signUp : $user <<store-subscription>>
+Timeline --> HitCard : HitCard
+validatePlacement ..> Tweaks : Player, Song, Track
+Tweaks ..|> Tweaks : Song
+colors ..> Tweaks : Theme
+_page ..> signUp : $user <<store-subscription>>
+@enduml

@@ -1,0 +1,99 @@
+@startuml Diagram
+skinparam classAttributeIconSize 0
+
+top to bottom direction
+
+interface "CartItem" as CartItem {
+  + id: string
+  + name: string
+  + quantity: number
+}
+
+interface "Product" as Product {
+  + id: string
+  + name: string
+  + price: number
+}
+
+class "cart" <<state>> {
+  storeType: writable
+  valueType: { length: number }
+}
+
+class "productCount" <<store>> {
+  storeType: derived
+  valueType: unknown
+}
+
+class "products" <<store>> {
+  storeType: writable
+  valueType: Product[]
+}
+
+class "+error" <<component>> {
+  + error: unknown
+  + status: unknown
+}
+
+class "+layout" <<component>> {
+  + children: unknown
+}
+
+class "+page" <<component>> {
+}
+
+class "Card" <<component>> {
+  + label: unknown
+  + onClick: unknown
+}
+
+class "Header" <<component>> {
+  + title: unknown
+}
+
+class "addItem" <<function>> <<Exported>> {
+}
+
+class "addProduct" <<function>> <<Exported>> {
+}
+
+class "clearCart" <<function>> <<Exported>> {
+}
+
+class "formatDate" <<function>> <<Exported>> {
+}
+
+class "GET" <<function>> <<Exported>> {
+}
+
+class "load" <<function>> <<Exported>> {
+}
+
+class "POST" <<function>> <<Exported>> {
+}
+
+class "removeItem" <<function>> <<Exported>> {
+}
+
+class "slugify" <<function>> <<Exported>> {
+}
+
+class "truncate" <<function>> <<Exported>> {
+}
+
+class "+layout.server" as _layout_server <<LayoutLoad>> {
+  path: /
+}
+
+class "+page.server" as _page_server <<PageLoad>> {
+  path: /products/[id]
+  dynamic id
+}
+
+class "+server" as _server <<endpoint>> {
+  path: /api/items
+}
+
+_page ..> removeItem : $cart <<store-subscription>>
+_page ..> addProduct : $products <<store-subscription>>
+@enduml

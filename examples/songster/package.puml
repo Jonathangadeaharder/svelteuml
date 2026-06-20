@@ -1,0 +1,128 @@
+@startuml Package Diagram
+
+top to bottom direction
+
+package "lib" as lib {
+  class "addSpectator" <<function>> <<Exported>>
+  class "AuthBar" <<component>>
+  class "buildDrawPile" <<function>> <<Exported>>
+  class "chat" <<function>> <<Exported>>
+  class "Chrome" <<component>>
+  class "colors" <<function>> <<Exported>>
+  class "connectRemoteGame" <<function>> <<Exported>>
+  class "createRematch" <<function>> <<Exported>>
+  class "createRoom" <<function>> <<Exported>>
+  class "DeckBuilder" <<component>>
+  class "DeezerAttribution" <<component>>
+  class "disconnectRemoteGame" <<function>> <<Exported>>
+  class "embed" <<function>> <<Exported>>
+  class "ErrorBoundary" <<component>>
+  class "findCorrectSlot" <<function>> <<Exported>>
+  class "GameStats" <<component>>
+  class "generate" <<function>> <<Exported>>
+  class "getCurrentPlayer" <<function>> <<Exported>>
+  class "getCurrentPlayerInRoom" <<function>> <<Exported>>
+  class "getGameHistory" <<function>> <<Exported>>
+  class "getGameState" <<function>> <<Exported>>
+  class "getLeaderboard" <<function>> <<Exported>>
+  class "getPlayerTimelines" <<function>> <<Exported>>
+  class "getPostHogClient" <<function>> <<Exported>>
+  class "getProvider" <<function>> <<Exported>>
+  class "getRoomByCode" <<function>> <<Exported>>
+  class "getRoomPlayers" <<function>> <<Exported>>
+  class "HitCard" <<component>>
+  class "initAuth" <<function>> <<Exported>>
+  class "joinRoom" <<function>> <<Exported>>
+  class "loading" <<store>>
+  class "pickAvatar" <<function>> <<Exported>>
+  class "placeCard" <<function>> <<Exported>>
+  class "PlayerChip" <<component>>
+  class "playPreview" <<function>> <<Exported>>
+  class "preloadPreviews" <<function>> <<Exported>>
+  class "Rematch" <<component>>
+  class "resetClient" <<function>> <<Exported>>
+  class "seededPlayers" <<function>> <<Exported>>
+  class "session" <<store>>
+  class "shuffled" <<function>> <<Exported>>
+  class "shutdownPostHog" <<function>> <<Exported>>
+  class "signIn" <<function>> <<Exported>>
+  class "signInAsGuest" <<function>> <<Exported>>
+  class "signOut" <<function>> <<Exported>>
+  class "signUp" <<function>> <<Exported>>
+  class "Skeleton" <<component>>
+  class "startGame" <<function>> <<Exported>>
+  class "stopPreview" <<function>> <<Exported>>
+  class "subscribeToRoom" <<function>> <<Exported>>
+  class "Timeline" <<component>>
+  class "Toast" <<component>>
+  class "trackToSong" <<function>> <<Exported>>
+  class "TweakButton" <<component>>
+  class "TweakRadio" <<component>>
+  class "Tweaks" <<component>>
+  class "TweakSection" <<component>>
+  class "TweakSlider" <<component>>
+  class "TweakToggle" <<component>>
+  class "updateGameState" <<function>> <<Exported>>
+  class "user" <<store>>
+  class "useToken" <<function>> <<Exported>>
+  class "validatePlacement" <<function>> <<Exported>>
+  class "Vinyl" <<component>>
+  class "Waveform" <<component>>
+  class "Wordmark" <<component>>
+  interface DeezerTrackData
+  interface GameHistoryEntry
+  interface GameState
+  interface GameStateRow
+  interface LeaderboardEntry
+  interface MusicProvider
+  interface Player
+  interface RemoteGameConfig
+  interface Room
+  interface RoomPlayer
+  interface Song
+  interface TimelineRow
+  interface Toast
+  interface Track
+  interface Tweaks
+}
+
+package "routes" as routes {
+  class "+layout.server" <<LayoutLoad>>
+  class "+layout" <<component>>
+  class "+layout" <<layout>>
+  class "+page.server" <<PageLoad>>
+  class "+page.server" <<PageLoad>>
+  class "+page.server" <<PageLoad>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<component>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+page" <<page>>
+  class "+server" <<endpoint>>
+  class "+server" <<endpoint>>
+  class "+server" <<endpoint>>
+  class "GET" <<function>> <<Exported>>
+  class "GET" <<function>> <<Exported>>
+  class "GET" <<function>> <<Exported>>
+  class "load" <<function>> <<Exported>>
+  class "load" <<function>> <<Exported>>
+  class "load" <<function>> <<Exported>>
+  class "load" <<function>> <<Exported>>
+}
+
+routes ..> lib : 1
+
+@enduml
