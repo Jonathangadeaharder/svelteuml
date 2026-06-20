@@ -16,29 +16,7 @@ export function resolveFocusScope(
 	if (!normalizedFocus) return new Set(allNames);
 
 	const maxHops = options.depth <= 0 ? Infinity : options.depth;
-	const visited = new Set<string>();
-	const queue: Array<{ name: string; hop: number }> = [{ name: normalizedFocus, hop: 0 }];
-	let head = 0;
-
-	while (head < queue.length) {
-		const current = queue[head];
-		head++;
-		if (!current) continue;
-		if (visited.has(current.name)) continue;
-		visited.add(current.name);
-		if (current.hop >= maxHops) continue;
-
-		const outgoing = edgeSet.bySource.get(current.name) ?? [];
-		const incoming = edgeSet.byTarget.get(current.name) ?? [];
-		const neighbours = [...outgoing.map((e) => e.target), ...incoming.map((e) => e.source)];
-		for (const neighbour of neighbours) {
-			if (!visited.has(neighbour) && allNames.has(neighbour)) {
-				queue.push({ name: neighbour, hop: current.hop + 1 });
-			}
-		}
-	}
-
-	return visited;
+	return bfsTraverse([normalizedFocus], allNames, edgeSet, maxHops);
 }
 
 function collectAllNames(symbols: SymbolTable): Set<string> {
@@ -106,9 +84,28 @@ export function resolveGlobalScope(
 	if (maxDepth <= 0) return allNames;
 
 	const roots = findRootSymbols(symbols, edgeSet);
-	const maxHops = maxDepth;
+	return bfsTraverse(roots, allNames, edgeSet, maxDepth);
+}
+
+function findRootSymbols(symbols: SymbolTable, edgeSet: EdgeSet): string[] {
+	const allNames = collectAllNames(symbols);
+	const hasIncoming = new Set<string>();
+	for (const edge of edgeSet.edges) {
+		if (allNames.has(edge.target)) {
+			hasIncoming.add(edge.target);
+		}
+	}
+	return [...allNames].filter((name) => !hasIncoming.has(name));
+}
+
+function bfsTraverse(
+	seeds: string[],
+	allNames: Set<string>,
+	edgeSet: EdgeSet,
+	maxHops: number,
+): Set<string> {
 	const visited = new Set<string>();
-	const queue: Array<{ name: string; hop: number }> = [...roots.map((n) => ({ name: n, hop: 0 }))];
+	const queue: Array<{ name: string; hop: number }> = seeds.map((n) => ({ name: n, hop: 0 }));
 	let head = 0;
 
 	while (head < queue.length) {
@@ -130,17 +127,6 @@ export function resolveGlobalScope(
 	}
 
 	return visited;
-}
-
-function findRootSymbols(symbols: SymbolTable, edgeSet: EdgeSet): string[] {
-	const allNames = collectAllNames(symbols);
-	const hasIncoming = new Set<string>();
-	for (const edge of edgeSet.edges) {
-		if (allNames.has(edge.target)) {
-			hasIncoming.add(edge.target);
-		}
-	}
-	return [...allNames].filter((name) => !hasIncoming.has(name));
 }
 
 export function filterByExcludePatterns(
