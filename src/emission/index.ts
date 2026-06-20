@@ -10,6 +10,5 @@ export {
 export { renderLayoutDirective } from "./layout-hints.js";
 export { renderPackageDiagram } from "./package-diagram.js";
 export { emitPlantUML } from "./plantuml-emitter.js";
-
-export * from "./plantuml-encoder.js";
-export * from "./renderer.js";
+export { decodePlantUml, encodePlantUml } from "./plantuml-encoder.js";
+export { type RenderResult, renderPlantUml } from "./renderer.js";
