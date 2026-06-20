@@ -62,7 +62,7 @@
 		"lint-staged": "^17.0.4",
 		"svelte2tsx": "^0.7.53",
 		"typescript": "^5.8.0",
-		"vitest": "^3.0.0"
+		"vitest": "^3.2.6"
 	},
 	"dependencies": {
 		"chokidar": "^5.0.0",
